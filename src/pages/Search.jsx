@@ -626,6 +626,7 @@ export default function Loader({ url, ui = true, zoom }) {
   };
 
   const resolveCurrentSite = () => {
+    if (isActiveTabInternalGhost()) return null;
     const store = loaderStore.getState();
     const activeTab = store.tabs.find((tab) => tab.active) || store.tabs[0];
     const raw = String(activeTab?.url || '').trim();
