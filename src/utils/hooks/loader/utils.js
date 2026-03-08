@@ -72,31 +72,24 @@ const check = (inp, engine) => {
 };
 
 const resolveGhostRoute = (input) => {
-  const ghostPath = (p, qs) => {
-    if (typeof isStaticBuild !== 'undefined' && isStaticBuild) {
-      return `${location.origin}/#/${p}${qs ? '?' + qs : ''}`;
-    }
-    return `${location.origin}/${p}${qs ? '?' + qs : ''}`;
-  };
-
   const map = {
     '': 'tabs://new',
     'home': 'tabs://new',
     'new-tab': 'tabs://new',
     'newtab': 'tabs://new',
-    'apps': ghostPath('apps', 'ghost=1'),
-    'settings': ghostPath('settings', 'ghost=1'),
-    'entertainment': ghostPath('discover', 'ghost=1'),
-    'discover': ghostPath('discover', 'ghost=1'),
-    'games': ghostPath('discover', 'ghost=1&tab=games'),
-    'tv': ghostPath('discover', 'ghost=1&tab=tv'),
-    'music': ghostPath('discover', 'ghost=1&tab=music'),
-    'docs': ghostPath('docs', 'ghost=1'),
-    'search': ghostPath('search', 'ghost=1'),
-    'code': ghostPath('code', 'ghost=1'),
-    'code-runner': ghostPath('code', 'ghost=1&run=1'),
-    'ai': ghostPath('ai', 'ghost=1'),
-    'remote': ghostPath('remote', 'ghost=1'),
+    'apps': `${location.origin}/apps?ghost=1`,
+    'settings': `${location.origin}/settings?ghost=1`,
+    'entertainment': `${location.origin}/discover?ghost=1`,
+    'discover': `${location.origin}/discover?ghost=1`,
+    'games': `${location.origin}/discover?ghost=1&tab=games`,
+    'tv': `${location.origin}/discover?ghost=1&tab=tv`,
+    'music': `${location.origin}/discover?ghost=1&tab=music`,
+    'docs': `${location.origin}/docs?ghost=1`,
+    'search': `${location.origin}/search?ghost=1`,
+    'code': `${location.origin}/code?ghost=1`,
+    'code-runner': `${location.origin}/code?ghost=1&run=1`,
+    'ai': `${location.origin}/ai?ghost=1`,
+    'remote': `${location.origin}/remote?ghost=1`,
   };
 
   const raw = String(input || '').trim();
@@ -145,7 +138,7 @@ const resolveGhostRoute = (input) => {
   if (!route) return null;
 
   if (route.startsWith('docs/')) {
-    return ghostPath(`docs/${route.slice(5)}`, 'ghost=1');
+    return `${location.origin}/docs/${route.slice(5)}?ghost=1`;
   }
 
   return map[route] || null;
@@ -159,15 +152,7 @@ export const toGhostDisplayUrl = (url) => {
     const parsed = new URL(url, location.origin);
     if (parsed.origin !== location.origin) return null;
 
-    // On static builds, the route is in the hash: /#/ai?ghost=1
-    let path;
-    const hash = parsed.hash || '';
-    if (hash.startsWith('#/')) {
-      path = '/' + hash.slice(2).split('?')[0].replace(/\/$/, '');
-    } else {
-      path = parsed.pathname.replace(/\/$/, '') || '/';
-    }
-
+    const path = parsed.pathname.replace(/\/$/, '') || '/';
     if (path.startsWith('/docs/')) {
       return `ghost://docs/${path.slice('/docs/'.length)}`;
     }

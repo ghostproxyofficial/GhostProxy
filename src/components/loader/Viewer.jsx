@@ -91,22 +91,9 @@ const Viewer = ({ zoom }) => {
       const parsed = new URL(v, location.origin);
       if (parsed.origin !== location.origin) return false;
       if (parsed.searchParams.get('ghost') === '1') return true;
-
-      // Check pathname-based routes (BrowserRouter / localhost)
       const path = parsed.pathname.replace(/\/$/, '') || '/';
       const bases = ['/apps', '/settings', '/discover', '/docs', '/search', '/code', '/ai', '/remote', '/new'];
-      if (bases.some((b) => path === b || path.startsWith(`${b}/`))) return true;
-
-      // Check hash-based routes (HashRouter / static/Cloudflare builds)
-      const hash = parsed.hash || '';
-      if (hash.startsWith('#/')) {
-        const hashPath = '/' + hash.slice(2).split('?')[0].replace(/\/$/, '');
-        const hashQs = hash.includes('?') ? new URLSearchParams(hash.split('?')[1]) : null;
-        if (hashQs?.get('ghost') === '1') return true;
-        if (bases.some((b) => hashPath === b || hashPath.startsWith(`${b}/`))) return true;
-      }
-
-      return false;
+      return bases.some((b) => path === b || path.startsWith(`${b}/`));
     } catch {
       return false;
     }

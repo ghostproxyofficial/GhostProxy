@@ -11,6 +11,9 @@ import petezahCatalog from '/src/data/games/catalog/petezah.json';
 import interstellerCatalog from '/src/data/games/catalog/intersteller.json';
 import g55msCatalog from '/src/data/games/catalog/55gms.json';
 import spaceCatalog from '/src/data/games/catalog/space.json';
+import truffledCatalog from '/src/data/games/catalog/truffled.json';
+import seleniteCatalog from '/src/data/games/catalog/selenite.json';
+import velaraCatalog from '/src/data/games/catalog/velara.json';
 import gnportsCatalog from '/src/data/games/catalog/gnports.json';
 import mirrorsCatalog from '/src/data/games/catalog/mirrors.json';
 import nowggCatalog from '/src/data/games/catalog/nowgg.json';
@@ -158,7 +161,35 @@ const GAME_SOURCE_CONFIG = [
     data: spaceCatalog,
     base: 'https://gointospace.app',
   },
+  {
+    key: 'truffled',
+    label: 'Truffled',
+    type: 'jsd',
+    data: truffledCatalog,
+    base: 'https://truffled.lol',
+  },
+  {
+    key: 'selenite',
+    label: 'Selenite',
+    type: 'jsd',
+    data: seleniteCatalog,
+    base: 'https://selenite.cc/resources/semag',
+  },
+  {
+    key: 'velara',
+    label: 'Velara',
+    type: 'jsd',
+    data: velaraCatalog,
+    base: 'https://velara.cc',
+  },
   { key: 'gnports', label: 'gn-ports', type: 'jsd', data: gnportsCatalog },
+  {
+    key: 'nowgg',
+    label: 'Now.GG',
+    type: 'proxy',
+    data: nowggCatalog,
+    description: 'Now.GG bypass made by Froggies Arcade.',
+  },
   { key: 'divider', label: '──────────', type: 'divider', data: null },
   {
     key: 'mirrors',
@@ -166,13 +197,6 @@ const GAME_SOURCE_CONFIG = [
     type: 'proxy',
     data: mirrorsCatalog,
     description: "These games are mirrored and route through UV/Scramjet proxy flow. They may not function correctly.",
-  },
-  {
-    key: 'nowgg',
-    label: 'Now.GG',
-    type: 'proxy',
-    data: nowggCatalog,
-    description: 'Now.GG bypass made by Froggies Arcade.',
   },
   {
     key: 'geforcenow',
@@ -455,7 +479,7 @@ const Games = memo(() => {
 
       const isNowGG = game.sourceKey === 'nowgg';
 
-      const hostedPathSources = new Set(['55gms', 'petezah', 'intersteller', 'space']);
+      const hostedPathSources = new Set(['55gms', 'petezah', 'intersteller', 'space', 'truffled', 'selenite', 'velara']);
       const useRawHtmlLoader = isRawHtmlUrl(game.url) && !hostedPathSources.has(game.sourceKey);
 
       if (!useRawHtmlLoader) {
@@ -582,32 +606,42 @@ const Games = memo(() => {
             </button>
 
             {sourceOpen && (
-              <div className="absolute right-0 top-12 w-[220px] rounded-2xl border border-white/10 bg-[#111117] z-[80] overflow-hidden shadow-[0_14px_30px_rgba(0,0,0,0.4)] p-1.5">
-                {GAME_SOURCE_CONFIG.map((source) => {
-                  if (source.type === 'divider') {
-                    return <div key={source.key} className="my-1 h-px bg-white/10" />;
-                  }
+              <div className="absolute right-0 top-12 w-[440px] rounded-2xl border border-white/10 bg-[#111117] z-[80] overflow-hidden shadow-[0_14px_30px_rgba(0,0,0,0.4)] p-1.5">
+                <div className="grid grid-cols-2 gap-x-1">
+                  {GAME_SOURCE_CONFIG.map((source) => {
+                    if (source.type === 'divider') {
+                      return <div key={source.key} className="col-span-2 my-1 h-px bg-white/10" />;
+                    }
 
-                  const active = source.key === sourceKey;
-                  return (
-                    <button
-                      key={source.key}
-                      onClick={() => {
-                        if (source.type === 'action' && source.url) {
-                          const topWin = (() => {
-                            try {
-                              return window.top && window.top !== window ? window.top : window;
-                            } catch {
-                              return window;
-                            }
-                          })();
-                          const opener = topWin.__ghostOpenBrowserTab;
-                          if (typeof opener === 'function') {
-                            const opened = opener(source.url, {
-                              title: source.label || 'New Tab',
-                              skipProxy: true,
-                            });
-                            if (!opened) {
+                    const active = source.key === sourceKey;
+                    return (
+                      <button
+                        key={source.key}
+                        onClick={() => {
+                          if (source.type === 'action' && source.url) {
+                            const topWin = (() => {
+                              try {
+                                return window.top && window.top !== window ? window.top : window;
+                              } catch {
+                                return window;
+                              }
+                            })();
+                            const opener = topWin.__ghostOpenBrowserTab;
+                            if (typeof opener === 'function') {
+                              const opened = opener(source.url, {
+                                title: source.label || 'New Tab',
+                                skipProxy: true,
+                              });
+                              if (!opened) {
+                                nav('/search', {
+                                  state: {
+                                    url: source.url,
+                                    openInGhostNewTab: true,
+                                    skipProxy: true,
+                                  },
+                                });
+                              }
+                            } else {
                               nav('/search', {
                                 state: {
                                   url: source.url,
@@ -616,37 +650,29 @@ const Games = memo(() => {
                                 },
                               });
                             }
-                          } else {
-                            nav('/search', {
-                              state: {
-                                url: source.url,
-                                openInGhostNewTab: true,
-                                skipProxy: true,
-                              },
-                            });
+                            setSourceOpen(false);
+                            setSortOpen(false);
+                            return;
                           }
-                          setSourceOpen(false);
-                          setSortOpen(false);
-                          return;
-                        }
 
-                        setSourceKey(source.key);
-                        setCategory(null);
-                        setShowDl(false);
-                        setQ('');
-                        setPage(1);
-                        setSourceOpen(false);
-                      }}
-                      className={clsx(
-                        'w-full h-10 rounded-lg px-2.5 text-sm flex items-center justify-between transition-colors',
-                        active ? 'bg-[#ffffff18]' : 'hover:bg-[#ffffff10]',
-                      )}
-                    >
-                      <span>{source.label}</span>
-                      {active && <Check size={15} className="opacity-80" />}
-                    </button>
-                  );
-                })}
+                          setSourceKey(source.key);
+                          setCategory(null);
+                          setShowDl(false);
+                          setQ('');
+                          setPage(1);
+                          setSourceOpen(false);
+                        }}
+                        className={clsx(
+                          'w-full h-10 rounded-lg px-2.5 text-sm flex items-center justify-between transition-colors',
+                          active ? 'bg-[#ffffff18]' : 'hover:bg-[#ffffff10]',
+                        )}
+                      >
+                        <span>{source.label}</span>
+                        {active && <Check size={15} className="opacity-80" />}
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>

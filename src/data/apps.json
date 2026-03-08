@@ -2336,7 +2336,7 @@
         "appName": "Earn To Die",
         "desc": "Car/Racing apps",
         "icon": "/assets/img/Earn_to_Die.webp",
-        "url": "https://selenite.cc/semag/ern/index.html",
+        "url": "https://selenite.cc/resources/semag/ern/index.html",
         "disabled": false,
         "local": false
       },
@@ -4872,7 +4872,7 @@
         "appName": "Backrooms 2D",
         "desc": "Survival/Horror apps",
         "icon": "/assets/img/backrooms2d.webp",
-        "url": "https://selenite.cc/semag/2d/index.html",
+        "url": "https://selenite.cc/resources/semag/2d/index.html",
         "disabled": false,
         "local": false
       },

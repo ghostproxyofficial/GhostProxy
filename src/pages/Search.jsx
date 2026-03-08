@@ -568,6 +568,8 @@ export default function Loader({ url, ui = true, zoom }) {
     }
   };
 
+  const INTERNAL_PATHS = ['/apps', '/settings', '/discover', '/docs', '/search', '/code', '/ai', '/remote', '/new'];
+
   const isActiveTabInternalGhost = () => {
     const store = loaderStore.getState();
     const tab = store.tabs.find((tab) => tab.active) || store.tabs[0];
@@ -578,7 +580,6 @@ export default function Loader({ url, ui = true, zoom }) {
     if (!raw || raw === 'tabs://new') return true;
     if (raw.startsWith('ghost://') || raw.startsWith('tabs://')) return true;
     if (iframeUrl.startsWith('ghost://') || iframeUrl.startsWith('tabs://')) return true;
-    const GHOST_PATHS = ['/apps', '/settings', '/discover', '/docs', '/search', '/code', '/ai', '/remote', '/new'];
     try {
       const parsed = new URL(raw, location.origin);
       if (parsed.origin !== location.origin) return false;
@@ -586,7 +587,7 @@ export default function Loader({ url, ui = true, zoom }) {
 
       // Check pathname-based routes (BrowserRouter / localhost)
       const path = parsed.pathname.replace(/\/$/, '') || '/';
-      if (GHOST_PATHS.some((base) => path === base || path.startsWith(`${base}/`))) return true;
+      if (INTERNAL_PATHS.some((base) => path === base || path.startsWith(`${base}/`))) return true;
 
       // Check hash-based routes (HashRouter / static/Cloudflare builds)
       const hash = parsed.hash || '';
@@ -594,7 +595,7 @@ export default function Loader({ url, ui = true, zoom }) {
         const hashPath = '/' + hash.slice(2).split('?')[0].replace(/\/$/, '');
         const hashQs = hash.includes('?') ? new URLSearchParams(hash.split('?')[1]) : null;
         if (hashQs?.get('ghost') === '1') return true;
-        if (GHOST_PATHS.some((base) => hashPath === base || hashPath.startsWith(`${base}/`))) return true;
+        if (INTERNAL_PATHS.some((base) => hashPath === base || hashPath.startsWith(`${base}/`))) return true;
       }
 
       return false;

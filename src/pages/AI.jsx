@@ -92,14 +92,7 @@ const stripThinkingBlock = (text) => {
 };
 
 const requestAiReply = async (chatMessages) => {
-  const apiMessages = [
-    SYSTEM_MESSAGE,
-    ...chatMessages
-      .filter((m) => m.role === 'user' || m.role === 'assistant')
-      .slice(-20)
-      .map((m) => ({ role: m.role, content: m.content })),
-  ];
-  // Read AI profile from localStorage so this function can be called from anywhere.
+  // Read AI profile early so we can use customPersonality in the system message.
   const raw = (() => {
     try {
       return JSON.parse(localStorage.getItem('ghostAiProfile') || '{}') || {};
@@ -107,6 +100,20 @@ const requestAiReply = async (chatMessages) => {
       return {};
     }
   })();
+
+  const personality = String(raw.customPersonality || '').trim();
+  const systemMsg = personality
+    ? { role: 'system', content: `${SYSTEM_MESSAGE.content} ${personality}` }
+    : SYSTEM_MESSAGE;
+
+  const apiMessages = [
+    systemMsg,
+    ...chatMessages
+      .filter((m) => m.role === 'user' || m.role === 'assistant')
+      .slice(-20)
+      .map((m) => ({ role: m.role, content: m.content })),
+  ];
+  // raw was already read above for customPersonality.
 
   // If user selected a custom API, call it directly and NEVER fallback to default.
   if (raw.apiChoice === 'another') {
@@ -665,6 +672,17 @@ export default function AIPage() {
                         </div>
                       </>
                     )}
+
+                    <div className="mb-3">
+                      <div className="text-[0.85rem] mb-1">Custom Personality</div>
+                      <textarea
+                        value={aiProfile.customPersonality || ''}
+                        onChange={(e) => setAiProfile((s) => ({ ...(s || {}), customPersonality: e.target.value }))}
+                        placeholder="e.g. You are a pirate, speak in pirate talk"
+                        rows={3}
+                        className="w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-[0.85rem] text-white placeholder:text-white/40 outline-none resize-none focus:border-white/30 transition-colors"
+                      />
+                    </div>
 
                     <div className="flex justify-end gap-2 mt-3">
                       <button
