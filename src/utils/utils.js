@@ -44,7 +44,7 @@ export const ckOff = () => {
     const { tabName: t, tabIcon: i } = op;
     const { tabName: ogName, tabIcon: ogIcon } = meta[0].value;
     const iconsDisabled = !!op.performanceMode;
-    const isGhostFavicon = /ghost/i.test(String(icon || ogIcon || ''));
+    const isGhostFavicon = /ghost/i.test(String(i || ogIcon || ''));
     const hostWindow = (() => {
       try {
         if (window.top && window.top.location.origin === window.location.origin) {

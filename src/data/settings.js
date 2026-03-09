@@ -71,22 +71,14 @@ export const privacyConfig = ({ options, updateOption, openPanic }) => ({
       ) || meta[0]
     ).value,
     type: 'select',
-    action: (a) => {
-      updateOption(a);
-      import('/src/utils/utils.js').then(({ ckOff }) => ckOff());
-    },
+    action: (a) => updateOption(a),
   },
   2: {
     name: 'Auto Cloak',
     desc: 'Automatically apply your selected cloak when this tab loses focus and restore on return.',
     value: !!options.clkOff,
     type: 'switch',
-    action: (b) => {
-      setTimeout(() => {
-        updateOption({ clkOff: b });
-        import('/src/utils/utils.js').then(({ ckOff }) => ckOff());
-      }, 100);
-    },
+    action: (b) => setTimeout(() => updateOption({ clkOff: b }), 100),
     disabled: !options.tabName || options.tabName === meta[0].value.tabName,
   },
   3: {

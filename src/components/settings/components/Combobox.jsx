@@ -58,67 +58,59 @@ const ComboBox = ({
       onChange={action}
       by={(a, b) => getOptionId(a) === getOptionId(b)}
     >
-      {({ open }) => (
-        <div
-          className={clsx(
-            'relative w-full rounded-xl border transition-all duration-200',
-            open ? 'border-white/35 shadow-[0_0_0_1px_rgba(255,255,255,0.12)]' : 'hover:border-white/30',
-          )}
-          style={{
-            backgroundColor: options.settingsDropdownColor || '#162337',
-            width: `${dynamicWidthCh}ch`,
-            maxWidth: `min(${maxW}rem, 92vw)`,
-          }}
-        >
-          <ComboboxButton className={clsx('flex w-full items-center px-3 pl-4 cursor-pointer', compact ? 'h-9' : 'h-11')}>
-            <span className={clsx('flex-1 min-w-0 text-left whitespace-nowrap', compact ? 'text-[0.82rem]' : 'text-[0.88rem]')}>{selectedLabel}</span>
-            <span
-              className={clsx(
-                'flex flex-shrink-0 items-center justify-center px-1 transition-transform duration-200',
-                open ? 'rotate-180' : 'rotate-0',
-              )}
-            >
-              <ChevronDown size={compact ? 15 : 17} />
-            </span>
-          </ComboboxButton>
+      <div
+        className={clsx(
+          'group/combo relative w-full rounded-xl border transition-all duration-200',
+          'border-white/10 hover:border-white/30 focus-within:border-white/35 focus-within:shadow-[0_0_0_1px_rgba(255,255,255,0.12)] has-[[data-open]]:border-white/35 has-[[data-open]]:shadow-[0_0_0_1px_rgba(255,255,255,0.12)]'
+        )}
+        style={{
+          backgroundColor: options.settingsDropdownColor || '#162337',
+          width: `${dynamicWidthCh}ch`,
+          maxWidth: `min(${maxW}rem, 92vw)`,
+        }}
+      >
+        <ComboboxButton className={clsx('group/btn flex w-full items-center px-3 pl-4 cursor-pointer outline-none', compact ? 'h-9' : 'h-11')}>
+          <span className={clsx('flex-1 min-w-0 text-left whitespace-nowrap', compact ? 'text-[0.82rem]' : 'text-[0.88rem]')}>{selectedLabel}</span>
+          <span
+            className={clsx(
+              'flex flex-shrink-0 items-center justify-center px-1 transition-transform duration-200',
+              'group-data-[open]/btn:rotate-180'
+            )}
+          >
+            <ChevronDown size={compact ? 15 : 17} />
+          </span>
+        </ComboboxButton>
 
-          {filteredOptions.length !== 0 && (
-            <ComboboxOptions
-              className={clsx(
-                'absolute left-0 z-10 w-max min-w-full max-h-60 overflow-auto',
-                dropdownDirection === 'up' ? 'bottom-full mb-1 origin-bottom' : 'top-full mt-1 origin-top',
-                'flex flex-col gap-1 rounded-[0.8rem] border bg-inherit p-[0.4rem] shadow-lg backdrop-blur-sm',
-                'transition-all duration-150',
-                scroll,
-              )}
-            >
-              {filteredOptions.map((cfg) => (
-                <ComboboxOption
-                  value={cfg.value}
-                  key={getOptionId(cfg.value)}
-                  className={clsx(
-                    'flex items-center cursor-pointer hover:bg-[#ffffff17] px-2 rounded-md transition-colors duration-150',
-                    compact ? 'py-1.5' : 'py-2',
-                  )}
-                >
-                  {({ selected }) => (
-                    <>
-                      <span
-                        className={clsx('flex items-center justify-center', 'w-[20px] flex-shrink-0')}
-                      >
-                        {selected && <Check size={16} />}
-                      </span>
-                      <p className={clsx('flex-1 min-w-0 ml-2 leading-snug whitespace-nowrap', compact ? 'text-[0.82rem]' : 'text-[0.88rem]')}>
-                        {cfg.option}
-                      </p>
-                    </>
-                  )}
-                </ComboboxOption>
-              ))}
-            </ComboboxOptions>
-          )}
-        </div>
-      )}
+        {filteredOptions.length !== 0 && (
+          <ComboboxOptions
+            className={clsx(
+              'absolute left-0 z-10 w-max min-w-full max-h-60 overflow-auto outline-none',
+              dropdownDirection === 'up' ? 'bottom-full mb-1 origin-bottom' : 'top-full mt-1 origin-top',
+              'flex flex-col gap-1 rounded-[0.8rem] border border-white/10 bg-inherit p-[0.4rem] shadow-lg backdrop-blur-sm',
+              'transition-all duration-150',
+              scroll,
+            )}
+          >
+            {filteredOptions.map((cfg) => (
+              <ComboboxOption
+                value={cfg.value}
+                key={getOptionId(cfg.value)}
+                className={clsx(
+                  'group/option flex items-center cursor-pointer outline-none hover:bg-[#ffffff17] data-[focus]:bg-[#ffffff17] px-2 rounded-md transition-colors duration-150',
+                  compact ? 'py-1.5' : 'py-2',
+                )}
+              >
+                <span className="flex items-center justify-center w-[20px] flex-shrink-0 opacity-0 group-data-[selected]/option:opacity-100 transition-opacity">
+                  <Check size={16} />
+                </span>
+                <p className={clsx('flex-1 min-w-0 ml-2 leading-snug whitespace-nowrap', compact ? 'text-[0.82rem]' : 'text-[0.88rem]')}>
+                  {cfg.option}
+                </p>
+              </ComboboxOption>
+            ))}
+          </ComboboxOptions>
+        )}
+      </div>
     </Combobox>
   );
 };
