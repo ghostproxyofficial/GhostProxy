@@ -179,8 +179,8 @@ const RemoteAccess = memo(() => {
 
                 {/* Discord CTA - tight to the description */}
                 <a
-                  href="#"
-                  onClick={(e) => e.preventDefault()}
+                  href="https://discord.gg/UZzYt4uE6D"
+                  target="_blank" rel="noreferrer"
                   onMouseEnter={() => setDiscordHovered(true)}
                   onMouseLeave={() => setDiscordHovered(false)}
                   className="inline-flex items-center gap-1.5 text-[13px] font-medium"

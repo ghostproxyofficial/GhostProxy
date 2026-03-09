@@ -5,7 +5,7 @@ import { useOptions } from '/src/utils/optionsContext';
 import { process } from '/src/utils/hooks/loader/utils';
 import { useRef, useEffect, useState } from 'react';
 import { Loader } from 'lucide-react';
-import { getEffectiveShortcuts, eventToShortcut, isTypingTarget } from '/src/utils/shortcuts';
+import { getEffectiveShortcuts } from '/src/utils/shortcuts';
 
 import NewTab from './NewTab';
 
@@ -59,7 +59,7 @@ const Viewer = ({ zoom }) => {
   // wispStatus: reps. if working Wisp server is found
   // (only when isStaticBuild == true)
   const wispStatus = loaderStore((state) => state.wispStatus);
-  const { iframeUrls, setIframeUrl, showMenu, toggleMenu } = loaderStore();
+  const { setIframeUrl, showMenu, toggleMenu } = loaderStore();
   const frameRefs = useRef({});
   const prevURL = useRef({});
   const prevTitle = useRef({});

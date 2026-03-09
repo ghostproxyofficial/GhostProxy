@@ -75,7 +75,7 @@ const InfoPanel = () => {
         <div>
           <p className="font-semibold mb-1">Core Team</p>
           <ul className="space-y-1 opacity-90">
-            <li>- Anonymous (Lead Developer)</li>
+            <li>- ghostproxyofficial (Lead Developer)</li>
           </ul>
         </div>
 
@@ -157,7 +157,7 @@ const InfoPanel = () => {
         <p>
           We are not a legal entity or corporation. This was a tool made from open-sourced components by someone
           in their free time. We do not want to profit from you or deceive you. All code is available in our
-          GitHub (anonymous/GhostProxy) and auditable.
+          GitHub (ghostproxyofficial/GhostProxy) and auditable.
         </p>
         <p>
           Because of this, we do not have a formal Terms of Service, Privacy Policy, etc. It’s as simple as this:
@@ -174,18 +174,15 @@ const InfoPanel = () => {
       <div className="space-y-3 text-sm opacity-90">
         <p>All code is on GitHub.</p>
         <p>Like any Open Source Software, there is a risk you may be using a hacked version of Ghost. We reccomend you only put private information on links provided by Ghost, a source you trust, or yourself.</p>
-        <p>Contact me on Discord (username: anonymous)</p>
+        <p>Contact me on Discord (username: ghostproxyofficial)</p>
         <div className="rounded-lg border border-white/10 bg-black/20 p-3 relative overflow-hidden">
           <p className="font-semibold mb-2">Repositories</p>
           <ul className="space-y-1">
-            <li>- Frontend (website): anonymous/GhostProxy</li>
-            <li>- WispServer (setting up your own proxy server): anonymous/WispServer</li>
-            <li>- Ghost Remote Access (accessing your home PC remotely): anonymous/RemoteAccess</li>
-            <li>- Cloud Saving (save data online): anonymous/CloudSaving</li>
+            <li>- Frontend (website): ghostproxyofficial/GhostProxy</li>
+            <li className="line-through opacity-70">- WispServer (setting up your own proxy server): ghostproxyofficial/WispServer</li>
+            <li className="line-through opacity-70">- Ghost Remote Access (accessing your home PC remotely): ghostproxyofficial/RemoteAccess</li>
+            <li className="line-through opacity-70">- Cloud Saving (save data online): ghostproxyofficial/CloudSaving</li>
           </ul>
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px] flex items-center justify-center rounded-lg">
-            <p className="text-sm font-semibold text-white/80 tracking-wide">Not Open-Sourced in Beta...</p>
-          </div>
         </div>
       </div>
     ),

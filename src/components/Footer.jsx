@@ -155,9 +155,9 @@ const Footer = memo(() => {
       )}>
         <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" onClick={openChangelog}>v1</button>
         <span className="opacity-55">\</span>
-        <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" type="button">GitHub</button>
+        <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" type="button" onClick={() => navigate('/search', { state: { url: 'https://github.com/ghostproxyofficial/GhostProxy', openInGhostNewTab: true } })}>GitHub</button>
         <span className="opacity-55">\</span>
-        <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" type="button">Discord</button>
+        <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" type="button" onClick={() => navigate('/search', { state: { url: 'https://discord.gg/UZzYt4uE6D', openInGhostNewTab: true } })}>Discord</button>
         <span className="opacity-55">\</span>
         <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" onClick={openInfo}>Info</button>
       </div>

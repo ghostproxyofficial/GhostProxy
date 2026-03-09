@@ -9,7 +9,7 @@ import { useOptions } from '../utils/optionsContext';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getEffectiveShortcuts, eventToShortcut, isTypingTarget } from '/src/utils/shortcuts';
+import { getEffectiveShortcuts } from '/src/utils/shortcuts';
 import {
   Battery,
   Blocks,
@@ -40,7 +40,7 @@ import {
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { createId } from '/src/utils/id';
-import { showAlert, showConfirm } from '/src/utils/uiDialog';
+import { showConfirm } from '/src/utils/uiDialog';
 import changelogEntries from '/src/data/changelog.json';
 import Discord from '/src/components/Discord';
 import { getLucideIcon } from '/src/components/settings/components/SidebarEditor';
@@ -1866,7 +1866,7 @@ export default function Loader({ url, ui = true, zoom }) {
             {options?.sidebarToggles?.showDiscord !== false && (
               <SidebarButton
                 label="Discord"
-                onClick={() => navigateActiveTab('https://discord.gg/your-discord-link')}
+                onClick={() => navigateActiveTab('https://discord.gg/UZzYt4uE6D')}
               >
                 <Discord fill="currentColor" />
               </SidebarButton>
