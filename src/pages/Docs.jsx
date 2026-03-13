@@ -3,6 +3,7 @@ import { ArrowLeft, BookOpen, Search } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import docsCatalog from '/src/data/docs/catalog.json';
 import dictionaryEntries from '/src/data/docs/dictionary.json';
+import { useOptions } from '/src/utils/optionsContext';
 
 const escapeHtml = (input) =>
   String(input || '')
@@ -103,6 +104,18 @@ const Docs = memo(() => {
   const isMac = typeof navigator !== 'undefined' ? /Mac|iPhone|iPad|iPod/i.test(navigator.platform) : false;
   const shortcutLabel = isMac ? 'Cmd+K' : 'Ctrl+K';
   const inGhostBrowserMode = new URLSearchParams(location.search).get('ghost') === '1';
+  const { options } = useOptions();
+  const panelBg = options.quickModalBgColor || options.menuColor || '#1a252f';
+  const cardBg = options.menuColor || options.quickModalBgColor || '#0f141c';
+  const inputBg = options.omninputColor || '#ffffff10';
+  const textColor = options.siteTextColor || '#a0b0c8';
+  const mutedText = options.siteMutedTextColor || 'rgba(160, 176, 200, 0.78)';
+  const isLightTheme =
+    options.type === 'light' ||
+    options.theme === 'light' ||
+    options.themeName === 'light';
+  const popupPrimaryBg = isLightTheme ? '#3d4654' : '#3a3f48';
+  const popupPrimaryText = '#f6f8fc';
 
   const categories = useMemo(() => (Array.isArray(docsCatalog) ? docsCatalog : []), []);
 
@@ -202,7 +215,7 @@ const Docs = memo(() => {
 
   if (topicId) {
     return (
-      <div className="min-h-full px-4 md:px-8 pt-6 pb-10">
+      <div className="min-h-full px-4 md:px-8 pt-6 pb-10" style={{ color: textColor }}>
         <div className="mx-auto max-w-5xl">
           <button
             type="button"
@@ -212,7 +225,7 @@ const Docs = memo(() => {
             <ArrowLeft size={15} /> Back
           </button>
 
-          <div className="mt-4 rounded-xl border border-white/10 bg-[#0d131b] p-5">
+          <div className="mt-4 rounded-xl border border-white/10 p-5" style={{ backgroundColor: panelBg }}>
             <div className="mb-3 text-xs opacity-70 inline-flex items-center gap-2">
               <BookOpen size={13} />
               <span>{activeCategory?.title || 'Docs'}</span>
@@ -244,11 +257,11 @@ const Docs = memo(() => {
   }
 
   return (
-    <div className="min-h-full relative">
+    <div className="min-h-full relative" style={{ color: textColor }}>
       {!inGhostBrowserMode && (
         <div
           className="sticky top-0 z-50 border-b border-white/10 backdrop-blur"
-          style={{ backgroundColor: 'rgba(0, 0, 0, 0.07)' }}
+          style={{ backgroundColor: options.barColor || 'rgba(0, 0, 0, 0.07)' }}
         >
           <div className="h-20 px-4 md:px-8 flex items-center justify-center gap-4">
             <button
@@ -258,7 +271,10 @@ const Docs = memo(() => {
               <ArrowLeft size={15} /> Return to Ghost
             </button>
 
-            <div className="h-9 w-[360px] max-w-[58vw] rounded-md border border-white/12 bg-[#ffffff10] px-3 flex items-center gap-2">
+            <div
+              className="h-9 w-[360px] max-w-[58vw] rounded-md border border-white/12 px-3 flex items-center gap-2"
+              style={{ backgroundColor: inputBg }}
+            >
               <Search size={15} className="opacity-70" />
               <input
                 ref={searchRef}
@@ -275,7 +291,7 @@ const Docs = memo(() => {
       )}
 
       <div className="mx-auto max-w-7xl px-4 md:px-8 pt-6 pb-10 relative">
-        <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#0f141c] p-8 mb-7">
+        <div className="relative overflow-hidden rounded-2xl border border-white/10 p-8 mb-7" style={{ backgroundColor: cardBg }}>
           <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'repeating-linear-gradient(135deg, #ffffff0c, #ffffff0c 2px, transparent 2px, transparent 16px)' }} />
           <div className="absolute inset-0 opacity-12" style={{ backgroundImage: 'radial-gradient(circle at 20% 15%, #ffffff18 0 2px, transparent 3px), radial-gradient(circle at 70% 60%, #ffffff16 0 2px, transparent 3px)' }} />
           <div className="relative z-10">
@@ -297,7 +313,7 @@ const Docs = memo(() => {
           <div className="pointer-events-none select-none" style={{ filter: 'brightness(0.35)' }}>
             <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
               {filteredSections.map((section) => (
-                <div key={section.id} className="rounded-xl border border-white/10 bg-[#0d131b] p-4">
+                <div key={section.id} className="rounded-xl border border-white/10 p-4" style={{ backgroundColor: panelBg }}>
                   <h2 className="text-xl font-semibold mb-3">{section.title}</h2>
                   <ul className="space-y-2.5 text-sm opacity-90">
                     {(section.topics || []).map((item, index) => (
@@ -311,7 +327,7 @@ const Docs = memo(() => {
               ))}
             </div>
 
-            <div className="mt-5 rounded-xl border border-white/10 bg-[#0d131b] p-5 flex items-center justify-between gap-4">
+            <div className="mt-5 rounded-xl border border-white/10 p-5 flex items-center justify-between gap-4" style={{ backgroundColor: panelBg }}>
               <div>
                 <h3 className="text-xl font-semibold">Dictionary</h3>
                 <p className="text-sm opacity-80 mt-1">Learn what terms for Ghost and Proxying in general mean</p>
@@ -322,15 +338,20 @@ const Docs = memo(() => {
 
           {/* Coming Soon popup */}
           <div className="absolute inset-0 flex items-center justify-center z-20">
-            <div className="rounded-2xl border border-white/15 bg-[#0b1018]/90 backdrop-blur-lg px-10 py-8 flex flex-col items-center gap-4 shadow-[0_24px_48px_rgba(0,0,0,0.5)]">
+            <div
+              className="rounded-2xl border border-white/15 backdrop-blur-lg px-10 py-8 flex flex-col items-center gap-4 shadow-[0_24px_48px_rgba(0,0,0,0.5)]"
+              style={{ backgroundColor: panelBg }}
+            >
               <img
                 src="/ghost.png"
                 alt="Ghost"
                 className="w-14 h-14 object-contain"
                 style={{ filter: 'invert(1) brightness(1.8)' }}
               />
-              <h2 className="text-2xl font-bold tracking-tight text-white">Coming Soon</h2>
-              <p className="text-sm text-white/70 text-center max-w-xs">Ghost Docs is under construction. Check back soon for full documentation.</p>
+              <h2 className="text-2xl font-bold tracking-tight">Coming Soon</h2>
+              <p className="text-sm text-center max-w-xs" style={{ color: mutedText }}>
+                Ghost Docs is under construction. Check back soon for full documentation.
+              </p>
               <button
                 type="button"
                 onClick={() => {
@@ -352,7 +373,8 @@ const Docs = memo(() => {
                     navigate('/');
                   }
                 }}
-                className="mt-1 h-9 px-5 rounded-lg bg-white/10 hover:bg-white/18 border border-white/15 text-sm text-white/90 transition-colors"
+                className="mt-1 h-9 px-5 rounded-lg bg-white/10 hover:bg-white/18 border border-white/15 text-sm transition-colors"
+                style={{ color: popupPrimaryText, backgroundColor: popupPrimaryBg, borderColor: 'transparent' }}
               >
                 Return Home
               </button>

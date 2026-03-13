@@ -5,10 +5,20 @@ import QuickLinks from '../components/QuickLinks';
 import { memo, useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 import clsx from 'clsx';
+import { useOptions } from '/src/utils/optionsContext';
 
 const Home = memo(() => {
   const HOME_HERO_SCALE = 1.1;
   const [showDocsPopup, setShowDocsPopup] = useState(false);
+  const { options } = useOptions();
+  const popupBg = options.quickModalBgColor || options.menuColor || '#252f3e';
+  const popupText = options.siteTextColor || '#a0b0c8';
+  const isLightTheme =
+    options.type === 'light' ||
+    options.theme === 'light' ||
+    options.themeName === 'light';
+  const popupPrimaryBg = isLightTheme ? '#3d4654' : '#3a3f48';
+  const popupPrimaryText = '#f6f8fc';
 
   useEffect(() => {
     const dismissed = localStorage.getItem('ghostDocsPopupDismissed');
@@ -39,7 +49,10 @@ const Home = memo(() => {
       {showDocsPopup && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-black/50" onClick={closePopup} />
-          <div className="relative w-full max-w-xl rounded-lg border border-white/10 bg-[#252f3e] shadow-lg overflow-hidden">
+          <div
+            className="relative w-full max-w-xl rounded-lg border border-white/10 shadow-lg overflow-hidden"
+            style={{ backgroundColor: popupBg, color: popupText }}
+          >
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
               <h2 className="text-lg font-medium">Please read the Docs!</h2>
               <button
@@ -58,7 +71,8 @@ const Home = memo(() => {
               <div className="flex justify-end">
                 <button
                   onClick={dismissForever}
-                  className="px-3 py-2 rounded-md bg-[#ffffff0c] hover:bg-[#ffffff15] duration-150"
+                  className="px-3 py-2 rounded-md border border-transparent hover:brightness-110 duration-150"
+                  style={{ backgroundColor: popupPrimaryBg, color: popupPrimaryText }}
                 >
                   Don&apos;t show this again
                 </button>

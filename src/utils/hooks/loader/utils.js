@@ -46,6 +46,59 @@ export const encoding = {
   },
 };
 
+export const INTERNAL_GHOST_PATHS = [
+  '/apps',
+  '/settings',
+  '/discover',
+  '/docs',
+  '/search',
+  '/code',
+  '/ai',
+  '/remote',
+  '/new',
+];
+
+const isInternalGhostPath = (pathname) => {
+  const normalized = String(pathname || '').replace(/\/$/, '') || '/';
+  return INTERNAL_GHOST_PATHS.some((base) => normalized === base || normalized.startsWith(`${base}/`));
+};
+
+const isInternalGhostCandidate = (value) => {
+  const raw = String(value || '').trim();
+  if (!raw) return false;
+  if (raw === 'tabs://new') return true;
+  if (raw.startsWith('ghost://') || raw.startsWith('tabs://')) return true;
+  if (raw.includes('ghost=1')) return true;
+
+  try {
+    const parsed = new URL(raw, location.origin);
+
+    if (parsed.searchParams.get('ghost') === '1') return true;
+    if (parsed.origin !== location.origin) return false;
+
+    if (isInternalGhostPath(parsed.pathname)) return true;
+
+    let hashStr = parsed.hash || '';
+    if (!hashStr) return false;
+    if (hashStr.includes('ghost=1')) return true;
+
+    if (hashStr.startsWith('#')) hashStr = hashStr.slice(1);
+    if (!hashStr.startsWith('/')) hashStr = `/${hashStr}`;
+    const hashPath = hashStr.split('?')[0];
+
+    return isInternalGhostPath(hashPath);
+  } catch {
+    return false;
+  }
+};
+
+export const isInternalGhostTabUrl = (urlValue, iframeUrlValue = '') => {
+  const raw = String(urlValue || '').trim();
+  const iframe = String(iframeUrlValue || '').trim();
+  if (!raw && !iframe) return true;
+  return isInternalGhostCandidate(raw) || isInternalGhostCandidate(iframe);
+};
+
 const check = (inp, engine) => {
   const trimmed = inp.trim();
   if (!trimmed) return '';
@@ -270,7 +323,9 @@ export const process = (input, decode = false, prType, engine = "https://duckduc
 };
 
 export function openEmbed(url) {
+  if (isInternalGhostTabUrl(url)) return null;
   var win = window.open();
+  if (!win?.document?.body) return null;
   win.document.body.style.margin = "0";
   win.document.body.style.height = '100%';
   var iframe = win.document.createElement("iframe");
@@ -280,4 +335,5 @@ export function openEmbed(url) {
   iframe.style.margin = "0";
   iframe.src = url;
   win.document.body.appendChild(iframe);
+  return win;
 }

@@ -15,7 +15,7 @@ import {
 import clsx from 'clsx';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import loaderStore from '/src/utils/hooks/loader/useLoaderStore';
-import { process, openEmbed, toGhostDisplayUrl } from '/src/utils/hooks/loader/utils';
+import { process, openEmbed, toGhostDisplayUrl, isInternalGhostTabUrl } from '/src/utils/hooks/loader/utils';
 import { useOptions } from '/src/utils/optionsContext';
 import { createId } from '/src/utils/id';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -57,6 +57,10 @@ const Omnibox = () => {
   const { state } = useLocation();
   const navigate = useNavigate();
   const activeFrameUrl = loaderStore((state) => (activeTabId ? state.iframeUrls[activeTabId] : ''));
+  const popupBlockedForInternalPage = useMemo(
+    () => isInternalGhostTabUrl(activeTab?.url, activeFrameUrl),
+    [activeTab?.url, activeFrameUrl],
+  );
   const [quickOpen, setQuickOpen] = useState(false);
   const [quickRender, setQuickRender] = useState(false);
   const [quickAnim, setQuickAnim] = useState(false);
@@ -155,6 +159,8 @@ const Omnibox = () => {
     return matched?.value?.engineName || 'Google';
   }, [options.engine]);
   const omniboxPlaceholder = `Search with ${activeEngineName} or enter address`;
+  const suggestionPanelBg = options.menuColor || options.quickModalBgColor || '#0e131b';
+  const suggestionPanelText = options.siteTextColor || '#d7dfef';
 
   useEffect(() => {
     if (!activeTab) return;
@@ -425,12 +431,18 @@ const Omnibox = () => {
         </button>
 
         {suggestOpen && results.length > 0 && (
-          <div className="absolute left-0 right-0 top-[calc(100%+6px)] rounded-xl border border-white/12 bg-[#0e131b] shadow-[0_14px_32px_rgba(0,0,0,0.45)] p-1.5 z-[170]">
+          <div
+            className="absolute left-0 right-0 top-[calc(100%+6px)] rounded-xl border border-white/12 shadow-[0_14px_32px_rgba(0,0,0,0.45)] p-1.5 z-[170]"
+            style={{ backgroundColor: suggestionPanelBg, color: suggestionPanelText }}
+          >
             {results.map((result) => (
               <button
                 key={result.phrase}
                 type="button"
-                className="w-full h-9 rounded-lg px-2.5 text-left text-sm hover:bg-white/10 transition-colors flex items-center gap-2"
+                className={clsx(
+                  'w-full h-9 rounded-lg px-2.5 text-left text-sm transition-colors flex items-center gap-2',
+                  options.type !== 'light' ? 'hover:bg-white/10' : 'hover:bg-black/10',
+                )}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                   if (!activeTab) return;
@@ -439,7 +451,7 @@ const Omnibox = () => {
                   setSuggestOpen(false);
                 }}
               >
-                <Sparkles size={14} className="opacity-75" />
+                <Sparkles size={14} className="opacity-75 text-current" />
                 <span className="truncate">{result.phrase}</span>
               </button>
             ))}
@@ -449,8 +461,11 @@ const Omnibox = () => {
       <Action
         Icon={SquareArrowOutUpRight}
         size="15"
-        action={() => openEmbed(activeTab?.url)}
-        disabled={activeTab?.url == 'tabs://new'}
+        action={() => {
+          if (popupBlockedForInternalPage) return;
+          openEmbed(activeTab?.url);
+        }}
+        disabled={popupBlockedForInternalPage}
       />
       <div className="relative" ref={quickPanelRef}>
         <Action Icon={Settings2} size="17" action={() => setQuickOpen((prev) => !prev)} />

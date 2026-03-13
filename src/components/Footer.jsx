@@ -147,6 +147,12 @@ const Footer = memo(() => {
     navigate('/search?ghost=1&changelog=1');
   }, [navigate]);
 
+  const latencyColorClass = latency > 250
+    ? 'text-[#ef4444]'
+    : latency > 100
+      ? 'text-[#facc15]'
+      : 'text-[#22c55e]';
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[120] flex items-end justify-between px-2 pb-2 pointer-events-none">
       <div className={clsx(
@@ -175,7 +181,7 @@ const Footer = memo(() => {
           )}
         >
           <span className="opacity-70">Server Latency:</span>
-          <span className="text-[#22c55e] font-medium ml-1">{latency}ms</span>
+          <span className={clsx(latencyColorClass, 'font-medium ml-1')}>{latency}ms</span>
           <button
             className="opacity-70 hover:opacity-100 transition-opacity"
             onClick={pollLatency}

@@ -27,6 +27,8 @@ import { createId } from '/src/utils/id';
 import pkg from '../../package.json';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+const BUG_REPORT_FORM_URL = 'https://forms.gle/94VwArsXReWqyWWr9';
+
 const Type = ({ type, title }) => {
   const { options, updateOption } = useOptions();
   const settingsItems = type({ options, updateOption });
@@ -109,7 +111,7 @@ const InfoPanel = () => {
           <p className="font-semibold mb-1">Thank you to</p>
           <ul className="space-y-1 opacity-90">
             <li>- Creator of DogeUB (Ghost is a fork of his unblocker)</li>
-            <li>- Creator of Vapor v4 (took games from Vapor)</li>
+            <li>- Creator of Vapor v4 (took some game sources from Vapor)</li>
             <li>- Creator of DayDreamX (heavily inspired by DayDreamX)</li>
             <li>
               - Ghost Icon attribution:{' '}
@@ -202,6 +204,7 @@ const InfoPanel = () => {
         <button
           type="button"
           className="h-8 px-3 rounded-md border border-white/15 hover:bg-white/10 text-xs inline-flex items-center"
+          onClick={() => window.open(BUG_REPORT_FORM_URL, '_blank', 'noopener,noreferrer')}
         >
           Report a Bug
         </button>

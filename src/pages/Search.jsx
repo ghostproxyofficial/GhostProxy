@@ -4,7 +4,7 @@ import Viewer from '/src/components/loader/Viewer';
 import Menu from '/src/components/loader/Menu';
 import useReg from '/src/utils/hooks/loader/useReg';
 import loaderStore from '/src/utils/hooks/loader/useLoaderStore';
-import { process } from '/src/utils/hooks/loader/utils';
+import { process, isInternalGhostTabUrl } from '/src/utils/hooks/loader/utils';
 import { useOptions } from '../utils/optionsContext';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
@@ -96,6 +96,7 @@ const sanitizeHydratedUrl = (raw) => {
 };
 
 const SidebarButton = ({ label, onClick, children, className = '', iconSize = 16, hideTooltip = false }) => {
+  const { options } = useOptions();
   const [hovered, setHovered] = useState(false);
   const btnRef = useRef(null);
 
@@ -126,6 +127,8 @@ const SidebarButton = ({ label, onClick, children, className = '', iconSize = 16
           className={`pointer-events-none fixed z-[99999] whitespace-nowrap rounded-md border border-white/10 bg-[#0b0d12] px-2.5 py-1.5 text-[11px] font-medium text-white/90 shadow-xl transition duration-150 ${hovered ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
             }`}
           style={{
+            backgroundColor: options.menuColor || '#0b0d12',
+            color: options.siteTextColor || '#ffffff',
             top: window.innerWidth < 768
               ? coords.top
               : coords.top + coords.height / 2,
@@ -227,7 +230,17 @@ export default function Loader({ url, ui = true, zoom }) {
   const devOptionsPortalRef = useRef(null);
   const adBlockPortalRef = useRef(null);
   const findInputRef = useRef(null);
-  const debugDragRef = useRef({ active: false, startX: 0, startY: 0, originX: 0, originY: 0 });
+  const debugDragRef = useRef({
+    active: false,
+    startX: 0,
+    startY: 0,
+    originX: 0,
+    originY: 0,
+    pendingX: 0,
+    pendingY: 0,
+    hasPending: false,
+    rafId: 0,
+  });
   const logRestoreRef = useRef(null);
   const [timeState, setTimeState] = useState(Date.now());
   const [windowHeight, setWindowHeight] = useState('100vh');
@@ -458,6 +471,19 @@ export default function Loader({ url, ui = true, zoom }) {
   const barStyle = {
     backgroundColor: options.barColor || '#09121e',
   };
+  const popupSurface = options.menuColor || options.quickModalBgColor || '#1a252f';
+  const popupPanelBg = options.quickModalBgColor || options.menuColor || '#252f3e';
+  const popupInputBg = options.omninputColor || '#111722';
+  const ghostMenuBg = options.tabBarColor || options.omninputColor || '#0f141d';
+  const ghostMenuCardBg = options.quickModalBgColor || options.menuColor || '#2a3a52';
+  const isLightTheme =
+    options.type === 'light' ||
+    options.theme === 'light' ||
+    options.themeName === 'light';
+  const popupSecondaryBg = isLightTheme ? 'rgba(15,23,42,0.08)' : 'rgba(255,255,255,0.12)';
+  const popupSecondaryBorder = isLightTheme ? 'rgba(15,23,42,0.16)' : 'rgba(255,255,255,0.22)';
+  const popupPrimaryBg = isLightTheme ? '#3d4654' : '#3a3f48';
+  const popupPrimaryText = '#f6f8fc';
 
   const runFind = (backwards = false) => {
     const store = loaderStore.getState();
@@ -568,41 +594,13 @@ export default function Loader({ url, ui = true, zoom }) {
     }
   };
 
-  const INTERNAL_PATHS = ['/apps', '/settings', '/discover', '/docs', '/search', '/code', '/ai', '/remote', '/new'];
-
   const isActiveTabInternalGhost = () => {
     const store = loaderStore.getState();
     const tab = store.tabs.find((tab) => tab.active) || store.tabs[0];
     if (!tab) return true;
-    const raw = String(tab?.url || '').trim();
-    // Check iframeUrls too (ghost:// URLs stored as iframeUrl)
+    const raw = String(tab.url || '').trim();
     const iframeUrl = String(store.iframeUrls?.[tab.id] || '').trim();
-    if (!raw || raw === 'tabs://new') return true;
-    if (raw.startsWith('ghost://') || raw.startsWith('tabs://')) return true;
-    if (iframeUrl.startsWith('ghost://') || iframeUrl.startsWith('tabs://')) return true;
-    if (raw.includes('ghost=1') || iframeUrl.includes('ghost=1')) return true;
-
-    try {
-      const parsed = new URL(raw, location.origin);
-      if (parsed.searchParams.get('ghost') === '1') return true;
-
-      // Check pathname-based routes (BrowserRouter / localhost)
-      const path = parsed.pathname.replace(/\/$/, '') || '/';
-      if (INTERNAL_PATHS.some((base) => path === base || path.startsWith(`${base}/`))) return true;
-
-      // Check hash-based routes (HashRouter / static/Cloudflare builds)
-      let hashStr = parsed.hash || '';
-      if (hashStr) {
-        if (hashStr.includes('ghost=1')) return true;
-        if (hashStr.startsWith('#')) hashStr = hashStr.slice(1);
-        if (!hashStr.startsWith('/')) hashStr = '/' + hashStr;
-
-        const hashPath = hashStr.split('?')[0].replace(/\/$/, '');
-        if (INTERNAL_PATHS.some((base) => hashPath === base || hashPath.startsWith(`${base}/`))) return true;
-      }
-
-      return false;
-    } catch { return false; }
+    return isInternalGhostTabUrl(raw, iframeUrl);
   };
 
   const openDevToolsForActiveTab = () => {
@@ -881,16 +879,41 @@ export default function Loader({ url, ui = true, zoom }) {
   }, [options.debugMode, pushDebugLog]);
 
   useEffect(() => {
+    const clampPos = (x, y) => ({
+      x: Math.max(4, Math.min(window.innerWidth - 320, x)),
+      y: Math.max(4, Math.min(window.innerHeight - 140, y)),
+    });
+
+    const schedulePositionUpdate = () => {
+      if (debugDragRef.current.rafId) return;
+      debugDragRef.current.rafId = requestAnimationFrame(() => {
+        debugDragRef.current.rafId = 0;
+        if (!debugDragRef.current.hasPending) return;
+        setDebugPanelPos({ x: debugDragRef.current.pendingX, y: debugDragRef.current.pendingY });
+        debugDragRef.current.hasPending = false;
+      });
+    };
+
     const onMove = (event) => {
       if (!debugDragRef.current.active) return;
       const dx = event.clientX - debugDragRef.current.startX;
       const dy = event.clientY - debugDragRef.current.startY;
-      const nextX = Math.max(4, Math.min(window.innerWidth - 320, debugDragRef.current.originX + dx));
-      const nextY = Math.max(4, Math.min(window.innerHeight - 140, debugDragRef.current.originY + dy));
-      setDebugPanelPos({ x: nextX, y: nextY });
+      const clamped = clampPos(debugDragRef.current.originX + dx, debugDragRef.current.originY + dy);
+      debugDragRef.current.pendingX = clamped.x;
+      debugDragRef.current.pendingY = clamped.y;
+      debugDragRef.current.hasPending = true;
+      schedulePositionUpdate();
     };
 
     const onUp = () => {
+      if (debugDragRef.current.rafId) {
+        cancelAnimationFrame(debugDragRef.current.rafId);
+        debugDragRef.current.rafId = 0;
+      }
+      if (debugDragRef.current.hasPending) {
+        setDebugPanelPos({ x: debugDragRef.current.pendingX, y: debugDragRef.current.pendingY });
+        debugDragRef.current.hasPending = false;
+      }
       debugDragRef.current.active = false;
     };
 
@@ -899,6 +922,10 @@ export default function Loader({ url, ui = true, zoom }) {
     return () => {
       window.removeEventListener('pointermove', onMove);
       window.removeEventListener('pointerup', onUp);
+      if (debugDragRef.current.rafId) {
+        cancelAnimationFrame(debugDragRef.current.rafId);
+        debugDragRef.current.rafId = 0;
+      }
     };
   }, []);
 
@@ -918,8 +945,11 @@ export default function Loader({ url, ui = true, zoom }) {
       }
 
       if (source === 'ipwho') {
+        const zone = typeof payload.timezone === 'string'
+          ? payload.timezone
+          : payload?.timezone?.id || '';
         return {
-          timezone: String(payload?.timezone?.id || ''),
+          timezone: String(zone || ''),
           latitude: Number(payload.latitude),
           longitude: Number(payload.longitude),
           city: String(payload.city || ''),
@@ -953,7 +983,8 @@ export default function Loader({ url, ui = true, zoom }) {
     const fetchIpMeta = async () => {
 
       const providers = [
-        { url: 'https://whatismyipaddress.com/', source: 'ip' },
+        { url: 'https://ipapi.co/json/', source: 'ipapi' },
+        { url: 'https://ipwho.is/', source: 'ipwho' },
         { url: 'https://ipinfo.io/json', source: 'ipinfo' },
       ];
 
@@ -1595,10 +1626,11 @@ export default function Loader({ url, ui = true, zoom }) {
                 style={{
                   top: window.innerWidth < 768 ? Math.max(0, popupCoords.ghost.top - 220) : Math.min(popupCoords.ghost.top, window.innerHeight - 300),
                   bottom: window.innerWidth < 768 ? 'auto' : 'auto',
-                  left: window.innerWidth < 768 ? Math.max(0, popupCoords.ghost.left - 80) : popupCoords.ghost.right + 2
+                  left: window.innerWidth < 768 ? Math.max(0, popupCoords.ghost.left - 80) : popupCoords.ghost.right + 2,
+                  backgroundColor: ghostMenuBg,
                 }}
               >
-                <div className="px-2.5 py-1.5 mb-1 rounded-lg border border-white/10 bg-[#111722]">
+                <div className="px-2.5 py-1.5 mb-1 rounded-lg border border-white/10" style={{ backgroundColor: ghostMenuCardBg }}>
                   <div className="text-[11px] font-semibold tracking-wide text-white/90 flex items-center justify-between">
                     <span>{menuTimeLabel}</span>
                     <span className="inline-flex items-center gap-1 opacity-85">
@@ -1739,7 +1771,8 @@ export default function Loader({ url, ui = true, zoom }) {
                     style={{
                       top: window.innerWidth < 768 ? Math.max(0, popupCoords.adBlock.top - 160) : Math.min(popupCoords.adBlock.top, window.innerHeight - 200),
                       bottom: window.innerWidth < 768 ? 'auto' : 'auto',
-                      left: window.innerWidth < 768 ? Math.max(0, popupCoords.adBlock.left - 100) : popupCoords.adBlock.right + 8
+                      left: window.innerWidth < 768 ? Math.max(0, popupCoords.adBlock.left - 100) : popupCoords.adBlock.right + 8,
+                      backgroundColor: popupSurface,
                     }}
                   >
                     {currentSitePolicy?.site ? (
@@ -1809,7 +1842,8 @@ export default function Loader({ url, ui = true, zoom }) {
                     style={{
                       top: window.innerWidth < 768 ? Math.max(0, popupCoords.dev.top - 140) : Math.min(popupCoords.dev.top, window.innerHeight - 150),
                       bottom: window.innerWidth < 768 ? 'auto' : 'auto',
-                      left: window.innerWidth < 768 ? Math.max(0, popupCoords.dev.left - 50) : popupCoords.dev.right + 8
+                      left: window.innerWidth < 768 ? Math.max(0, popupCoords.dev.left - 50) : popupCoords.dev.right + 8,
+                      backgroundColor: popupSurface,
                     }}
                   >
                     <button
@@ -1925,7 +1959,10 @@ export default function Loader({ url, ui = true, zoom }) {
               setGeforceHelpOpen(false);
             }}
           />
-          <div className="relative w-full max-w-md rounded-xl border border-white/10 bg-[#1a252f] p-5 shadow-2xl">
+          <div
+            className="relative w-full max-w-md rounded-xl border border-white/10 p-5 shadow-2xl"
+            style={{ backgroundColor: popupPanelBg }}
+          >
             <h3 className="text-lg font-semibold">Need help setting up Geforce Now?</h3>
             <p className="mt-2 text-sm opacity-80">Read the Docs for support.</p>
             <div className="mt-4 flex items-center justify-end gap-2">
@@ -1938,7 +1975,8 @@ export default function Loader({ url, ui = true, zoom }) {
                   }
                   setGeforceHelpOpen(false);
                 }}
-                className="h-9 px-3 rounded-md border border-white/15 hover:bg-[#ffffff10] text-sm"
+                className="h-9 px-3 rounded-md border hover:brightness-110 text-sm"
+                style={{ backgroundColor: popupSecondaryBg, borderColor: popupSecondaryBorder }}
               >
                 Close
               </button>
@@ -1952,7 +1990,8 @@ export default function Loader({ url, ui = true, zoom }) {
                   setGeforceHelpOpen(false);
                   navigateActiveTab('ghost://docs');
                 }}
-                className="h-9 px-3 rounded-md bg-[#1f3a58] hover:bg-[#29507a] text-sm"
+                className="h-9 px-3 rounded-md border border-transparent hover:brightness-110 text-sm"
+                style={{ backgroundColor: popupPrimaryBg, color: popupPrimaryText }}
               >
                 Open Docs
               </button>
@@ -1964,7 +2003,10 @@ export default function Loader({ url, ui = true, zoom }) {
       {ui && showDocsPopup && (
         <div className="fixed inset-0 z-[10004] flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-black/50" onClick={() => setShowDocsPopup(false)} />
-          <div className="relative w-full max-w-xl rounded-lg border border-white/10 bg-[#252f3e] shadow-lg overflow-hidden">
+          <div
+            className="relative w-full max-w-xl rounded-lg border border-white/10 shadow-lg overflow-hidden"
+            style={{ backgroundColor: popupPanelBg }}
+          >
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
               <h2 className="text-lg font-medium">Please read the Docs!</h2>
               <button
@@ -1983,7 +2025,8 @@ export default function Loader({ url, ui = true, zoom }) {
               <div className="flex justify-end gap-2">
                 <button
                   onClick={() => setShowDocsPopup(false)}
-                  className="px-3 py-2 rounded-md bg-[#ffffff08] hover:bg-[#ffffff12] duration-150"
+                  className="px-3 py-2 rounded-md border hover:brightness-110 duration-150"
+                  style={{ backgroundColor: popupSecondaryBg, borderColor: popupSecondaryBorder }}
                 >
                   Close
                 </button>
@@ -1992,7 +2035,8 @@ export default function Loader({ url, ui = true, zoom }) {
                     localStorage.setItem('ghostDocsPopupDismissed', 'true');
                     setShowDocsPopup(false);
                   }}
-                  className="px-3 py-2 rounded-md bg-[#ffffff0c] hover:bg-[#ffffff15] duration-150"
+                  className="px-3 py-2 rounded-md border border-transparent hover:brightness-110 duration-150"
+                  style={{ backgroundColor: popupPrimaryBg, color: popupPrimaryText }}
                 >
                   Don&apos;t show this again
                 </button>
@@ -2067,7 +2111,10 @@ export default function Loader({ url, ui = true, zoom }) {
       )}
 
       {ui && findBarOpen && (
-        <div className="fixed top-[84px] left-1/2 -translate-x-1/2 z-[10001] rounded-xl border border-white/10 bg-[#1a2330]/95 backdrop-blur px-3 py-2 flex items-center gap-2 shadow-2xl">
+        <div
+          className="fixed top-[84px] left-1/2 -translate-x-1/2 z-[10001] rounded-xl border border-white/10 backdrop-blur px-3 py-2 flex items-center gap-2 shadow-2xl"
+          style={{ backgroundColor: popupSurface }}
+        >
           <input
             ref={findInputRef}
             value={findText}
@@ -2086,7 +2133,8 @@ export default function Loader({ url, ui = true, zoom }) {
               }
             }}
             placeholder="Find in page"
-            className="h-9 w-64 rounded-md bg-[#00000030] border border-white/10 px-3 outline-none text-sm"
+            className="h-9 w-64 rounded-md border border-white/10 px-3 outline-none text-sm"
+            style={{ backgroundColor: popupInputBg }}
           />
           <button onClick={() => runFind(true)} className="h-9 px-3 rounded-md hover:bg-[#ffffff12] text-sm flex items-center gap-1">
             <ChevronUp size={14} /> Prev
@@ -2106,7 +2154,10 @@ export default function Loader({ url, ui = true, zoom }) {
           <div className={"fixed inset-0 z-[10002] flex items-center justify-center p-4 transition-opacity duration-200 " + (changelogAnim ? 'opacity-100' : 'opacity-0')}>
             <div className="fixed inset-0 bg-black/50" onClick={() => setIsChangelogOpen(false)} />
 
-            <div className={"relative w-full max-w-2xl max-h-[80dvh] rounded-lg border border-white/10 shadow-lg overflow-hidden bg-[#1a252f] transition-all duration-200 " + (changelogAnim ? 'opacity-100 scale-100' : 'opacity-0 scale-95')}>
+            <div
+              className={"relative w-full max-w-2xl max-h-[80dvh] rounded-lg border border-white/10 shadow-lg overflow-hidden transition-all duration-200 " + (changelogAnim ? 'opacity-100 scale-100' : 'opacity-0 scale-95')}
+              style={{ backgroundColor: popupPanelBg }}
+            >
               <div className="flex items-center justify-between p-4 border-b border-white/10">
                 <h2 className="text-lg font-medium">Changelog</h2>
                 <button
@@ -2142,7 +2193,10 @@ export default function Loader({ url, ui = true, zoom }) {
         ui && activeMusicPrompt && (
           <div className="fixed inset-0 z-[10004] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/50" />
-            <div className="relative w-full max-w-md rounded-xl border border-white/10 bg-[#1a252f] p-5 shadow-2xl">
+            <div
+              className="relative w-full max-w-md rounded-xl border border-white/10 p-5 shadow-2xl"
+              style={{ backgroundColor: popupPanelBg }}
+            >
               <h3 className="text-lg font-semibold">Is this your default music provider?</h3>
               <p className="mt-2 text-sm opacity-80">
                 In settings, you can choose to make this service open every time you open music.
@@ -2157,7 +2211,8 @@ export default function Loader({ url, ui = true, zoom }) {
                       return next;
                     });
                   }}
-                  className="h-9 px-3 rounded-md border border-white/15 hover:bg-[#ffffff10] text-sm"
+                  className="h-9 px-3 rounded-md border hover:brightness-110 text-sm"
+                  style={{ backgroundColor: popupSecondaryBg, borderColor: popupSecondaryBorder }}
                 >
                   Close
                 </button>
@@ -2171,7 +2226,8 @@ export default function Loader({ url, ui = true, zoom }) {
                     });
                     navigateActiveTab('ghost://settings');
                   }}
-                  className="h-9 px-3 rounded-md bg-[#1f3a58] hover:bg-[#29507a] text-sm"
+                  className="h-9 px-3 rounded-md border border-transparent hover:brightness-110 text-sm"
+                  style={{ backgroundColor: popupPrimaryBg, color: popupPrimaryText }}
                 >
                   Take me to settings
                 </button>
@@ -2185,27 +2241,35 @@ export default function Loader({ url, ui = true, zoom }) {
         ui && debugLogsOpen && (
           <div className="fixed inset-0 z-[10005] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/55" onClick={() => setDebugLogsOpen(false)} />
-            <div className="relative w-full max-w-6xl h-[78dvh] rounded-xl border border-white/15 bg-[#101722] shadow-2xl overflow-hidden">
+            <div
+              className="relative w-full max-w-6xl h-[78dvh] rounded-xl border border-white/15 shadow-2xl overflow-hidden"
+              style={{ backgroundColor: popupSurface }}
+            >
               <div className="h-12 px-4 border-b border-white/10 flex items-center justify-between">
                 <h3 className="text-base font-semibold">Console Logs</h3>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 pt-[1px]">
                   <button
                     type="button"
-                    className="h-8 px-2.5 rounded-md border border-white/15 hover:bg-white/10 text-xs"
+                    className="h-8 px-2.5 rounded-md border hover:brightness-110 text-xs"
+                    style={{ backgroundColor: popupSecondaryBg, borderColor: popupSecondaryBorder }}
                     onClick={() => setDebugLogs([])}
                   >
                     Clear
                   </button>
                   <button
                     type="button"
-                    className="h-8 px-2.5 rounded-md border border-white/15 hover:bg-white/10 text-xs"
+                    className="h-8 px-2.5 rounded-md border hover:brightness-110 text-xs"
+                    style={{ backgroundColor: popupSecondaryBg, borderColor: popupSecondaryBorder }}
                     onClick={() => setDebugLogsOpen(false)}
                   >
                     Close
                   </button>
                 </div>
               </div>
-              <div className="h-[calc(78dvh-3rem)] overflow-y-auto p-3 space-y-1 text-xs font-mono bg-[#0a0f17]">
+              <div
+                className="h-[calc(78dvh-3rem)] overflow-y-auto p-3 space-y-1 text-xs font-mono"
+                style={{ backgroundColor: popupInputBg }}
+              >
                 {debugLogs.length === 0 && <p className="opacity-70">No logs yet.</p>}
                 {debugLogs.map((log) => (
                   <div key={log.id} className="break-words">
@@ -2231,12 +2295,22 @@ export default function Loader({ url, ui = true, zoom }) {
             <div
               className="flex items-center justify-between gap-2 cursor-move select-none"
               onPointerDown={(event) => {
+                const clickedButton = event.target instanceof Element ? event.target.closest('button') : null;
+                if (clickedButton) return;
+                event.currentTarget.setPointerCapture?.(event.pointerId);
+                if (debugDragRef.current.rafId) {
+                  cancelAnimationFrame(debugDragRef.current.rafId);
+                }
                 debugDragRef.current = {
                   active: true,
                   startX: event.clientX,
                   startY: event.clientY,
                   originX: debugPanelPos.x,
                   originY: debugPanelPos.y,
+                  pendingX: debugPanelPos.x,
+                  pendingY: debugPanelPos.y,
+                  hasPending: false,
+                  rafId: 0,
                 };
               }}
             >
@@ -2244,7 +2318,11 @@ export default function Loader({ url, ui = true, zoom }) {
               <button
                 type="button"
                 className="h-5 w-5 rounded hover:bg-black/20 flex items-center justify-center"
-                onClick={() => updateOption({ debugMode: false })}
+                onPointerDown={(event) => event.stopPropagation()}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  updateOption({ debugMode: false });
+                }}
               >
                 <X size={12} />
               </button>

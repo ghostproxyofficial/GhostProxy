@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import loaderStore from '/src/utils/hooks/loader/useLoaderStore';
 import StaticError from './viewer/StaticError';
 import { useOptions } from '/src/utils/optionsContext';
-import { process } from '/src/utils/hooks/loader/utils';
+import { process, isInternalGhostTabUrl } from '/src/utils/hooks/loader/utils';
 import { useRef, useEffect, useState } from 'react';
 import { Loader } from 'lucide-react';
 import { getEffectiveShortcuts } from '/src/utils/shortcuts';
@@ -15,8 +15,9 @@ import NewTab from './NewTab';
 const MAX_ERROR_RETRIES = 3;
 const BASE_RETRY_DELAY = 1500; // ms
 const SITE_POLICY_KEY = 'ghostSitePolicies';
-const INTERNAL_GHOST_PATHS = new Set(['/apps', '/settings', '/discover', '/docs', '/search', '/code', '/ai', '/remote', '/new']);
 const ADBLOCK_STYLE_ID = 'ghost-adblock-style';
+const DOWNLOAD_FILE_EXT_RE = /\.(zip|crx|exe|msi|dmg|pkg|apk|ipa|pdf|docx?|xlsx?|pptx?|csv|rar|7z|tar|gz|iso|bin|deb|rpm)(\?|#|$)/i;
+const DOWNLOAD_HINT_RE = /(download|attachment|export|filename=|file=|response-content-disposition)/i;
 const AD_SELECTORS = [
   '[id*="ad-"]',
   '[id^="ad-"]',
@@ -48,6 +49,21 @@ const getStoredSitePolicies = () => {
   } catch {
     return {};
   }
+};
+
+const isPopupTarget = (targetValue) => {
+  const target = String(targetValue || '').trim().toLowerCase();
+  if (!target) return false;
+  if (target === '_self' || target === '_top' || target === '_parent') return false;
+  return true;
+};
+
+const isLikelyDownloadHref = (value) => {
+  const href = String(value || '').trim();
+  if (!href) return false;
+  if (href.startsWith('blob:') || href.startsWith('data:')) return true;
+  if (DOWNLOAD_FILE_EXT_RE.test(href)) return true;
+  return DOWNLOAD_HINT_RE.test(href);
 };
 
 const Viewer = ({ zoom }) => {
@@ -84,19 +100,7 @@ const Viewer = ({ zoom }) => {
   };
 
   const isInternalGhostUrl = (urlValue) => {
-    const v = String(urlValue || '').trim();
-    if (!v) return true;
-    if (v.startsWith('ghost://') || v.startsWith('tabs://')) return true;
-    try {
-      const parsed = new URL(v, location.origin);
-      if (parsed.origin !== location.origin) return false;
-      if (parsed.searchParams.get('ghost') === '1') return true;
-      const path = parsed.pathname.replace(/\/$/, '') || '/';
-      const bases = ['/apps', '/settings', '/discover', '/docs', '/search', '/code', '/ai', '/remote', '/new'];
-      return bases.some((b) => path === b || path.startsWith(`${b}/`));
-    } catch {
-      return false;
-    }
+    return isInternalGhostTabUrl(urlValue);
   };
 
   const getSitePolicyForTab = (tabUrl) => {
@@ -137,6 +141,35 @@ const Viewer = ({ zoom }) => {
       const win = doc.defaultView;
       if (!win) return;
 
+      if (!win.__ghostOriginalAnchorClick && win.HTMLAnchorElement?.prototype?.click) {
+        win.__ghostOriginalAnchorClick = win.HTMLAnchorElement.prototype.click;
+        win.HTMLAnchorElement.prototype.click = function (...args) {
+          try {
+            const href = String(this.getAttribute?.('href') || this.href || '').trim();
+            const target = String(this.getAttribute?.('target') || this.target || '').trim();
+            const hasDownload = this.hasAttribute?.('download');
+
+            if (win.__ghostPopupBlocked && isPopupTarget(target)) return;
+            if (win.__ghostDownloadBlocked && (hasDownload || isLikelyDownloadHref(href))) return;
+          } catch { }
+          return win.__ghostOriginalAnchorClick.apply(this, args);
+        };
+      }
+
+      if (!win.__ghostOriginalFormSubmit && win.HTMLFormElement?.prototype?.submit) {
+        win.__ghostOriginalFormSubmit = win.HTMLFormElement.prototype.submit;
+        win.HTMLFormElement.prototype.submit = function (...args) {
+          try {
+            const target = String(this.getAttribute?.('target') || this.target || '').trim();
+            const action = String(this.getAttribute?.('action') || this.action || '').trim();
+
+            if (win.__ghostPopupBlocked && isPopupTarget(target)) return;
+            if (win.__ghostDownloadBlocked && isLikelyDownloadHref(action)) return;
+          } catch { }
+          return win.__ghostOriginalFormSubmit.apply(this, args);
+        };
+      }
+
       if (!win.__ghostDownloadBlockHandler) {
         win.__ghostDownloadBlockHandler = (event) => {
           const anchor = event?.target?.closest?.('a[href], area[href]');
@@ -147,8 +180,22 @@ const Viewer = ({ zoom }) => {
           if (!href || href.startsWith('#') || href.toLowerCase().startsWith('javascript:')) return;
 
           const attrDownload = anchor.hasAttribute('download');
-          const looksLikeFile = /\.(zip|crx|exe|msi|dmg|pkg|apk|ipa|pdf|docx?|xlsx?|pptx?|csv|rar|7z|tar|gz|iso|bin|deb|rpm)(\?|#|$)/i.test(href);
+          const looksLikeFile = isLikelyDownloadHref(href);
           if (!attrDownload && !looksLikeFile) return;
+
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation?.();
+        };
+      }
+
+      if (!win.__ghostDownloadSubmitHandler) {
+        win.__ghostDownloadSubmitHandler = (event) => {
+          if (!doc.defaultView.__ghostDownloadBlocked) return;
+          const form = event?.target;
+          if (!(form instanceof win.HTMLFormElement)) return;
+          const action = String(form.getAttribute('action') || form.action || '').trim();
+          if (!isLikelyDownloadHref(action)) return;
 
           event.preventDefault();
           event.stopPropagation();
@@ -159,9 +206,11 @@ const Viewer = ({ zoom }) => {
       if (enabled && !win.__ghostDownloadBlocked) {
         win.__ghostDownloadBlocked = true;
         doc.addEventListener('click', win.__ghostDownloadBlockHandler, true);
+        doc.addEventListener('submit', win.__ghostDownloadSubmitHandler, true);
       } else if (!enabled && win.__ghostDownloadBlocked) {
         win.__ghostDownloadBlocked = false;
         doc.removeEventListener('click', win.__ghostDownloadBlockHandler, true);
+        doc.removeEventListener('submit', win.__ghostDownloadSubmitHandler, true);
       }
     } catch { }
   };
@@ -181,28 +230,80 @@ const Viewer = ({ zoom }) => {
         win.__ghostOriginalOpen = win.open.bind(win);
       }
 
-      if (enabled) {
-        win.open = () => null;
-      } else if (win.__ghostOriginalOpen) {
-        win.open = win.__ghostOriginalOpen;
+      if (!win.__ghostOpenWrapped && win.__ghostOriginalOpen) {
+        win.open = (...args) => {
+          const url = args[0];
+          if (win.__ghostPopupBlocked) return null;
+          if (win.__ghostDownloadBlocked && isLikelyDownloadHref(url)) return null;
+          return win.__ghostOriginalOpen(...args);
+        };
+        win.__ghostOpenWrapped = true;
+      }
+
+      if (!win.__ghostOriginalAnchorClick && win.HTMLAnchorElement?.prototype?.click) {
+        win.__ghostOriginalAnchorClick = win.HTMLAnchorElement.prototype.click;
+        win.HTMLAnchorElement.prototype.click = function (...args) {
+          try {
+            const href = String(this.getAttribute?.('href') || this.href || '').trim();
+            const target = String(this.getAttribute?.('target') || this.target || '').trim();
+            const hasDownload = this.hasAttribute?.('download');
+
+            if (win.__ghostPopupBlocked && isPopupTarget(target)) return;
+            if (win.__ghostDownloadBlocked && (hasDownload || isLikelyDownloadHref(href))) return;
+          } catch { }
+          return win.__ghostOriginalAnchorClick.apply(this, args);
+        };
+      }
+
+      if (!win.__ghostOriginalFormSubmit && win.HTMLFormElement?.prototype?.submit) {
+        win.__ghostOriginalFormSubmit = win.HTMLFormElement.prototype.submit;
+        win.HTMLFormElement.prototype.submit = function (...args) {
+          try {
+            const target = String(this.getAttribute?.('target') || this.target || '').trim();
+            const action = String(this.getAttribute?.('action') || this.action || '').trim();
+
+            if (win.__ghostPopupBlocked && isPopupTarget(target)) return;
+            if (win.__ghostDownloadBlocked && isLikelyDownloadHref(action)) return;
+          } catch { }
+          return win.__ghostOriginalFormSubmit.apply(this, args);
+        };
       }
 
       if (!win.__ghostPopupClickHandler) {
         win.__ghostPopupClickHandler = (event) => {
-          const target = event?.target?.closest?.('a[target="_blank"], area[target="_blank"]');
+          const target = event?.target?.closest?.('a[target], area[target]');
           if (!target) return;
           if (!doc.defaultView.__ghostPopupBlocked) return;
+          const targetValue = String(target.getAttribute('target') || '').trim();
+          if (!isPopupTarget(targetValue)) return;
           event.preventDefault();
           event.stopPropagation();
+          event.stopImmediatePropagation?.();
+        };
+      }
+
+      if (!win.__ghostPopupSubmitHandler) {
+        win.__ghostPopupSubmitHandler = (event) => {
+          if (!doc.defaultView.__ghostPopupBlocked) return;
+          const form = event?.target;
+          if (!(form instanceof win.HTMLFormElement)) return;
+          const target = String(form.getAttribute('target') || form.target || '').trim();
+          if (!isPopupTarget(target)) return;
+
+          event.preventDefault();
+          event.stopPropagation();
+          event.stopImmediatePropagation?.();
         };
       }
 
       if (enabled && !win.__ghostPopupBlocked) {
         win.__ghostPopupBlocked = true;
         doc.addEventListener('click', win.__ghostPopupClickHandler, true);
+        doc.addEventListener('submit', win.__ghostPopupSubmitHandler, true);
       } else if (!enabled && win.__ghostPopupBlocked) {
         win.__ghostPopupBlocked = false;
         doc.removeEventListener('click', win.__ghostPopupClickHandler, true);
+        doc.removeEventListener('submit', win.__ghostPopupSubmitHandler, true);
       }
     } catch { }
   };
@@ -273,17 +374,7 @@ const Viewer = ({ zoom }) => {
   };
 
   const getInternalPageOffset = (rawUrl) => {
-    try {
-      const parsed = new URL(String(rawUrl || ''), location.origin);
-      if (parsed.origin !== location.origin) return 0;
-
-      const path = parsed.pathname.replace(/\/$/, '') || '/';
-      const pagesToOffset = new Set(['/apps', '/discover', '/docs']);
-      if (path.startsWith('/docs/')) return 10;
-      return pagesToOffset.has(path) ? 10 : 0;
-    } catch {
-      return 0;
-    }
+    return 0;
   };
 
   useEffect(() => {

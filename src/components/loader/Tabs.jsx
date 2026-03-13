@@ -322,6 +322,18 @@ const TabBar = () => {
     return () => { unsub(); clearTimeout(debounceTimer); };
   }, [activeProfileId]);
 
+  const profilePanelBg = '#101215';
+  const profilePanelSubtleBg = '#171a1f';
+  const profilePanelInputBg = '#0c0f13';
+  const profilePanelTextColor = '#eceef2';
+  const profilePanelMutedText = '#aaafb8';
+  const profileCreateBg = '#353941';
+  const profileBorderColor = 'rgba(255,255,255,0.14)';
+  const profileRowActive = 'border-white/25 bg-[#404349]';
+  const profileRowIdle = 'border-white/10 bg-white/[0.03] hover:bg-white/[0.08]';
+  const profileIconHover = 'hover:bg-white/10';
+  const profileSecondaryBg = '#1b1f26';
+
   return (
     <div className={clsx("h-10 items-center overflow-visible gap-1 px-1 relative", showTabs && showUI ? 'flex' : 'hidden')} style={{ backgroundColor: options.tabBarColor || "#070e15" }}>
       <div className="relative flex-none">
@@ -354,33 +366,34 @@ const TabBar = () => {
             <div
               ref={panelRef}
               className={
-                'absolute left-0 top-10 w-[380px] rounded-xl border border-white/10 bg-[#17191d] z-[120] shadow-[0_14px_34px_rgba(0,0,0,0.4)] overflow-hidden transition-all duration-200 origin-top-left ' +
+                'absolute left-0 top-10 w-[372px] rounded-xl border z-[120] shadow-[0_14px_34px_rgba(0,0,0,0.4)] overflow-hidden backdrop-blur-sm transition-all duration-200 origin-top-left ' +
                 (profilesAnim ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none')
               }
+              style={{ backgroundColor: profilePanelBg, color: profilePanelTextColor, borderColor: profileBorderColor }}
             >
-              <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between">
+              <div className="px-4 py-3 border-b flex items-center justify-between" style={{ borderColor: profileBorderColor }}>
                 <p className="text-sm font-semibold">Profile Manager</p>
                 <div className="flex items-center gap-1">
-                  <button className="p-1.5 rounded-md hover:bg-[#ffffff10]" title="Export profile" onClick={exportActiveProfile}>
+                  <button className={clsx('p-1.5 rounded-md', profileIconHover)} title="Export profile" onClick={exportActiveProfile}>
                     <Download size={14} />
                   </button>
                 </div>
               </div>
 
-              <div className="px-4 pt-3 pb-2 border-b border-white/10">
-                <p className="text-xs opacity-70">Current Profile</p>
+              <div className="px-4 pt-3 pb-2 border-b" style={{ backgroundColor: profilePanelSubtleBg, borderColor: profileBorderColor }}>
+                <p className="text-xs" style={{ color: profilePanelMutedText }}>Current Profile</p>
                 <p className="text-sm font-semibold truncate">{activeProfile?.name || 'Default'}</p>
               </div>
 
               <div className="p-3 space-y-2 max-h-[290px] overflow-y-auto">
-                <p className="text-xs opacity-70 px-1">Available Profiles</p>
+                <p className="text-xs px-1" style={{ color: profilePanelMutedText }}>Available Profiles</p>
                 {profiles.map((profile) => {
                   const active = profile.id === activeProfileId;
                   const isRenaming = renameId === profile.id;
                   return (
                     <div
                       key={profile.id}
-                      className={clsx('rounded-lg border px-2 py-2 transition duration-75', active ? 'border-white/25 bg-white/12' : 'border-white/10 bg-white/5 cursor-pointer hover:bg-white/10')}
+                      className={clsx('rounded-lg border px-2.5 py-2.5 transition-colors duration-150', active ? profileRowActive : clsx(profileRowIdle, 'cursor-pointer'))}
                       onClick={() => !active && !isRenaming && switchProfile(profile.id)}
                     >
                       <div className="flex items-center justify-between gap-2">
@@ -392,7 +405,8 @@ const TabBar = () => {
                               onKeyDown={(e) => {
                                 if (e.key === 'Enter') saveRename();
                               }}
-                              className="w-full bg-[#00000040] border border-white/20 outline-none focus:border-white/40 rounded px-2 py-1 text-sm shadow-inner"
+                              className="w-full border border-white/20 outline-none focus:border-white/40 rounded px-2 py-1 text-sm shadow-inner"
+                              style={{ backgroundColor: profilePanelInputBg, color: profilePanelTextColor }}
                               placeholder="Profile name"
                               autoFocus
                               onClick={(e) => e.stopPropagation()}
@@ -400,24 +414,24 @@ const TabBar = () => {
                           ) : (
                             <p className="text-sm font-medium truncate">{profile.name}</p>
                           )}
-                          <p className="text-[11px] opacity-70">{active ? '• Active' : '• Available'}</p>
+                          <p className="text-[11px]" style={{ color: profilePanelMutedText }}>{active ? '• Active' : '• Available'}</p>
                         </div>
                         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                           {isRenaming ? (
-                            <button className="p-1 rounded hover:bg-white/10" onClick={saveRename} title="Save name">
+                            <button className={clsx('p-1 rounded', profileIconHover)} onClick={saveRename} title="Save name">
                               <Check size={13} />
                             </button>
                           ) : (
-                            <button className="p-1 rounded hover:bg-white/10" onClick={() => { setRenameId(profile.id); setRenameValue(profile.name); }} title="Rename">
+                            <button className={clsx('p-1 rounded', profileIconHover)} onClick={() => { setRenameId(profile.id); setRenameValue(profile.name); }} title="Rename">
                               <Pencil size={13} />
                             </button>
                           )}
 
-                          <button className="p-1 rounded hover:bg-white/10" onClick={() => exportSpecificProfile(profile)} title="Export Profile">
+                          <button className={clsx('p-1 rounded', profileIconHover)} onClick={() => exportSpecificProfile(profile)} title="Export Profile">
                             <Download size={13} />
                           </button>
                           {profiles.length > 1 && (
-                            <button className="p-1 rounded hover:bg-white/10 hover:text-red-400" onClick={() => deleteProfile(profile.id)} title="Delete">
+                            <button className={clsx('p-1 rounded', profileIconHover, 'hover:text-red-400')} onClick={() => deleteProfile(profile.id)} title="Delete">
                               <Trash2 size={13} />
                             </button>
                           )}
@@ -436,22 +450,29 @@ const TabBar = () => {
                     if (e.key === 'Enter') createProfile();
                   }}
                   placeholder="New profile name"
-                  className="flex-1 h-9 rounded-md bg-[#00000040] shadow-inner outline-none focus:border-white/30 border border-white/10 px-2 text-sm"
+                  className="flex-1 h-9 rounded-md shadow-inner outline-none focus:border-white/30 border border-white/10 px-2 text-sm"
+                  style={{ backgroundColor: profilePanelInputBg, color: profilePanelTextColor }}
                 />
-                <button className="h-9 px-3 rounded-md bg-[#ffffff18] hover:bg-[#ffffff28] text-sm font-medium flex items-center gap-1.5" onClick={createProfile}>
+                <button
+                  className="h-9 px-3 rounded-md border border-white/15 hover:brightness-110 text-sm font-medium flex items-center gap-1.5"
+                  style={{ backgroundColor: profileCreateBg, color: '#ffffff' }}
+                  onClick={createProfile}
+                >
                   <UserPlus size={13} /> Create
                 </button>
               </div>
 
               <div className="px-3 pb-3 grid grid-cols-2 gap-2">
                 <button
-                  className="h-9 rounded-md border border-white/10 bg-[#ffffff08] hover:bg-[#ffffff14] text-sm flex items-center justify-center gap-1.5"
+                  className="h-9 rounded-md border border-white/10 hover:brightness-110 text-sm flex items-center justify-center gap-1.5"
+                  style={{ backgroundColor: profileSecondaryBg }}
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <Upload size={13} /> Import
                 </button>
                 <button
-                  className="h-9 rounded-md border border-white/10 bg-[#ffffff08] hover:bg-[#ffffff14] text-sm flex items-center justify-center gap-1.5"
+                  className="h-9 rounded-md border border-white/10 hover:brightness-110 text-sm flex items-center justify-center gap-1.5"
+                  style={{ backgroundColor: profileSecondaryBg }}
                   onClick={clearActiveProfileData}
                 >
                   <Trash2 size={13} /> Clear Data

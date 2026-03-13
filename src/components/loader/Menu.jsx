@@ -5,40 +5,9 @@ import loaderStore from '/src/utils/hooks/loader/useLoaderStore';
 import Zoom from './menu/Zoom';
 import Bookmarks from '../Bookmarks';
 import { createId } from '/src/utils/id';
-import { process } from '/src/utils/hooks/loader/utils';
+import { process, isInternalGhostTabUrl } from '/src/utils/hooks/loader/utils';
 
-const INTERNAL_GHOST_PATHS = ['/apps', '/settings', '/discover', '/docs', '/search', '/code', '/ai', '/remote', '/new'];
-
-const isInternalGhostTabUrl = (urlValue) => {
-  const raw = String(urlValue || '').trim();
-  if (!raw || raw === 'tabs://new') return true;
-  if (raw.startsWith('ghost://') || raw.startsWith('tabs://')) return true;
-  if (raw.includes('ghost=1')) return true;
-
-  try {
-    const parsed = new URL(raw, location.origin);
-    if (parsed.searchParams.get('ghost') === '1') return true;
-
-    // Check pathname-based routes (BrowserRouter / localhost)
-    const path = parsed.pathname.replace(/\/$/, '') || '/';
-    if (INTERNAL_GHOST_PATHS.some((base) => path === base || path.startsWith(`${base}/`))) return true;
-
-    // Check hash-based routes (HashRouter / static/Cloudflare builds)
-    let hashStr = parsed.hash || '';
-    if (hashStr) {
-      if (hashStr.includes('ghost=1')) return true;
-      if (hashStr.startsWith('#')) hashStr = hashStr.slice(1);
-      if (!hashStr.startsWith('/')) hashStr = '/' + hashStr;
-
-      const hashPath = hashStr.split('?')[0].replace(/\/$/, '');
-      if (INTERNAL_GHOST_PATHS.some((base) => hashPath === base || hashPath.startsWith(`${base}/`))) return true;
-    }
-
-    return false;
-  } catch {
-    return false;
-  }
-};
+const BUG_REPORT_FORM_URL = 'https://forms.gle/94VwArsXReWqyWWr9';
 
 const devTools = (fr) => {
   if (!fr?.contentWindow || !fr?.contentDocument) return;
@@ -158,7 +127,9 @@ export default function Menu() {
     },
     {
       name: 'Report Bug',
-      fn: () => { },
+      fn: () => {
+        window.open(BUG_REPORT_FORM_URL, '_blank', 'noopener,noreferrer');
+      },
     },
   ];
 
