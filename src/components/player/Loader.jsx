@@ -1,4 +1,4 @@
-import { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback, useEffect } from 'react';
 import {
   Maximize2,
   SquareArrowOutUpRight,
@@ -18,16 +18,67 @@ import theming from '/src/styles/theming.module.css';
 import clsx from 'clsx';
 import Tooltip from '@mui/material/Tooltip';
 
+const BUG_REPORT_FORM_URL = 'https://forms.gle/94VwArsXReWqyWWr9';
+
 const Loader = ({ theme, app }) => {
   const nav = useNavigate();
   const gmRef = useRef(null);
   const [zoom, setZoom] = useState(1);
+  const [runtimeHtmlUrl, setRuntimeHtmlUrl] = useState('');
+  const [runtimeLoading, setRuntimeLoading] = useState(false);
   const { options } = useOptions();
   const { gmUrl, loading, downloading } = useLocalGmLoader(app);
   const isLocal = app?.local;
   const proxiedUrl = app?.url
     ? process(app.url, false, options.prType || 'auto', options.engine || null)
     : '';
+
+  useEffect(() => {
+    if (isLocal || !app?.renderAsHtml || !app?.url) {
+      setRuntimeHtmlUrl('');
+      setRuntimeLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+    let createdUrl = '';
+
+    const resolveHtmlRuntime = async () => {
+      setRuntimeLoading(true);
+      const candidates = [app.url, proxiedUrl].filter(Boolean);
+
+      for (const candidate of candidates) {
+        try {
+          const response = await fetch(candidate);
+          if (!response.ok) continue;
+          const text = await response.text();
+          if (!String(text || '').trim()) continue;
+
+          createdUrl = URL.createObjectURL(new Blob([text], { type: 'text/html' }));
+          if (!cancelled) {
+            setRuntimeHtmlUrl(createdUrl);
+            setRuntimeLoading(false);
+          }
+          return;
+        } catch { }
+      }
+
+      if (!cancelled) {
+        setRuntimeHtmlUrl('');
+        setRuntimeLoading(false);
+      }
+    };
+
+    resolveHtmlRuntime();
+
+    return () => {
+      cancelled = true;
+      if (createdUrl) URL.revokeObjectURL(createdUrl);
+    };
+  }, [isLocal, app?.renderAsHtml, app?.url, proxiedUrl]);
+
+  const remoteFrameUrl = runtimeHtmlUrl || proxiedUrl || app?.url;
+  const showRemoteLoader = !isLocal && !!app?.renderAsHtml && runtimeLoading && !runtimeHtmlUrl;
 
   const fs = useCallback(() => {
     if (gmRef.current) {
@@ -91,7 +142,7 @@ const Loader = ({ theme, app }) => {
         </Tooltip>
       </div>
 
-      {loading ? (
+      {loading || showRemoteLoader ? (
         <div className="w-full flex-grow flex items-center justify-center">
           {downloading ? 'Downloading...' : 'Loading...'}
         </div>
@@ -106,8 +157,8 @@ const Loader = ({ theme, app }) => {
         />
       ) : (
         <iframe
-          key={proxiedUrl || app?.url}
-          src={proxiedUrl || app?.url}
+          key={remoteFrameUrl}
+          src={remoteFrameUrl}
           ref={gmRef}
           onContextMenu={(e) => e.preventDefault()}
           className="w-full flex-grow"
@@ -133,7 +184,7 @@ const Loader = ({ theme, app }) => {
         <Control
           icon={Bug}
           fn={() =>
-            window.open('https://forms.gle/JnvtauV7vX5trxAy8', '_blank', 'noopener noreferrer')
+            window.open(BUG_REPORT_FORM_URL, '_blank', 'noopener noreferrer')
           }
           className="ml-auto"
         >

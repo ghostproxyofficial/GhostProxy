@@ -103,7 +103,7 @@ const Footer = memo(() => {
 
   useEffect(() => {
     pollLatency();
-    const interval = setInterval(pollLatency, 12000);
+    const interval = setInterval(pollLatency, 10000);
     return () => clearInterval(interval);
   }, [pollLatency]);
 
@@ -133,19 +133,52 @@ const Footer = memo(() => {
     return { jitter, stutter, packetLoss };
   }, [samples, probeStats]);
 
+  const openInGhostTab = useCallback((url, config = {}) => {
+    const topWindow = (() => {
+      try {
+        return window.top && window.top !== window ? window.top : window;
+      } catch {
+        return window;
+      }
+    })();
+    const openBrowserTab = topWindow.__ghostOpenBrowserTab;
+    if (typeof openBrowserTab === 'function') {
+      openBrowserTab(url, config);
+      return true;
+    }
+    return false;
+  }, []);
+
+  const openExternalLink = useCallback((url) => {
+    if (inGhostBrowserMode && openInGhostTab(url, { title: 'New Tab' })) {
+      return;
+    }
+    window.open(url, '_blank', 'noopener,noreferrer');
+  }, [inGhostBrowserMode, openInGhostTab]);
+
   const openInfo = useCallback(() => {
-    navigate('/search', {
-      state: {
-        url: '/settings?ghost=1&section=Info',
-        openInGhostNewTab: true,
-        skipProxy: true,
-      },
-    });
-  }, [navigate]);
+    if (inGhostBrowserMode) {
+      openInGhostTab('ghost://settings', { title: 'Ghost Settings' });
+      return;
+    }
+    navigate('/settings?section=Info');
+  }, [inGhostBrowserMode, navigate, openInGhostTab]);
 
   const openChangelog = useCallback(() => {
-    navigate('/search?ghost=1&changelog=1');
-  }, [navigate]);
+    if (inGhostBrowserMode) {
+      try {
+        const topWindow = window.top && window.top !== window ? window.top : window;
+        topWindow.dispatchEvent(new Event('ghost-open-changelog'));
+        return;
+      } catch {
+      }
+      if (openInGhostTab('ghost://search', { title: 'Ghost' })) {
+        return;
+      }
+      return;
+    }
+    navigate('/search?changelog=1');
+  }, [inGhostBrowserMode, navigate, openInGhostTab]);
 
   const latencyColorClass = latency > 250
     ? 'text-[#ef4444]'
@@ -161,9 +194,9 @@ const Footer = memo(() => {
       )}>
         <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" onClick={openChangelog}>v1</button>
         <span className="opacity-55">\</span>
-        <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" type="button" onClick={() => navigate('/search', { state: { url: 'https://github.com/ghostproxyofficial/GhostProxy', openInGhostNewTab: true } })}>GitHub</button>
+        <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" type="button" onClick={() => openExternalLink('https://github.com/ghostproxyofficial/GhostProxy')}>GitHub</button>
         <span className="opacity-55">\</span>
-        <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" type="button" onClick={() => navigate('/search', { state: { url: 'https://discord.gg/UZzYt4uE6D', openInGhostNewTab: true } })}>Discord</button>
+        <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" type="button" onClick={() => openExternalLink('https://discord.gg/UZzYt4uE6D')}>Discord</button>
         <span className="opacity-55">\</span>
         <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" onClick={openInfo}>Info</button>
       </div>

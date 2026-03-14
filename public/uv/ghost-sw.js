@@ -19,19 +19,16 @@ async function handleRequest(event) {
     return await uv.fetch(event);
   }
   // Only fetch same-origin or relative requests directly.
-  // Cross-origin requests that aren't UV-routed should not be
-  // intercepted — let the browser handle them natively.
+  // Cross-origin requests that aren't UV-routed must be blocked,
+  // otherwise they can escape proxying if route activation fails.
   const url = new URL(event.request.url);
   if (url.origin === location.origin) {
     return await fetch(event.request);
   }
-  // For cross-origin non-UV requests, return a transparent fetch
-  // with mode/credentials that won't trigger CORS failures.
-  return await fetch(event.request.url, {
-    method: event.request.method,
-    headers: event.request.headers,
-    mode: 'no-cors',
-    credentials: 'omit',
+  return new Response('Blocked non-proxied cross-origin request', {
+    status: 470,
+    statusText: 'Proxy Required',
+    headers: { 'content-type': 'text/plain; charset=utf-8' },
   });
 }
 

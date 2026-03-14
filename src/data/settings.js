@@ -13,8 +13,16 @@ const newTabPageConfig = [
   { option: 'Ghost Home', value: { newTabPage: 'ghost' } },
   { option: 'DuckDuckGo', value: { newTabPage: 'duckduckgo' } },
   { option: 'Google', value: { newTabPage: 'google' } },
-  { option: 'Blank', value: { newTabPage: 'blank' } },
 ];
+
+const prioritizeOption = (config, optionName) => {
+  const index = config.findIndex((item) => item.option === optionName);
+  if (index <= 0) return config;
+  return [config[index], ...config.slice(0, index), ...config.slice(index + 1)];
+};
+
+const themeConfigForSettings = prioritizeOption(themeConfig, 'Dark');
+const designConfigForSettings = prioritizeOption(designConfig, 'Griddy');
 
 const transportConfig = [
   { option: 'LibCurl', value: { transport: 'libcurl' } },
@@ -123,16 +131,16 @@ export const customizeConfig = ({ options, updateOption, openCssEditor }) => ({
   1: {
     name: 'Site Theme',
     desc: 'Customize the appearance of the website by selecting a theme.',
-    config: themeConfig,
-    value: find(themeConfig, (c) => c.value?.themeName === options.themeName, 0),
+    config: themeConfigForSettings,
+    value: find(themeConfigForSettings, (c) => c.value?.themeName === options.themeName, 0),
     type: 'select',
     action: (a) => updateOption(a),
   },
   2: {
     name: 'Background Design',
     desc: "Customize the site's background design. Background designs do not work with Custom Background URL.",
-    config: designConfig,
-    value: find(designConfig, (c) => c.value?.bgDesign === options.bgDesign, 0),
+    config: designConfigForSettings,
+    value: find(designConfigForSettings, (c) => c.value?.bgDesign === options.bgDesign, 0),
     type: 'select',
     action: (a) => updateOption(a),
     disabled: !!options.customBackgroundImage,

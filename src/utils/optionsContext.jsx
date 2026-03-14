@@ -68,12 +68,9 @@ const normalizeLegacyOptions = (stored) => {
       nextTab: ['Alt+Tab', 'Alt+`'],
       previousTab: ['Alt+Shift+Tab', 'Ctrl+Shift+~'],
       pinTab: ['Alt+P', 'Alt+Shift+P'],
-      createTabGroup: ['Ctrl+Shift+M', 'Alt+Shift+M'],
-      removeTabGroup: ['Ctrl+Shift+U', 'Alt+Shift+U'],
       goBack: ['Alt+ArrowLeft', 'Alt+Shift+ArrowLeft'],
       goForward: ['Alt+ArrowRight', 'Alt+Shift+ArrowRight'],
       goHome: ['Alt+H', 'Alt+Shift+H'],
-      viewPageSource: ['Alt+U', 'Ctrl+Shift+U'],
       zoomIn: ['Alt+=', 'Ctrl+='],
       zoomOut: ['Alt+-', 'Ctrl+-'],
       zoomReset: ['Ctrl+0', 'Alt+Shift+0'],
@@ -100,6 +97,19 @@ const normalizeLegacyOptions = (stored) => {
         key: 'Alt+Shift+K',
       };
     }
+
+    [
+      'createTabGroup',
+      'removeTabGroup',
+      'viewPageSource',
+      'findInPage',
+      'findNext',
+      'findPrevious',
+    ].forEach((id) => {
+      if (Object.prototype.hasOwnProperty.call(out.shortcuts, id)) {
+        delete out.shortcuts[id];
+      }
+    });
   }
 
   if (Array.isArray(out.quickLinks) && out.quickLinks.length >= 4) {

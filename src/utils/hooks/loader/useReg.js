@@ -98,7 +98,6 @@ export default function useReg() {
       } catch (e) {
         socket = null;
       }
-      !socket ? setWispStatus(false) : setWispStatus(true);
 
       const buildRemoteWisp = () => {
         if ((options.proxyRouting || 'direct') !== 'remote') return null;
@@ -124,10 +123,43 @@ export default function useReg() {
           ? options.wServer
           : remoteWisp || socket || ws;
 
+      const preferredTransport =
+        String(options.transport || 'libcurl').toLowerCase() === 'epoxy'
+          ? 'epoxy'
+          : 'libcurl';
+
+      const setTransportByName = async (name) => {
+        const modulePath = name === 'epoxy' ? '/epoxy/index.mjs' : '/libcurl/index.mjs';
+        await connection.setTransport(modulePath, [{ wisp: wispUrl }]);
+        window.__ghostActiveTransport = name;
+      };
+
       window.__ghostActiveWisp = wispUrl;
-      await connection.setTransport('/libcurl/index.mjs', [{ wisp: wispUrl }]);
+
+      try {
+        await setTransportByName(preferredTransport);
+        setWispStatus(true);
+      } catch (primaryError) {
+        const fallbackTransport = preferredTransport === 'epoxy' ? 'libcurl' : 'epoxy';
+        console.warn(
+          `[proxy] ${preferredTransport} transport failed; trying ${fallbackTransport}.`,
+          primaryError,
+        );
+        try {
+          await setTransportByName(fallbackTransport);
+          setWispStatus(true);
+        } catch (fallbackError) {
+          window.__ghostActiveTransport = null;
+          setWispStatus(false);
+          console.error('[proxy] Failed to initialize transport.', {
+            primaryError,
+            fallbackError,
+            wispUrl,
+          });
+        }
+      }
     };
 
     init();
-  }, [options.wServer, options.proxyRouting, options.remoteProxyServer]);
+  }, [options.wServer, options.proxyRouting, options.remoteProxyServer, options.transport]);
 }

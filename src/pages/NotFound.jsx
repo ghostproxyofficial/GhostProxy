@@ -15,14 +15,25 @@ const NotFound = () => {
   const isProxyPath = loc.pathname.includes('/scramjet/') || loc.pathname.includes('/uv/service/');
 
   const recoverBrowserMode = () => {
-    const target = '/search?ghost=1';
+    const target = 'ghost://search';
     try {
-      if (window.top && window.top !== window) {
-        window.top.location.replace(target);
+      const topWindow = window.top && window.top !== window ? window.top : window;
+      const getActiveTabId = topWindow.__ghostGetActiveTabId;
+      const updateTabUrl = topWindow.__ghostUpdateBrowserTabUrl;
+      if (typeof getActiveTabId === 'function' && typeof updateTabUrl === 'function') {
+        const activeTabId = getActiveTabId();
+        if (activeTabId) {
+          updateTabUrl(activeTabId, target);
+          return;
+        }
+      }
+      const openBrowserTab = topWindow.__ghostOpenBrowserTab;
+      if (typeof openBrowserTab === 'function') {
+        openBrowserTab(target, { title: 'Ghost' });
         return;
       }
     } catch { }
-    nav(target, { replace: true });
+    nav('/', { replace: true });
   };
 
   const colorConfig = {
@@ -32,7 +43,7 @@ const NotFound = () => {
 
   useEffect(() => {
     if (!isProxyPath) {
-      nav('/search?ghost=1', { replace: true });
+      recoverBrowserMode();
       return;
     }
 

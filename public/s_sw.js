@@ -17,7 +17,16 @@ async function handleRequest(event) {
     return scramjet.fetch(event);
   }
 
-  return fetch(event.request);
+  const url = new URL(event.request.url);
+  if (url.origin === location.origin) {
+    return fetch(event.request);
+  }
+
+  return new Response('Blocked non-proxied cross-origin request', {
+    status: 470,
+    statusText: 'Proxy Required',
+    headers: { 'content-type': 'text/plain; charset=utf-8' },
+  });
 }
 
 self.addEventListener('fetch', (event) => {

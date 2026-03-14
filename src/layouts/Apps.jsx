@@ -236,7 +236,7 @@ const AppCard = memo(({ app, onClick, fallbackMap, onImgError, itemTheme, itemSt
           <div className="absolute inset-0 bg-gray-700 animate-pulse" />
         )}
         {hideIcon || fallbackMap[app.appName] ? (
-          <LayoutGrid className="w-full h-full" />
+          app.appName === 'Code Runner' ? <Hammer className="w-full h-full p-2" /> : <LayoutGrid className="w-full h-full" />
         ) : (
           <img
             src={app.icon && String(app.icon).includes('placeholder.com') ? '' : app.icon}

@@ -490,7 +490,7 @@ const TabBar = () => {
         )}
       </div>
 
-      {tabs.map(({ title, id, active, isLoading, url, pinned, group }, index) => {
+      {tabs.map(({ title, id, active, isLoading, url, pinned }, index) => {
         const showGlobe = url === 'tabs://new' || !isLoading;
         const ghostLabel = getGhostTabLabel(url);
         const displayTitle = ghostLabel || (url === 'tabs://new' ? 'New Tab' : title);
@@ -533,25 +533,26 @@ const TabBar = () => {
               <Loader size={15} className="flex-shrink-0 animate-spin" />
             )}
             {pinned && <span className="ml-1 text-[0.64rem] opacity-80">📌</span>}
-            {group && <span className="ml-1 text-[0.62rem] opacity-70">[{group}]</span>}
             <span className="truncate text-[0.79rem] ml-1 min-w-0">{displayTitle}</span>
-            <X
-              size={13}
-              className={clsx("ml-auto flex-shrink-0 duration-200 cursor-pointer")}
-              onClick={(e) => {
-                e.stopPropagation();
-                if (tabs.length > 1) {
-                  active && setLastActive(id);
-                  removeTab(id);
-                  return;
-                }
+            {!pinned && (
+              <X
+                size={13}
+                className={clsx("ml-auto flex-shrink-0 duration-200 cursor-pointer")}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (tabs.length > 1) {
+                    active && setLastActive(id);
+                    removeTab(id);
+                    return;
+                  }
 
-                if (url !== 'tabs://new') {
-                  updateUrl(id, process('ghost://home', false, options.prType || 'auto', options.engine || null));
-                  updateTitle(id, 'New Tab');
-                }
-              }}
-            />
+                  if (url !== 'tabs://new') {
+                    updateUrl(id, process('ghost://home', false, options.prType || 'auto', options.engine || null));
+                    updateTitle(id, 'New Tab');
+                  }
+                }}
+              />
+            )}
           </div>
         );
       })}

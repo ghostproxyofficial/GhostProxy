@@ -66,6 +66,7 @@ const Type = ({ type, title }) => {
 };
 
 const InfoPanel = () => {
+  const { options } = useOptions();
   const sections = Object.values(settings.infoConfig());
   const [open, setOpen] = useState('Project Credits');
   const runtimeLibraries = useMemo(() => Object.keys(pkg.dependencies || {}).sort(), []);
@@ -209,7 +210,10 @@ const InfoPanel = () => {
           Report a Bug
         </button>
       </div>
-      <div className="rounded-xl overflow-hidden border border-white/10 bg-[#121d2c]">
+      <div
+        className="rounded-xl overflow-hidden border border-white/10"
+        style={{ backgroundColor: options.settingsContainerColor || options.quickModalBgColor || options.menuColor || '#1a252f' }}
+      >
         {sections.map((section) => {
           const isOpen = open === section.name;
           const Icon = iconMap[section.name] || ShieldAlert;
@@ -225,7 +229,10 @@ const InfoPanel = () => {
                 {isOpen ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
               </button>
               {isOpen && (
-                <div className="px-4 pt-3 pb-4 border-t border-white/10 bg-[#0d1522]">
+                <div
+                  className="px-4 pt-3 pb-4 border-t border-white/10"
+                  style={{ backgroundColor: options.settingsDropdownColor || options.quickModalBgColor || options.menuColor || '#0f141c' }}
+                >
                   {contentMap[section.name] || (
                     <div className="text-sm opacity-80 py-3 flex items-center gap-2">
                       <Heart size={15} /> Content coming soon.
@@ -253,6 +260,8 @@ const Setting = ({ setting }) => {
   const [panicOpen, setPanicOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
+  const [historyRender, setHistoryRender] = useState(false);
+  const [historyAnim, setHistoryAnim] = useState(false);
   const [historyQuery, setHistoryQuery] = useState('');
   const [dataOpen, setDataOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
@@ -338,6 +347,24 @@ const Setting = ({ setting }) => {
   }, [cssEditorOpen]);
 
   useEffect(() => {
+    if (historyOpen) {
+      setHistoryAnim(false);
+      setHistoryRender(true);
+      let inner = 0;
+      const outer = requestAnimationFrame(() => {
+        inner = requestAnimationFrame(() => setHistoryAnim(true));
+      });
+      return () => {
+        cancelAnimationFrame(outer);
+        cancelAnimationFrame(inner);
+      };
+    }
+    setHistoryAnim(false);
+    const t = setTimeout(() => setHistoryRender(false), 200);
+    return () => clearTimeout(t);
+  }, [historyOpen]);
+
+  useEffect(() => {
     const handleExport = () => setExportOpen(true);
     const handleImport = () => setImportOpen(true);
     window.addEventListener('ghost-export-data', handleExport);
@@ -401,12 +428,19 @@ const Setting = ({ setting }) => {
   const openHistoryItem = (item) => {
     const rawUrl = String(item?.url || '').trim();
     if (!rawUrl) return;
-    navigate('/search', {
-      state: {
-        url: rawUrl,
-        openInGhostNewTab: true,
-      },
-    });
+
+    const openInBrowserTab =
+      window.top?.__ghostOpenBrowserTab ||
+      window.__ghostOpenBrowserTab;
+
+    if (typeof openInBrowserTab === 'function') {
+      openInBrowserTab(rawUrl, {
+        title: item?.title || 'New Tab',
+      });
+    } else {
+      window.open(rawUrl, '_blank', 'noopener,noreferrer');
+    }
+
     setHistoryOpen(false);
   };
 
@@ -444,13 +478,7 @@ const Setting = ({ setting }) => {
   };
 
   const dataSettings = settings.dataConfig({
-    openHistoryData: () => {
-      navigate('/search?ghost=1', {
-        state: {
-          openHistoryPopup: true,
-        },
-      });
-    },
+    openHistoryData: () => setHistoryOpen(true),
     openViewData: () => setDataOpen(true),
     deleteData: handleDeleteData,
   });
@@ -761,13 +789,13 @@ const Setting = ({ setting }) => {
           </div>
         </div>
       )}
-      {historyOpen && (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setHistoryOpen(false)} />
+      {historyRender && (
+        <div className={`fixed inset-0 z-[10000] flex items-center justify-center p-4 transition-opacity duration-200 ${historyAnim ? 'opacity-100' : 'opacity-0'}`}>
+          <div className={`absolute inset-0 bg-black/50 transition-opacity duration-200 ${historyAnim ? 'opacity-100' : 'opacity-0'}`} onClick={() => setHistoryOpen(false)} />
           <div
             className={clsx(
               theme[`theme-${options.theme || 'default'}`],
-              "relative w-full max-w-4xl max-h-[80dvh] rounded-xl border border-white/10 overflow-hidden"
+              `relative w-full max-w-4xl max-h-[80dvh] rounded-xl border border-white/10 overflow-hidden transition-all duration-200 ${historyAnim ? 'scale-100 translate-y-0' : 'scale-[0.965] translate-y-[6px]'}`
             )}
             style={{ backgroundColor: options.quickModalBgColor || options.menuColor || '#1a252f' }}
           >
@@ -775,7 +803,7 @@ const Setting = ({ setting }) => {
               <h2 className="text-lg font-semibold">View History</h2>
               <div className="flex items-center gap-2">
                 {historyItems.length > 0 && (
-                  <button onClick={clearHistory} className="h-8 px-2.5 rounded-md hover:bg-[#ffffff12] text-xs">
+                  <button onClick={clearHistory} className="h-8 px-2.5 rounded-md hover:bg-[#ffffff12] text-xs translate-y-[1px]">
                     Clear
                   </button>
                 )}
@@ -784,8 +812,9 @@ const Setting = ({ setting }) => {
                 </button>
               </div>
             </div>
-            <div className="p-4 overflow-y-auto max-h-[calc(80dvh-4rem)] space-y-2">
-              <div className="sticky top-0 z-10 pb-2 pt-1" style={{ backgroundColor: options.quickModalBgColor || options.menuColor || '#1a252f' }}>
+            <div className="px-4 pb-4 pt-0 overflow-y-auto max-h-[calc(80dvh-4rem)] space-y-2">
+              <div className="sticky top-0 z-10 pb-2 pt-0" style={{ backgroundColor: '#2d2d30' }}>
+                <div className="h-2" style={{ backgroundColor: '#2d2d30' }} />
                 <input
                   value={historyQuery}
                   onChange={(e) => setHistoryQuery(e.target.value)}

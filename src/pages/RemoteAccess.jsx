@@ -1,11 +1,9 @@
 import { memo, useState, useEffect } from 'react';
 import { useOptions } from '/src/utils/optionsContext';
-import { useNavigate } from 'react-router-dom';
 import { Globe, Server, ExternalLink, Network, SquareArrowOutUpRight } from 'lucide-react';
 
 const RemoteAccess = memo(() => {
   const { options } = useOptions();
-  const navigate = useNavigate();
   const [hoveredCard, setHoveredCard] = useState(null);
   const [discordHovered, setDiscordHovered] = useState(false);
   const [anim, setAnim] = useState(false);
@@ -29,7 +27,7 @@ const RemoteAccess = memo(() => {
     if (typeof opener === 'function') {
       opener('https://browser.lol/create');
     } else {
-      navigate('/search', { state: { url: 'https://browser.lol/create', openInGhostNewTab: true } });
+      window.open('https://browser.lol/create', '_blank', 'noopener,noreferrer');
     }
   };
 

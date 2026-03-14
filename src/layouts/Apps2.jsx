@@ -268,6 +268,7 @@ const Games = memo(() => {
   const nav = useNavigate();
   const { options } = useOptions();
   const [sourceKey, setSourceKey] = useState('gnmath');
+  const [showAllGames, setShowAllGames] = useState(false);
   const [sortBy, setSortBy] = useState('name-asc');
   const [sortOpen, setSortOpen] = useState(false);
   const [sourceOpen, setSourceOpen] = useState(false);
@@ -343,6 +344,36 @@ const Games = memo(() => {
   }, [data]);
 
   const filtered = useMemo(() => {
+    if (showAllGames) {
+      const sourceGames = GAME_SOURCE_CONFIG
+        .filter((source) => source.type !== 'divider' && source.type !== 'action' && source.key !== 'local')
+        .flatMap((source) => normalizeSourceGames(source));
+
+      const localGames = all.map((game) => ({
+        ...game,
+        sourceType: 'local',
+        sourceKey: 'local',
+        disabled: !game.url,
+      }));
+
+      const qLower = q.toLowerCase().trim();
+      let list = qLower
+        ? [...localGames, ...sourceGames].filter((game) => game.appName.toLowerCase().includes(qLower))
+        : [...localGames, ...sourceGames];
+
+      switch (sortBy) {
+        case 'name-desc':
+          list = [...list].sort((a, b) => b.appName.localeCompare(a.appName));
+          break;
+        default:
+          list = [...list].sort((a, b) => a.appName.localeCompare(b.appName));
+      }
+
+      const totalPages = Math.ceil(list.length / perPage);
+      const paged = list.slice((page - 1) * perPage, page * perPage);
+      return { filteredGames: list, paged, totalPages };
+    }
+
     if (!isLocalSource) {
       const normalized = normalizeSourceGames(selectedSource);
       const qLower = q.toLowerCase().trim();
@@ -387,7 +418,7 @@ const Games = memo(() => {
     const total = Math.ceil(toFilter.length / perPage);
     const paged = toFilter.slice((page - 1) * perPage, page * perPage);
     return { filteredGames: toFilter, paged, totalPages: total };
-  }, [isLocalSource, selectedSource, sortBy, all, data, category, showDl, dlGames, q, page, perPage]);
+  }, [showAllGames, isLocalSource, selectedSource, sortBy, all, data, category, showDl, dlGames, q, page, perPage]);
 
   useEffect(() => {
     if (page > filtered.totalPages && filtered.totalPages > 0) setPage(1);
@@ -417,9 +448,9 @@ const Games = memo(() => {
 
   const handleSearch = useCallback((e) => {
     setQ(e.target.value);
-    if (isLocalSource) setCategory(null);
+    if (isLocalSource || showAllGames) setCategory(null);
     setPage(1);
-  }, [isLocalSource]);
+  }, [isLocalSource, showAllGames]);
 
   const handleViewMore = useCallback((cat) => {
     setCategory(cat);
@@ -482,82 +513,31 @@ const Games = memo(() => {
       const hostedPathSources = new Set(['55gms', 'petezah', 'intersteller', 'space', 'truffled', 'selenite', 'velara']);
       const useRawHtmlLoader = isRawHtmlUrl(game.url) && !hostedPathSources.has(game.sourceKey);
 
-      if (!useRawHtmlLoader) {
-        const tabId = typeof opener === 'function'
-          ? opener(game.url, {
-            title: game.appName || 'New Tab',
-            skipProxy: isNowGG,
-          })
-          : null;
-        if (tabId && typeof updater === 'function') {
-          updater(tabId, game.url, { skipProxy: isNowGG });
-        } else {
-          openFallback(game.url, isNowGG);
-        }
+      if (useRawHtmlLoader) {
+        nav('/discover/r/', {
+          state: {
+            app: {
+              appName: game.appName,
+              desc: game.desc,
+              icon: game.icon,
+              url: game.url,
+              renderAsHtml: true,
+            },
+          },
+        });
         return;
       }
 
-      const loadingUrl = toDataDocUrl(buildLoadingDoc(game.appName || 'Game', 0, 0));
       const tabId = typeof opener === 'function'
-        ? opener(loadingUrl, { skipProxy: true, title: game.appName || 'Loading...' })
+        ? opener(game.url, {
+          title: game.appName || 'New Tab',
+          skipProxy: isNowGG,
+        })
         : null;
-
-      if (!tabId) {
-        openFallback(loadingUrl, true);
-      }
-
-      const updateLoading = (loaded, total) => {
-        const nextLoadingUrl = toDataDocUrl(buildLoadingDoc(game.appName || 'Game', loaded, total));
-        if (tabId && typeof updater === 'function') {
-          updater(tabId, nextLoadingUrl, { skipProxy: true });
-        }
-      };
-
-      try {
-        const response = await fetch(game.url);
-        if (!response.ok || !response.body) throw new Error('Unable to download raw HTML.');
-        const total = Number(response.headers.get('content-length') || 0);
-        const reader = response.body.getReader();
-        const chunks = [];
-        let loaded = 0;
-        let lastUpdate = 0;
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          if (value) {
-            chunks.push(value);
-            loaded += value.byteLength;
-            const now = Date.now();
-            if (now - lastUpdate > 150) {
-              updateLoading(loaded, total);
-              lastUpdate = now;
-            }
-          }
-        }
-
-        const merged = new Uint8Array(loaded);
-        let offset = 0;
-        for (const chunk of chunks) {
-          merged.set(chunk, offset);
-          offset += chunk.byteLength;
-        }
-
-        const text = new TextDecoder().decode(merged);
-        const blob = new Blob([text], { type: 'text/html' });
-        const blobUrl = URL.createObjectURL(blob);
-
-        if (tabId && typeof updater === 'function') {
-          updater(tabId, blobUrl, { skipProxy: true });
-        } else {
-          openFallback(blobUrl, true);
-        }
-      } catch {
-        if (tabId && typeof updater === 'function') {
-          updater(tabId, game.url, { skipProxy: true });
-        } else {
-          openFallback(game.url, true);
-        }
+      if (tabId && typeof updater === 'function') {
+        updater(tabId, game.url, { skipProxy: isNowGG });
+      } else {
+        openFallback(game.url, isNowGG);
       }
     },
     [nav],
@@ -601,7 +581,7 @@ const Games = memo(() => {
               }}
               className="h-11 min-w-[180px] rounded-[10px] px-3 bg-[#141418] border border-white/10 text-sm flex items-center justify-between gap-3 hover:bg-[#1b1b21] transition-colors"
             >
-              <span>{selectedSource.label}</span>
+              <span>{showAllGames ? 'All' : selectedSource.label}</span>
               <ChevronDown size={16} className={clsx('transition-transform', sourceOpen && 'rotate-180')} />
             </button>
 
@@ -656,6 +636,7 @@ const Games = memo(() => {
                           }
 
                           setSourceKey(source.key);
+                          setShowAllGames(false);
                           setCategory(null);
                           setShowDl(false);
                           setQ('');
@@ -677,7 +658,7 @@ const Games = memo(() => {
             )}
           </div>
 
-          {!isLocalSource && (
+          {(!isLocalSource || showAllGames) && (
             <div className="relative">
               <button
                 onClick={() => {
@@ -690,7 +671,23 @@ const Games = memo(() => {
                 <Menu size={17} />
               </button>
               {sortOpen && (
-                <div className="absolute right-0 top-12 w-44 rounded-md border border-white/10 bg-[#111117] z-[80] overflow-hidden">
+                <div className="absolute right-0 top-12 w-52 rounded-md border border-white/10 bg-[#111117] z-[80] overflow-hidden">
+                  <button
+                    onClick={() => {
+                      const next = !showAllGames;
+                      setShowAllGames(next);
+                      setCategory(null);
+                      setShowDl(false);
+                      setQ('');
+                      setPage(1);
+                      setSortOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2 text-sm hover:bg-[#ffffff12] flex items-center justify-between"
+                  >
+                    <span>Show all games</span>
+                    <span className={showAllGames ? 'text-emerald-300' : 'opacity-70'}>{showAllGames ? 'On' : 'Off'}</span>
+                  </button>
+                  <div className="h-px bg-white/10" />
                   {[
                     { key: 'name-asc', label: 'Name (A-Z)' },
                     { key: 'name-desc', label: 'Name (Z-A)' },
@@ -713,7 +710,7 @@ const Games = memo(() => {
         </div>
       </div>
 
-      {!isLocalSource && selectedSource.description && (
+      {!showAllGames && !isLocalSource && selectedSource.description && (
         <div className="text-center text-xs opacity-70 pb-2" dangerouslySetInnerHTML={{ __html: selectedSource.description }} />
       )}
 
@@ -736,7 +733,7 @@ const Games = memo(() => {
 
       {q || category || showDl || !isLocalSource ? (
         <>
-          {isLocalSource ? (
+          {isLocalSource && !showAllGames ? (
             <div className="flex flex-wrap justify-center pb-2">
               {filtered.paged.map((game) => (
                 <AppCard
@@ -755,8 +752,14 @@ const Games = memo(() => {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 px-6 pb-6">
               {filtered.paged.map((game) => (
                 <button
-                  key={`${selectedSource.key}-${game.appName}`}
-                  onClick={() => openSourceGame(game)}
+                  key={`${game.sourceKey || selectedSource.key}-${game.appName}`}
+                  onClick={() => {
+                    if (game.sourceKey === 'local') {
+                      navApp(game);
+                      return;
+                    }
+                    openSourceGame(game);
+                  }}
                   className="group relative rounded-2xl border border-white/12 bg-[#111a27] overflow-hidden aspect-[16/10] shadow-[0_8px_22px_rgba(0,0,0,0.24)] hover:shadow-[0_14px_30px_rgba(0,0,0,0.36)] hover:-translate-y-0.5 transition-all"
                 >
                   {game.icon && !game.noIcon && (!options.performanceMode || /ghost/i.test(String(game.icon))) ? (
@@ -982,9 +985,9 @@ const GamesLayout = () => {
   );
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-[100dvh] min-h-0 overflow-hidden">
       {!inGhostBrowserMode && <Nav />}
-      <div className={clsx('flex-1 overflow-y-auto', scrollCls)}>
+      <div className={clsx('flex-1 min-h-0 overflow-y-scroll', scrollCls)}>
         <div className="w-full flex justify-center pt-6 px-4">
           <div className="flex items-center gap-2 rounded-xl p-1 bg-[#ffffff10]">
             {[

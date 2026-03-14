@@ -104,6 +104,27 @@ const Docs = memo(() => {
   const isMac = typeof navigator !== 'undefined' ? /Mac|iPhone|iPad|iPod/i.test(navigator.platform) : false;
   const shortcutLabel = isMac ? 'Cmd+K' : 'Ctrl+K';
   const inGhostBrowserMode = new URLSearchParams(location.search).get('ghost') === '1';
+  const openGhostRoute = (route, title = 'Ghost Docs') => {
+    const normalizedRoute = String(route || '').trim();
+    if (!normalizedRoute) return false;
+    try {
+      const topWin = window.top && window.top !== window ? window.top : window;
+      const getTabId = topWin.__ghostGetActiveTabId;
+      const updater = topWin.__ghostUpdateBrowserTabUrl;
+      const tabId = typeof getTabId === 'function' ? getTabId() : null;
+      if (tabId && typeof updater === 'function') {
+        updater(tabId, normalizedRoute, { skipProxy: true });
+        return true;
+      }
+      const opener = topWin.__ghostOpenBrowserTab;
+      if (typeof opener === 'function') {
+        opener(normalizedRoute, { title, skipProxy: true });
+        return true;
+      }
+    } catch {
+    }
+    return false;
+  };
   const { options } = useOptions();
   const panelBg = options.quickModalBgColor || options.menuColor || '#1a252f';
   const cardBg = options.menuColor || options.quickModalBgColor || '#0f141c';
@@ -200,8 +221,11 @@ const Docs = memo(() => {
   }, [activeTopic?.file]);
 
   const openTopic = (catId, itemId) => {
-    const search = inGhostBrowserMode ? '?ghost=1' : '';
-    navigate(`/docs/${catId}/${itemId}${search}`);
+    if (inGhostBrowserMode) {
+      openGhostRoute(`ghost://docs/${catId}/${itemId}`);
+      return;
+    }
+    navigate(`/docs/${catId}/${itemId}`);
   };
 
   const renderedMarkdown = useMemo(() => renderMarkdown(markdown), [markdown]);
@@ -215,11 +239,17 @@ const Docs = memo(() => {
 
   if (topicId) {
     return (
-      <div className="min-h-full px-4 md:px-8 pt-6 pb-10" style={{ color: textColor }}>
+      <div className="h-[100dvh] overflow-y-auto px-4 md:px-8 py-8" style={{ color: textColor }}>
         <div className="mx-auto max-w-5xl">
           <button
             type="button"
-            onClick={() => navigate(`/docs${inGhostBrowserMode ? '?ghost=1' : ''}`)}
+            onClick={() => {
+              if (inGhostBrowserMode) {
+                openGhostRoute('ghost://docs');
+                return;
+              }
+              navigate('/docs');
+            }}
             className="h-9 px-3 rounded-md bg-[#ffffff12] hover:bg-[#ffffff1f] text-sm inline-flex items-center gap-2"
           >
             <ArrowLeft size={15} /> Back
@@ -257,7 +287,7 @@ const Docs = memo(() => {
   }
 
   return (
-    <div className="min-h-full relative" style={{ color: textColor }}>
+    <div className="h-[100dvh] overflow-y-auto relative" style={{ color: textColor }}>
       {!inGhostBrowserMode && (
         <div
           className="sticky top-0 z-50 border-b border-white/10 backdrop-blur"
@@ -290,7 +320,7 @@ const Docs = memo(() => {
         </div>
       )}
 
-      <div className="mx-auto max-w-7xl px-4 md:px-8 pt-6 pb-10 relative">
+      <div className="mx-auto max-w-7xl px-4 md:px-8 py-8 relative">
         <div className="relative overflow-hidden rounded-2xl border border-white/10 p-8 mb-7" style={{ backgroundColor: cardBg }}>
           <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'repeating-linear-gradient(135deg, #ffffff0c, #ffffff0c 2px, transparent 2px, transparent 16px)' }} />
           <div className="absolute inset-0 opacity-12" style={{ backgroundImage: 'radial-gradient(circle at 20% 15%, #ffffff18 0 2px, transparent 3px), radial-gradient(circle at 70% 60%, #ffffff16 0 2px, transparent 3px)' }} />
@@ -373,7 +403,7 @@ const Docs = memo(() => {
                     navigate('/');
                   }
                 }}
-                className="mt-1 h-9 px-5 rounded-lg bg-white/10 hover:bg-white/18 border border-white/15 text-sm transition-colors"
+                className="mt-1 h-9 px-5 rounded-lg bg-white/10 hover:bg-white/18 hover:brightness-110 hover:shadow-[0_0_0_1px_rgba(255,255,255,0.18)] border border-white/15 text-sm transition-all"
                 style={{ color: popupPrimaryText, backgroundColor: popupPrimaryBg, borderColor: 'transparent' }}
               >
                 Return Home

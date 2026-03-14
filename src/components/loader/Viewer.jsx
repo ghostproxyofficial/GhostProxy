@@ -5,7 +5,7 @@ import { useOptions } from '/src/utils/optionsContext';
 import { process, isInternalGhostTabUrl } from '/src/utils/hooks/loader/utils';
 import { useRef, useEffect, useState } from 'react';
 import { Loader } from 'lucide-react';
-import { getEffectiveShortcuts } from '/src/utils/shortcuts';
+import { eventToShortcut, getEffectiveShortcuts } from '/src/utils/shortcuts';
 
 import NewTab from './NewTab';
 
@@ -101,6 +101,16 @@ const Viewer = ({ zoom }) => {
 
   const isInternalGhostUrl = (urlValue) => {
     return isInternalGhostTabUrl(urlValue);
+  };
+
+  const isNewTabLikeUrl = (rawUrl) => {
+    const value = String(rawUrl || '').trim().toLowerCase();
+    return (
+      value === 'tabs://new' ||
+      value === 'ghost://home' ||
+      value === 'ghost://new-tab' ||
+      value === 'ghost://newtab'
+    );
   };
 
   const getSitePolicyForTab = (tabUrl) => {
@@ -358,11 +368,17 @@ const Viewer = ({ zoom }) => {
 
   const getFrameUrl = (rawUrl) => {
     const value = String(rawUrl || '').trim();
-    if (!value || value === 'tabs://new' || value.startsWith('tabs://') || value.startsWith('data:') || value.startsWith('blob:') || value.startsWith('about:')) {
+    if (!value || isNewTabLikeUrl(value)) {
+      return 'tabs://new';
+    }
+    if (value.startsWith('tabs://') || value.startsWith('data:') || value.startsWith('blob:') || value.startsWith('about:')) {
       return value;
     }
     if (value.includes('/uv/service/') || value.includes('/scramjet/')) {
       return value;
+    }
+    if (value.startsWith('ghost://')) {
+      return process(value, false, options.prType || 'auto', options.engine || null);
     }
     try {
       const parsed = new URL(value, location.origin);
@@ -438,7 +454,7 @@ const Viewer = ({ zoom }) => {
   useEffect(() => {
     const listeners = [];
     tabs.forEach((tab) => {
-      if (tab.url === 'tabs://new') return;
+      if (isNewTabLikeUrl(tab.url)) return;
       const iframe = frameRefs.current[tab.id];
       if (!iframe) return;
       const handleLoad = () => {
@@ -486,7 +502,7 @@ const Viewer = ({ zoom }) => {
     const interval = setInterval(() => {
       const currentTabs = loaderStore.getState().tabs;
       currentTabs.forEach((tab) => {
-        if (tab.url === 'tabs://new') return;
+        if (isNewTabLikeUrl(tab.url)) return;
         const iframe = frameRefs.current[tab.id];
         if (!iframe) return;
         applyProtection(tab, iframe);
@@ -521,19 +537,9 @@ const Viewer = ({ zoom }) => {
                 .filter(([, cfg]) => cfg?.enabled !== false)
                 .map(([id, cfg]) => cfg.key);
 
-              let key = e.key;
-              if (key === ' ' || key === 'Spacebar') key = 'Space';
-              if (key.length === 1) key = key.toUpperCase();
+              const combo = eventToShortcut(e);
 
-              const out = [];
-              if (e.ctrlKey) out.push('Ctrl');
-              if (e.altKey) out.push('Alt');
-              if (e.shiftKey) out.push('Shift');
-              if (e.metaKey) out.push('Meta');
-              out.push(key);
-              const combo = out.join('+');
-
-              if (activeCombos.includes(combo) || combo.startsWith('F11') || combo.startsWith('F12') || combo.startsWith('F5')) {
+              if (activeCombos.includes(combo) || combo === 'F11' || combo === 'F12' || combo === 'F5') {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -582,12 +588,12 @@ const Viewer = ({ zoom }) => {
     });
   }, [tabs]);
 
-  const activeNewTab = tabs.find((tab) => tab.url === 'tabs://new' && tab.active);
+  const activeNewTab = tabs.find((tab) => isNewTabLikeUrl(tab.url) && tab.active);
 
   return (
     <div className="relative w-full h-full">
       {tabs.map(({ id, url, active }) => {
-        if (url === 'tabs://new') return null;
+        if (isNewTabLikeUrl(url)) return null;
         const internalOffsetTop = getInternalPageOffset(url);
         const iframeSizing = {
           display: 'block',

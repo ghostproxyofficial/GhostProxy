@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { process } from './utils';
+import { process, toGhostDisplayUrl } from './utils';
 import { createId } from '/src/utils/id';
 
 const BROWSER_HISTORY_KEY = 'ghostBrowserHistory';
@@ -84,6 +84,28 @@ const appendBrowserHistory = (url, title = '') => {
   } catch { }
 };
 
+const normalizeTabUrl = (url) => {
+  const raw = String(url || '').trim();
+  if (!raw) return 'tabs://new';
+
+  if (
+    raw === 'tabs://new' ||
+    raw.startsWith('tabs://') ||
+    raw.startsWith('ghost://') ||
+    raw.startsWith('data:') ||
+    raw.startsWith('blob:') ||
+    raw.startsWith('about:')
+  ) {
+    return raw;
+  }
+
+  if (raw.includes('/uv/service/') || raw.includes('/scramjet/')) {
+    return raw;
+  }
+
+  return toGhostDisplayUrl(raw) || raw;
+};
+
 const store = create(
   persist(
     (set) => ({
@@ -138,20 +160,25 @@ const store = create(
       toggleMenu: () => set((state) => ({ showMenu: !state.showMenu })),
       setFrameRefs: (refs) => set({ frameRefs: refs }),
       addTab: (tab) =>
-        set((state) => ({
-          tabs: [
-            ...state.tabs,
-            {
-              ...tab,
-              history: [tab.url || 'tabs://new'],
-              historyIndex: 0,
-              isLoading: false,
-            },
-          ],
-        })),
+        set((state) => {
+          const normalizedUrl = normalizeTabUrl(tab.url || 'tabs://new');
+          return {
+            tabs: [
+              ...state.tabs,
+              {
+                ...tab,
+                url: normalizedUrl,
+                history: [normalizedUrl],
+                historyIndex: 0,
+                isLoading: false,
+              },
+            ],
+          };
+        }),
       removeTab: (tabId) =>
         set((state) => {
           const removed = state.tabs.find(({ id }) => id === tabId);
+          if (removed?.pinned) return state;
           return {
             tabs: state.tabs.filter(({ id }) => id != tabId),
             closedTabs: removed
@@ -203,26 +230,35 @@ const store = create(
           };
         }),
       //this updates url property of matching tab and merges
-      updateUrl: (tabId, url, addToHistory = true) =>
+      updateUrl: (tabId, url, addToHistory = true) => {
+        const normalizedUrl = normalizeTabUrl(url);
         set((state) => ({
           tabs: state.tabs.map((tab) => {
             if (tab.id !== tabId) return tab;
 
             if (addToHistory) {
+              const currentHistoryUrl = tab.history[tab.historyIndex];
+              if (tab.url === normalizedUrl && currentHistoryUrl === normalizedUrl) {
+                return tab;
+              }
+
               //FORWARD history gets removed -- & add new url
-              const newHistory = [...tab.history.slice(0, tab.historyIndex + 1), url];
-              appendBrowserHistory(url, tab.title || 'New Tab');
+              const newHistory = [...tab.history.slice(0, tab.historyIndex + 1), normalizedUrl];
+              appendBrowserHistory(normalizedUrl, tab.title || 'New Tab');
               return {
                 ...tab,
-                url,
+                url: normalizedUrl,
                 history: newHistory,
                 historyIndex: newHistory.length - 1,
-                isLoading: url !== 'tabs://new',
+                isLoading: normalizedUrl !== 'tabs://new',
               };
             }
-            return { ...tab, url, isLoading: url !== 'tabs://new' };
+
+            if (tab.url === normalizedUrl) return tab;
+            return { ...tab, url: normalizedUrl, isLoading: normalizedUrl !== 'tabs://new' };
           }),
-        })),
+        }));
+      },
       updateTitle: (tabId, title) =>
         set((state) => ({
           tabs: state.tabs.map((tab) => (tab.id === tabId ? { ...tab, title } : tab)),
@@ -244,7 +280,10 @@ const store = create(
             if (tab.id !== tabId || tab.historyIndex <= 0) return tab;
 
             const newIndex = tab.historyIndex - 1;
-            const newUrl = tab.history[newIndex];
+            const newUrl = normalizeTabUrl(tab.history[newIndex]);
+            const nextHistory = tab.history[newIndex] === newUrl
+              ? tab.history
+              : tab.history.map((entry, idx) => (idx === newIndex ? newUrl : entry));
 
             if (newUrl === 'tabs://new' && onNewTab) {
               onNewTab();
@@ -253,8 +292,9 @@ const store = create(
             return {
               ...tab,
               url: newUrl,
+              history: nextHistory,
               historyIndex: newIndex,
-              isLoading: true,
+              isLoading: newUrl !== 'tabs://new',
             };
           });
 
@@ -270,11 +310,17 @@ const store = create(
             if (tab.id !== tabId || tab.historyIndex >= tab.history.length - 1) return tab;
 
             const newIndex = tab.historyIndex + 1;
+            const newUrl = normalizeTabUrl(tab.history[newIndex]);
+            const nextHistory = tab.history[newIndex] === newUrl
+              ? tab.history
+              : tab.history.map((entry, idx) => (idx === newIndex ? newUrl : entry));
+
             return {
               ...tab,
-              url: tab.history[newIndex],
+              url: newUrl,
+              history: nextHistory,
               historyIndex: newIndex,
-              isLoading: true,
+              isLoading: newUrl !== 'tabs://new',
             };
           });
 

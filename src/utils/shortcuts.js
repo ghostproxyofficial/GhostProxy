@@ -6,8 +6,6 @@ export const SHORTCUT_DEFINITIONS = [
   { id: 'nextTab', section: 'Tab Actions', label: 'Switch to next tab', defaultKey: 'Alt+`' },
   { id: 'previousTab', section: 'Tab Actions', label: 'Switch to previous tab', defaultKey: 'Ctrl+Shift+~' },
   { id: 'pinTab', section: 'Tab Actions', label: 'Pin/unpin current tab', defaultKey: 'Alt+Shift+P' },
-  { id: 'createTabGroup', section: 'Tab Actions', label: 'Create tab group', defaultKey: 'Alt+Shift+M' },
-  { id: 'removeTabGroup', section: 'Tab Actions', label: 'Remove tab from group', defaultKey: 'Alt+Shift+U' },
 
   { id: 'goBack', section: 'Navigation', label: 'Go back in history', defaultKey: 'Alt+Shift+ArrowLeft' },
   { id: 'goForward', section: 'Navigation', label: 'Go forward in history', defaultKey: 'Alt+Shift+ArrowRight' },
@@ -19,7 +17,6 @@ export const SHORTCUT_DEFINITIONS = [
 
   { id: 'toggleDevToolsF12', section: 'Developer Tools', label: 'Toggle DevTools', defaultKey: 'F12' },
   { id: 'toggleDevToolsAlt', section: 'Developer Tools', label: 'Toggle DevTools (Alt+Shift+I)', defaultKey: 'Alt+Shift+I' },
-  { id: 'viewPageSource', section: 'Developer Tools', label: 'View page source', defaultKey: 'Ctrl+Shift+U' },
 
   { id: 'zoomIn', section: 'View & Zoom', label: 'Zoom in', defaultKey: 'Ctrl+=' },
   { id: 'zoomOut', section: 'View & Zoom', label: 'Zoom out', defaultKey: 'Ctrl+-' },
@@ -30,10 +27,6 @@ export const SHORTCUT_DEFINITIONS = [
   { id: 'openHistory', section: 'Window Management', label: 'Open history', defaultKey: 'Alt+Shift+Y' },
   { id: 'openBookmarks', section: 'Window Management', label: 'Open bookmarks', defaultKey: 'Alt+Shift+B' },
   { id: 'bookmarkCurrentPage', section: 'Window Management', label: 'Bookmark current page', defaultKey: 'Alt+Shift+K' },
-
-  { id: 'findInPage', section: 'Search & Find', label: 'Find in page', defaultKey: 'Alt+F' },
-  { id: 'findNext', section: 'Search & Find', label: 'Find next', defaultKey: 'Alt+G' },
-  { id: 'findPrevious', section: 'Search & Find', label: 'Find previous', defaultKey: 'Alt+Shift+G' },
 
   { id: 'tab1', section: 'Tab Actions', label: 'Switch to tab 1', defaultKey: 'Alt+1' },
   { id: 'tab2', section: 'Tab Actions', label: 'Switch to tab 2', defaultKey: 'Alt+2' },
@@ -55,6 +48,23 @@ const KEY_ALIASES = {
   Right: 'ArrowRight',
   Up: 'ArrowUp',
   Down: 'ArrowDown',
+  '!': '1',
+  '@': '2',
+  '#': '3',
+  '$': '4',
+  '%': '5',
+  '^': '6',
+  '&': '7',
+  '*': '8',
+  '(': '9',
+  ')': '0',
+  '+': '=',
+  _: '-',
+  '<': ',',
+  '>': '.',
+  Add: '=',
+  Subtract: '-',
+  Decimal: '.',
   ',': ',',
 };
 

@@ -4,12 +4,12 @@ import Viewer from '/src/components/loader/Viewer';
 import Menu from '/src/components/loader/Menu';
 import useReg from '/src/utils/hooks/loader/useReg';
 import loaderStore from '/src/utils/hooks/loader/useLoaderStore';
-import { process, isInternalGhostTabUrl } from '/src/utils/hooks/loader/utils';
+import { process, isInternalGhostTabUrl, toGhostDisplayUrl } from '/src/utils/hooks/loader/utils';
 import { useOptions } from '../utils/optionsContext';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getEffectiveShortcuts } from '/src/utils/shortcuts';
+import { eventToShortcut, getEffectiveShortcuts } from '/src/utils/shortcuts';
 import {
   Battery,
   Blocks,
@@ -84,7 +84,9 @@ const sanitizeHydratedUrl = (raw) => {
 
   try {
     const parsed = new URL(value, location.origin);
-    if (parsed.origin === location.origin) return parsed.toString();
+    if (parsed.origin === location.origin) {
+      return toGhostDisplayUrl(parsed.toString()) || parsed.toString();
+    }
   } catch { }
 
   let opts = {};
@@ -574,20 +576,21 @@ export default function Loader({ url, ui = true, zoom }) {
     const store = loaderStore.getState();
     const activeTab = store.tabs.find((tab) => tab.active) || store.tabs[0];
     const processed = process(rawUrl, false, options.prType || 'auto', options.engine || null);
+    const targetUrl = toGhostDisplayUrl(processed) || processed;
 
-    if (activeTab && activeTab.url === processed) return;
+    if (activeTab && activeTab.url === targetUrl) return;
 
     if (options.openLinkInNewTab) {
       if (store.tabs.length < 20) {
         const id = createId();
-        addTab({ title: 'New Tab', id, url: processed });
+        addTab({ title: 'New Tab', id, url: targetUrl });
         if (String(rawUrl).toLowerCase() === 'ghost://home') {
           setIframeUrl(id, 'ghost://home');
         }
         setActive(id);
       }
     } else if (activeTab) {
-      updateUrl(activeTab.id, processed);
+      updateUrl(activeTab.id, targetUrl);
       if (String(rawUrl).toLowerCase() === 'ghost://home') {
         setIframeUrl(activeTab.id, 'ghost://home');
       }
@@ -618,8 +621,9 @@ export default function Loader({ url, ui = true, zoom }) {
     const processedUrl = config?.skipProxy
       ? rawUrl
       : process(rawUrl, false, options.prType || 'auto', options.engine || null);
+    const targetUrl = toGhostDisplayUrl(processedUrl) || processedUrl;
     const id = createId();
-    addTab({ title: config?.title || 'New Tab', id, url: processedUrl });
+    addTab({ title: config?.title || 'New Tab', id, url: targetUrl });
     setActive(id);
   };
 
@@ -1086,7 +1090,7 @@ export default function Loader({ url, ui = true, zoom }) {
     const shouldOpenChangelog = new URLSearchParams(location.search).get('changelog') === '1';
     if (shouldOpenChangelog) {
       setIsChangelogOpen(true);
-      navigate('/search?ghost=1', { replace: true });
+      navigate('.', { replace: true });
     }
   }, [location.search, navigate]);
 
@@ -1111,6 +1115,7 @@ export default function Loader({ url, ui = true, zoom }) {
     const processedUrl = shouldSkipProxy
       ? routeUrl
       : process(routeUrl, false, options.prType || 'auto', options.engine || null);
+    const targetUrl = toGhostDisplayUrl(processedUrl) || processedUrl;
 
     if (location.state?.openInGhostNewTab) {
       const stateKey = `${routeUrl}-${location.key}`;
@@ -1119,7 +1124,7 @@ export default function Loader({ url, ui = true, zoom }) {
 
       if (storeTabs.length >= 20) return;
       const id = createId();
-      addTab({ title: 'New Tab', id, url: processedUrl });
+      addTab({ title: 'New Tab', id, url: targetUrl });
       if (location.state?.askDefaultMusicPrompt) {
         setMusicPromptByTab((prev) => ({
           ...prev,
@@ -1135,8 +1140,8 @@ export default function Loader({ url, ui = true, zoom }) {
     }
 
     const currentTab = storeTabs.find((tab) => tab.active) || storeTabs[0];
-    if (currentTab && currentTab.url !== processedUrl) {
-      updateUrl(currentTab.id, processedUrl);
+    if (currentTab && currentTab.url !== targetUrl) {
+      updateUrl(currentTab.id, targetUrl);
     }
   }, [tabsHydrated, routeUrl, updateUrl, addTab, setActive, options.prType, options.engine, location.state, location.key, navigate]);
 
@@ -1215,8 +1220,9 @@ export default function Loader({ url, ui = true, zoom }) {
       const processedUrl = config?.skipProxy
         ? rawUrl
         : process(rawUrl, false, options.prType || 'auto', options.engine || null);
+      const targetUrl = toGhostDisplayUrl(processedUrl) || processedUrl;
       const id = createId();
-      addTab({ title: config?.title || 'New Tab', id, url: processedUrl });
+      addTab({ title: config?.title || 'New Tab', id, url: targetUrl });
       if (config.askDefaultMusicPrompt) {
         setMusicPromptByTab((prev) => ({
           ...prev,
@@ -1241,7 +1247,8 @@ export default function Loader({ url, ui = true, zoom }) {
       const processedUrl = config?.skipProxy
         ? rawUrl
         : process(rawUrl, false, options.prType || 'auto', options.engine || null);
-      loaderStore.getState().updateUrl(tabId, processedUrl);
+      const targetUrl = toGhostDisplayUrl(processedUrl) || processedUrl;
+      loaderStore.getState().updateUrl(tabId, targetUrl);
       // Also set iframeUrl for ghost:// protocol URLs
       if (String(rawUrl).startsWith('ghost://')) {
         loaderStore.getState().setIframeUrl(tabId, rawUrl);
@@ -1309,6 +1316,12 @@ export default function Loader({ url, ui = true, zoom }) {
   }, []);
 
   useEffect(() => {
+    const openChangelog = () => setIsChangelogOpen(true);
+    window.addEventListener('ghost-open-changelog', openChangelog);
+    return () => window.removeEventListener('ghost-open-changelog', openChangelog);
+  }, []);
+
+  useEffect(() => {
     const shortcuts = getEffectiveShortcuts(options);
 
     const handleKeyDown = (e) => {
@@ -1339,6 +1352,7 @@ export default function Loader({ url, ui = true, zoom }) {
       };
 
       const closeCurrentTab = () => {
+        if (activeTab.pinned) return;
         if (store.tabs.length <= 1) {
           if (activeTab.url !== 'tabs://new') {
             store.updateUrl(activeTab.id, process('ghost://home', false, options.prType || 'auto', options.engine || null));
@@ -1378,24 +1392,6 @@ export default function Loader({ url, ui = true, zoom }) {
         }));
       };
 
-      const createGroup = () => {
-        const current = getActiveTab();
-        if (!current) return;
-        loaderStore.setState((state) => ({
-          tabs: state.tabs.map((t) =>
-            t.id === current.id ? { ...t, group: t.group || 'Group 1' } : t,
-          ),
-        }));
-      };
-
-      const removeGroup = () => {
-        const current = getActiveTab();
-        if (!current) return;
-        loaderStore.setState((state) => ({
-          tabs: state.tabs.map((t) => (t.id === current.id ? { ...t, group: null } : t)),
-        }));
-      };
-
       const hardReload = () => {
         const current = getActiveTab();
         if (!current?.url || current.url === 'tabs://new') return;
@@ -1409,22 +1405,6 @@ export default function Loader({ url, ui = true, zoom }) {
         const input = document.getElementById('ghost-omnibox-input') || document.querySelector('input[data-ghost-omnibox="1"]');
         input?.focus();
         input?.select?.();
-      };
-
-      const markReturnHint = () => {
-        try {
-          sessionStorage.setItem('ghostReturnToBrowserHint', '1');
-        } catch { }
-      };
-
-      const viewSource = () => {
-        const current = getActiveTab();
-        if (!current?.url || current.url === 'tabs://new') return;
-        const decoded = process(current.url, true, options.prType || 'auto', options.engine || null);
-        if (store.tabs.length >= 20) return;
-        const id = createId();
-        store.addTab({ title: `Source: ${current.title || 'Page'}`, id, url: `view-source:${decoded}` });
-        store.setActive(id);
       };
 
       const zoomIn = () => {
@@ -1465,46 +1445,6 @@ export default function Loader({ url, ui = true, zoom }) {
         updateOption({ bookmarks: next });
       };
 
-      const findInPage = () => {
-        setFindBarOpen(true);
-        const initial = lastFindText.current || '';
-        setFindText(initial);
-        requestAnimationFrame(() => {
-          findInputRef.current?.focus();
-          findInputRef.current?.select?.();
-        });
-      };
-
-      const findNext = () => {
-        const text = (findText || lastFindText.current || '').trim();
-        if (!text) return;
-        lastFindText.current = text;
-        getActiveFrame(store, activeTab)?.contentWindow?.find?.(
-          text,
-          false,
-          false,
-          true,
-          false,
-          false,
-          false,
-        );
-      };
-
-      const findPrevious = () => {
-        const text = (findText || lastFindText.current || '').trim();
-        if (!text) return;
-        lastFindText.current = text;
-        getActiveFrame(store, activeTab)?.contentWindow?.find?.(
-          text,
-          false,
-          true,
-          true,
-          false,
-          false,
-          false,
-        );
-      };
-
       const actions = {
         newTab: openNewTab,
         closeTab: closeCurrentTab,
@@ -1513,8 +1453,6 @@ export default function Loader({ url, ui = true, zoom }) {
         nextTab,
         previousTab,
         pinTab: pinToggle,
-        createTabGroup: createGroup,
-        removeTabGroup: removeGroup,
         goBack: () => store.goBack(activeTab.id),
         goForward: () => store.goForward(activeTab.id),
         reload: () => store.refreshTab(activeTab.id),
@@ -1522,12 +1460,14 @@ export default function Loader({ url, ui = true, zoom }) {
         hardReload,
         focusAddressBar,
         goHome: () => {
-          markReturnHint();
-          navigate('/');
+          const current = getActiveTab();
+          if (!current) return;
+          const homeUrl = process('ghost://home', false, options.prType || 'auto', options.engine || null);
+          store.updateUrl(current.id, homeUrl);
+          store.setIframeUrl(current.id, 'ghost://home');
         },
         toggleDevToolsF12: () => toggleDevToolsForTab(activeTab.id, getActiveFrame(store, activeTab)),
         toggleDevToolsAlt: () => toggleDevToolsForTab(activeTab.id, getActiveFrame(store, activeTab)),
-        viewPageSource: viewSource,
         zoomIn,
         zoomOut,
         zoomReset: () => {
@@ -1542,15 +1482,16 @@ export default function Loader({ url, ui = true, zoom }) {
           getActiveFrame(store, current)?.requestFullscreen?.();
         },
         openSettings: () => {
-          markReturnHint();
-          navigate('/settings');
+          if (store.tabs.length >= 20) return;
+          const id = createId();
+          const settingsUrl = process('ghost://settings', false, options.prType || 'auto', options.engine || null);
+          store.addTab({ title: 'Ghost Settings', id, url: settingsUrl });
+          store.setIframeUrl(id, 'ghost://settings');
+          store.setActive(id);
         },
         openHistory,
         openBookmarks,
         bookmarkCurrentPage,
-        findInPage,
-        findNext,
-        findPrevious,
         tab1: () => setActiveByIndex(0),
         tab2: () => setActiveByIndex(1),
         tab3: () => setActiveByIndex(2),
@@ -1777,7 +1718,7 @@ export default function Loader({ url, ui = true, zoom }) {
                   >
                     {currentSitePolicy?.site ? (
                       <>
-                        <p className="text-[11px] opacity-70 px-2.5 pb-2 break-all">Site: {currentSitePolicy.site.label}</p>
+                        <p className="text-[11px] opacity-70 px-2.5 pb-1 break-all">Site: {currentSitePolicy.site.label}</p>
                         <button
                           className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-white/10 text-[12px] transition-colors flex items-center justify-between"
                           onClick={() =>
@@ -2069,8 +2010,9 @@ export default function Loader({ url, ui = true, zoom }) {
                 </button>
               </div>
             </div>
-            <div className="p-4 overflow-y-auto max-h-[calc(80dvh-4rem)] space-y-2">
-              <div className="sticky top-0 z-10 pb-2 pt-1" style={{ backgroundColor: options.quickModalBgColor || '#252f3e' }}>
+            <div className="px-4 pb-4 pt-0 overflow-y-auto max-h-[calc(80dvh-4rem)] space-y-2">
+              <div className="sticky top-0 z-10 pb-2 pt-0" style={{ backgroundColor: '#2d2d30' }}>
+                <div className="h-2" style={{ backgroundColor: '#2d2d30' }} />
                 <input
                   value={historyQuery}
                   onChange={(e) => setHistoryQuery(e.target.value)}

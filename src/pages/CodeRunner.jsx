@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { Play, Plus, FileCode, Trash2, FolderPlus, Pencil, Save, X } from 'lucide-react';
 import { useOptions } from '/src/utils/optionsContext';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { createId } from '/src/utils/id';
 
 const STORAGE_KEY = 'ghostCodeRunnerProjects';
@@ -42,7 +42,6 @@ const getStoredProjects = () => {
 
 const CodeRunner = () => {
   const { options } = useOptions();
-  const navigate = useNavigate();
   const location = useLocation();
   const [projects, setProjects] = useState(() => getStoredProjects());
   const [activeProjectId, setActiveProjectId] = useState('');
@@ -191,16 +190,16 @@ const CodeRunner = () => {
       const opener = window.top && window.top !== window ? window.top.__ghostOpenBrowserTab : null;
       if (typeof opener === 'function') {
         const opened = opener(blobUrl);
-        if (opened) return;
+        if (opened) {
+          return;
+        }
       }
     } catch { }
 
-    navigate('/search', {
-      state: {
-        url: blobUrl,
-        openInGhostNewTab: true,
-      },
-    });
+    const popup = window.open(blobUrl, '_blank', 'noopener,noreferrer');
+    if (!popup) {
+      window.location.href = blobUrl;
+    }
   };
 
   const pageBg = options.bgColor || '#0c131d';

@@ -142,9 +142,14 @@ const NewTab = ({ id, updateFn }) => {
   }, [menuClockNow, effectiveTimezone]);
 
   const infoCardBg = options.menuColor || options.quickModalBgColor || 'rgba(15, 20, 29, 0.88)';
+  const infoCardSurfaceBg = `color-mix(in srgb, color-mix(in srgb, ${infoCardBg} 55%, black 45%) 78%, transparent)`;
   const infoCardSubtleBg = options.quickModalBgColor || options.omninputColor || 'rgba(0, 0, 0, 0.22)';
   const infoCardText = options.siteTextColor || '#b4bcc8';
   const infoCardBorder = options.type === 'light' ? 'rgba(15,23,42,0.14)' : 'rgba(255,255,255,0.12)';
+  const homePillHorizontalOffsetPx = 16;
+  const homePillClosedWidth = 'min(17.25rem, 92vw)';
+  const homePillClosedSidePaddingPx = 16;
+  const homePillClosedItemsGapPx = 16;
 
   useEffect(() => {
     const map = {
@@ -452,17 +457,34 @@ const NewTab = ({ id, updateFn }) => {
           <QuickLinks cls="mt-16" nav={false} navigating={navigating} />
         </div>
       </div>
-      <div className="fixed left-1/2 -translate-x-1/2 bottom-3 z-[121] pointer-events-none">
+      <div
+        className="fixed inset-x-0 bottom-3 z-[121] pointer-events-none flex justify-center"
+        style={{ transform: `translateX(${homePillHorizontalOffsetPx}px)` }}
+      >
         <div
           className={clsx(
-            'pointer-events-auto rounded-lg border backdrop-blur-md overflow-hidden transition-[width,box-shadow,transform,background-color,padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] shadow-[0_10px_28px_rgba(0,0,0,0.24)]',
-            infoCardOpen ? 'w-[min(24.5rem,92vw)] px-3 py-2.5 translate-y-0' : 'w-[min(17rem,92vw)] px-3 py-1.5 translate-y-[1px]',
+            'pointer-events-auto rounded-xl border backdrop-blur-xl overflow-hidden transition-[width,box-shadow,transform,background-color,padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] shadow-[0_16px_40px_rgba(0,0,0,0.42)]',
+            infoCardOpen ? 'w-[min(24.5rem,94vw)] px-4 py-3 translate-y-0' : 'py-1 translate-y-0',
           )}
-          style={{ backgroundColor: infoCardBg, color: infoCardText, borderColor: infoCardBorder }}
+          style={{
+            backgroundColor: infoCardSurfaceBg,
+            color: infoCardText,
+            borderColor: infoCardBorder,
+            ...(infoCardOpen
+              ? {}
+              : {
+                width: homePillClosedWidth,
+                paddingLeft: `${homePillClosedSidePaddingPx}px`,
+                paddingRight: `${homePillClosedSidePaddingPx}px`,
+              }),
+          }}
           onMouseEnter={() => setInfoCardOpen(true)}
           onMouseLeave={() => setInfoCardOpen(false)}
         >
-          <div className={clsx('grid grid-cols-3 items-center text-[12px] sm:text-[13px] transition-all duration-300', infoCardOpen ? 'gap-3' : 'gap-1')}>
+          <div
+            className={clsx('grid grid-cols-3 items-center text-[12px] sm:text-[13px] transition-all duration-300', infoCardOpen ? 'gap-3' : 'gap-4')}
+            style={infoCardOpen ? undefined : { columnGap: `${homePillClosedItemsGapPx}px` }}
+          >
             <span className="text-center">{menuTimeLabel}</span>
             <span className="inline-flex items-center justify-center gap-1.5">
               <Battery size={13} />

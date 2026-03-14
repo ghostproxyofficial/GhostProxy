@@ -4,7 +4,6 @@ import {
 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
 import { useOptions } from '../utils/optionsContext';
 import loaderStore from '../utils/hooks/loader/useLoaderStore';
 import { process } from '../utils/hooks/loader/utils';
@@ -12,7 +11,6 @@ import { createId } from '../utils/id';
 
 const Bookmarks = ({ isOpen, onClose, inLoader = false }) => {
   const { options: o, updateOption } = useOptions();
-  const nav = useNavigate();
   const { tabs, addTab, setActive, updateUrl } = loaderStore();
 
   const [bms, setBms] = useState([]);
@@ -228,7 +226,18 @@ const Bookmarks = ({ isOpen, onClose, inLoader = false }) => {
                       }
                       onClose();
                     } else {
-                      nav('/search', { state: { url: fixUrl(b.url), openInGhostNewTab: true } });
+                      const finalUrl = fixUrl(b.url);
+                      try {
+                        const topWindow = window.top && window.top !== window ? window.top : window;
+                        const opener = topWindow.__ghostOpenBrowserTab;
+                        if (typeof opener === 'function') {
+                          opener(finalUrl, { title: b.name || 'New Tab' });
+                        } else {
+                          window.open(finalUrl, '_blank', 'noopener,noreferrer');
+                        }
+                      } catch {
+                        window.open(finalUrl, '_blank', 'noopener,noreferrer');
+                      }
                     }
                   }}
                   className={clsx(
