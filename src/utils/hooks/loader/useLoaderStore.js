@@ -88,6 +88,15 @@ const normalizeTabUrl = (url) => {
   const raw = String(url || '').trim();
   if (!raw) return 'tabs://new';
 
+  const normalizedGhostHome = raw.toLowerCase();
+  if (
+    normalizedGhostHome === 'ghost://home' ||
+    normalizedGhostHome === 'ghost://new-tab' ||
+    normalizedGhostHome === 'ghost://newtab'
+  ) {
+    return 'tabs://new';
+  }
+
   if (
     raw === 'tabs://new' ||
     raw.startsWith('tabs://') ||

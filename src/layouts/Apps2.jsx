@@ -22,6 +22,32 @@ const Pagination = lazy(() => import('@mui/material/Pagination'));
 const RED_PLAY_ICON = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><circle cx="64" cy="64" r="62" fill="%23ef4444"/><polygon points="50,38 94,64 50,90" fill="white"/></svg>';
 const YELLOW_PLAY_ICON = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><circle cx="64" cy="64" r="62" fill="%23facc15"/><polygon points="50,38 94,64 50,90" fill="white"/></svg>';
 const WHITE_MUSIC_ICON = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
+const POPUP_TRANSITION_MS = 180;
+
+const usePopupTransition = (open) => {
+  const [rendered, setRendered] = useState(open);
+  const [visible, setVisible] = useState(open);
+
+  useEffect(() => {
+    if (open) {
+      setRendered(true);
+      let inner = 0;
+      const outer = requestAnimationFrame(() => {
+        inner = requestAnimationFrame(() => setVisible(true));
+      });
+      return () => {
+        cancelAnimationFrame(outer);
+        cancelAnimationFrame(inner);
+      };
+    }
+
+    setVisible(false);
+    const timer = window.setTimeout(() => setRendered(false), POPUP_TRANSITION_MS);
+    return () => window.clearTimeout(timer);
+  }, [open]);
+
+  return { rendered, visible };
+};
 
 const AppCard = memo(({ app, onClick, fallbackMap, onImgError, itemTheme, itemStyles, actionLabel = 'Play', options }) => {
   const [loaded, setLoaded] = useState(false);
@@ -273,6 +299,8 @@ const Games = memo(() => {
   const [sortOpen, setSortOpen] = useState(false);
   const [sourceOpen, setSourceOpen] = useState(false);
   const controlsRef = useRef(null);
+  const sourcePopup = usePopupTransition(sourceOpen);
+  const sortPopup = usePopupTransition(sortOpen);
 
   const [data, setData] = useState({});
   useEffect(() => {
@@ -585,8 +613,13 @@ const Games = memo(() => {
               <ChevronDown size={16} className={clsx('transition-transform', sourceOpen && 'rotate-180')} />
             </button>
 
-            {sourceOpen && (
-              <div className="absolute right-0 top-12 w-[440px] rounded-2xl border border-white/10 bg-[#111117] z-[80] overflow-hidden shadow-[0_14px_30px_rgba(0,0,0,0.4)] p-1.5">
+            {sourcePopup.rendered && (
+              <div
+                className={clsx(
+                  'absolute right-0 top-12 w-[440px] rounded-2xl border border-white/10 bg-[#111117] z-[80] overflow-hidden shadow-[0_14px_30px_rgba(0,0,0,0.4)] p-1.5 origin-top-right transform-gpu transition-all duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
+                  sourcePopup.visible ? 'opacity-100 translate-y-0 scale-100' : 'pointer-events-none opacity-0 -translate-y-3 scale-95',
+                )}
+              >
                 <div className="grid grid-cols-2 gap-x-1">
                   {GAME_SOURCE_CONFIG.map((source) => {
                     if (source.type === 'divider') {
@@ -670,8 +703,13 @@ const Games = memo(() => {
               >
                 <Menu size={17} />
               </button>
-              {sortOpen && (
-                <div className="absolute right-0 top-12 w-52 rounded-md border border-white/10 bg-[#111117] z-[80] overflow-hidden">
+              {sortPopup.rendered && (
+                <div
+                  className={clsx(
+                    'absolute right-0 top-12 w-52 rounded-md border border-white/10 bg-[#111117] z-[80] overflow-hidden origin-top-right transform-gpu transition-all duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
+                    sortPopup.visible ? 'opacity-100 translate-y-0 scale-100' : 'pointer-events-none opacity-0 -translate-y-3 scale-95',
+                  )}
+                >
                   <button
                     onClick={() => {
                       const next = !showAllGames;
@@ -908,19 +946,22 @@ const ExternalAppsGrid = memo(({ items, onClick, options, fallback, onImgError, 
 
 ExternalAppsGrid.displayName = 'ExternalAppsGrid';
 
+const getEntertainmentTabFromSearch = (search) => {
+  const qTab = (new URLSearchParams(search).get('tab') || '').toLowerCase();
+  if (qTab === 'games' || qTab === 'tv' || qTab === 'music') return qTab;
+  return 'games';
+};
+
 const GamesLayout = () => {
   const { options } = useOptions();
   const location = useLocation();
   const nav = useNavigate();
-  const [tab, setTab] = useState('games');
+  const [tab, setTab] = useState(() => getEntertainmentTabFromSearch(location.search));
   const [fallback, setFallback] = useState({});
   const inGhostBrowserMode = new URLSearchParams(location.search).get('ghost') === '1';
 
   useEffect(() => {
-    const qTab = (new URLSearchParams(location.search).get('tab') || '').toLowerCase();
-    if (qTab === 'games' || qTab === 'tv' || qTab === 'music') {
-      setTab(qTab);
-    }
+    setTab(getEntertainmentTabFromSearch(location.search));
   }, [location.search]);
 
   const handleImgError = useCallback((name) => {

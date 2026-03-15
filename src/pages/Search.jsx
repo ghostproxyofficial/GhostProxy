@@ -47,6 +47,8 @@ import { getLucideIcon } from '/src/components/settings/components/SidebarEditor
 
 const SAVED_TABS_KEY = 'ghostSavedTabs';
 const SITE_POLICY_KEY = 'ghostSitePolicies';
+const WEATHER_COORDS_CACHE_KEY = 'ghostWeatherCoordsCache';
+const WEATHER_FALLBACK_COORDS = { lat: 40.7128, lon: -74.006 };
 
 const getSitePolicies = () => {
   try {
@@ -276,6 +278,53 @@ export default function Loader({ url, ui = true, zoom }) {
     return { lat, lon };
   };
 
+  const readCachedCoords = () => {
+    try {
+      const raw = localStorage.getItem(WEATHER_COORDS_CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      const lat = Number(parsed?.lat);
+      const lon = Number(parsed?.lon);
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
+      if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return null;
+      return { lat, lon };
+    } catch {
+      return null;
+    }
+  };
+
+  const writeCachedCoords = (coords) => {
+    if (!coords || !Number.isFinite(coords.lat) || !Number.isFinite(coords.lon)) return;
+    try {
+      localStorage.setItem(
+        WEATHER_COORDS_CACHE_KEY,
+        JSON.stringify({ lat: coords.lat, lon: coords.lon, t: Date.now() }),
+      );
+    } catch { }
+  };
+
+  const getBrowserCoords = () =>
+    new Promise((resolve) => {
+      if (!navigator.geolocation) {
+        resolve(null);
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = Number(position?.coords?.latitude);
+          const lon = Number(position?.coords?.longitude);
+          if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+            resolve(null);
+            return;
+          }
+          resolve({ lat, lon });
+        },
+        () => resolve(null),
+        { enableHighAccuracy: false, maximumAge: 15 * 60 * 1000, timeout: 6000 },
+      );
+    });
+
   const pushDebugLog = useCallback((level, args) => {
     setDebugLogs((prev) => {
       const line = {
@@ -335,29 +384,6 @@ export default function Loader({ url, ui = true, zoom }) {
   }, [menuWeather.weatherCode]);
 
   const weatherUnitLabel = (options.weatherUnit || 'fahrenheit') === 'celsius' ? 'C' : 'F';
-
-  const DEFAULT_MUSIC_URLS = {
-    monochrome: 'https://monochrome.tf',
-    spotify: 'https://open.spotify.com',
-    'apple-music': 'https://music.apple.com',
-    'amazon-music': 'https://music.amazon.com',
-    'youtube-music': 'https://music.youtube.com',
-    tidal: 'https://tidal.com',
-    deezer: 'https://www.deezer.com',
-    soundcloud: 'https://soundcloud.com',
-    pandora: 'https://www.pandora.com',
-    qobuz: 'https://www.qobuz.com',
-  };
-
-  const openDefaultMusicProvider = () => {
-    const key = String(options.defaultMusicPlayer || '').toLowerCase().trim();
-    if (!key || key === '--') {
-      navigateActiveTab('ghost://music');
-      return;
-    }
-    const target = DEFAULT_MUSIC_URLS[key] || DEFAULT_MUSIC_URLS.monochrome;
-    navigateActiveTab(target);
-  };
 
   const loadProxyHistory = () => {
     try {
@@ -551,6 +577,33 @@ export default function Loader({ url, ui = true, zoom }) {
     });
   };
 
+  const getStoredTabTarget = useCallback(
+    (rawUrl, skipProxy = false) => {
+      const trimmed = String(rawUrl || '').trim();
+      if (!trimmed) return '';
+
+      const normalized = trimmed.toLowerCase();
+      if (
+        normalized === 'ghost://home' ||
+        normalized === 'ghost://new-tab' ||
+        normalized === 'ghost://newtab'
+      ) {
+        return 'tabs://new';
+      }
+
+      if (normalized.startsWith('ghost://')) {
+        return trimmed;
+      }
+
+      const processed = skipProxy
+        ? trimmed
+        : process(trimmed, false, options.prType || 'auto', options.engine || null);
+
+      return toGhostDisplayUrl(processed) || processed;
+    },
+    [options.prType, options.engine],
+  );
+
   const navigateActiveTab = (rawUrl) => {
     // Intercept ghost://ai — redirect to external provider if one is set
     if (String(rawUrl).toLowerCase() === 'ghost://ai' && options.defaultAiProvider) {
@@ -575,8 +628,7 @@ export default function Loader({ url, ui = true, zoom }) {
 
     const store = loaderStore.getState();
     const activeTab = store.tabs.find((tab) => tab.active) || store.tabs[0];
-    const processed = process(rawUrl, false, options.prType || 'auto', options.engine || null);
-    const targetUrl = toGhostDisplayUrl(processed) || processed;
+    const targetUrl = getStoredTabTarget(rawUrl);
 
     if (activeTab && activeTab.url === targetUrl) return;
 
@@ -1000,10 +1052,34 @@ export default function Loader({ url, ui = true, zoom }) {
           const parsed = parseProviderMeta(data, provider.source);
           if (!isValidMeta(parsed)) continue;
           if (canceled) return;
+          writeCachedCoords({ lat: parsed.latitude, lon: parsed.longitude });
           setIpMeta(parsed);
           return;
         } catch { }
       }
+
+      const cached = readCachedCoords();
+      if (cached && !canceled) {
+        const fallbackTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+        setIpMeta((prev) => ({
+          ...prev,
+          latitude: cached.lat,
+          longitude: cached.lon,
+          timezone: prev.timezone || fallbackTimezone,
+        }));
+        return;
+      }
+
+      const browserCoords = await getBrowserCoords();
+      if (!browserCoords || canceled) return;
+      writeCachedCoords(browserCoords);
+      const fallbackTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+      setIpMeta((prev) => ({
+        ...prev,
+        latitude: browserCoords.lat,
+        longitude: browserCoords.lon,
+        timezone: prev.timezone || fallbackTimezone,
+      }));
     };
 
     fetchIpMeta();
@@ -1015,17 +1091,49 @@ export default function Loader({ url, ui = true, zoom }) {
   useEffect(() => {
     let canceled = false;
 
-    const manualCoords = parseCoords(options.weatherCoordsOverride);
-    const shouldUseIp = options.weatherUseIpLocation !== false;
-    const lat = shouldUseIp ? Number(ipMeta.latitude) : Number(manualCoords?.lat);
-    const lon = shouldUseIp ? Number(ipMeta.longitude) : Number(manualCoords?.lon);
-    if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
-
-    const unit = (options.weatherUnit || 'fahrenheit') === 'celsius' ? 'celsius' : 'fahrenheit';
-
     const loadWeather = async () => {
       try {
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(lat)}&longitude=${encodeURIComponent(lon)}&current=temperature_2m,weather_code,is_day&temperature_unit=${unit}`;
+        let coords = null;
+        const manualCoords = parseCoords(options.weatherCoordsOverride);
+        const shouldUseIp = options.weatherUseIpLocation !== false;
+
+        if (!shouldUseIp) {
+          coords = manualCoords;
+        }
+
+        if (!coords && Number.isFinite(ipMeta.latitude) && Number.isFinite(ipMeta.longitude)) {
+          coords = { lat: Number(ipMeta.latitude), lon: Number(ipMeta.longitude) };
+        }
+
+        if (!coords && shouldUseIp) {
+          coords = readCachedCoords();
+        }
+
+        if (!coords && shouldUseIp) {
+          const browserCoords = await getBrowserCoords();
+          if (browserCoords) {
+            coords = browserCoords;
+            writeCachedCoords(browserCoords);
+            if (!canceled) {
+              const fallbackTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
+              setIpMeta((prev) => ({
+                ...prev,
+                latitude: browserCoords.lat,
+                longitude: browserCoords.lon,
+                timezone: prev.timezone || fallbackTimezone,
+              }));
+            }
+          }
+        }
+
+        if (!coords) {
+          coords = readCachedCoords() || WEATHER_FALLBACK_COORDS;
+        }
+
+        writeCachedCoords(coords);
+
+        const unit = (options.weatherUnit || 'fahrenheit') === 'celsius' ? 'celsius' : 'fahrenheit';
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(coords.lat)}&longitude=${encodeURIComponent(coords.lon)}&current=temperature_2m,weather_code,is_day&temperature_unit=${unit}`;
         const response = await fetch(url);
         if (!response.ok) throw new Error('weather fetch failed');
         const data = await response.json();
@@ -1217,10 +1325,7 @@ export default function Loader({ url, ui = true, zoom }) {
   useEffect(() => {
     const openGhostBrowserTab = (rawUrl, config = {}) => {
       if (!rawUrl || loaderStore.getState().tabs.length >= 20) return false;
-      const processedUrl = config?.skipProxy
-        ? rawUrl
-        : process(rawUrl, false, options.prType || 'auto', options.engine || null);
-      const targetUrl = toGhostDisplayUrl(processedUrl) || processedUrl;
+      const targetUrl = getStoredTabTarget(rawUrl, !!config?.skipProxy);
       const id = createId();
       addTab({ title: config?.title || 'New Tab', id, url: targetUrl });
       if (config.askDefaultMusicPrompt) {
@@ -1244,10 +1349,7 @@ export default function Loader({ url, ui = true, zoom }) {
         loaderStore.getState().setIframeUrl(tabId, 'ghost://home');
         return true;
       }
-      const processedUrl = config?.skipProxy
-        ? rawUrl
-        : process(rawUrl, false, options.prType || 'auto', options.engine || null);
-      const targetUrl = toGhostDisplayUrl(processedUrl) || processedUrl;
+      const targetUrl = getStoredTabTarget(rawUrl, !!config?.skipProxy);
       loaderStore.getState().updateUrl(tabId, targetUrl);
       // Also set iframeUrl for ghost:// protocol URLs
       if (String(rawUrl).startsWith('ghost://')) {
@@ -1272,7 +1374,7 @@ export default function Loader({ url, ui = true, zoom }) {
       }
       delete window.__ghostGetActiveTabId;
     };
-  }, [addTab, setActive, options.prType, options.engine]);
+  }, [addTab, setActive, getStoredTabTarget]);
 
   useEffect(() => {
     const onFrameLoaded = (event) => {
@@ -1598,7 +1700,7 @@ export default function Loader({ url, ui = true, zoom }) {
                   { label: 'Apps', action: () => navigateActiveTab('ghost://apps') },
                   { label: 'Games', action: () => navigateActiveTab('ghost://games') },
                   { label: 'TV', action: () => navigateActiveTab('ghost://tv') },
-                  { label: 'Music', action: () => openDefaultMusicProvider() },
+                  { label: 'Music', action: () => navigateActiveTab('ghost://music') },
                   { label: 'Remote Access', action: () => navigateActiveTab('ghost://remote') },
                   { label: 'Artificial Intelligence', action: () => navigateActiveTab('ghost://ai') },
                   { label: 'Code Runner', action: () => navigateActiveTab('ghost://code') },
@@ -1642,7 +1744,7 @@ export default function Loader({ url, ui = true, zoom }) {
               </SidebarButton>
             )}
             {options?.sidebarToggles?.showMusic !== false && (
-              <SidebarButton label="Music" onClick={() => openDefaultMusicProvider()}>
+              <SidebarButton label="Music" onClick={() => navigateActiveTab('ghost://music')}>
                 <Music size={16} />
               </SidebarButton>
             )}

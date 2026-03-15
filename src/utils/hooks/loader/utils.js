@@ -199,23 +199,64 @@ const resolveGhostRoute = (input) => {
 
 export const toGhostDisplayUrl = (url) => {
   if (!url) return '';
-  if (url === 'tabs://new') return 'ghost://home';
+
+  const raw = String(url || '').trim();
+  if (!raw) return '';
+  if (raw === 'tabs://new') return 'ghost://home';
+
+  if (/^ghost:\/\//i.test(raw)) {
+    const route = raw.replace(/^ghost:\/\//i, '').replace(/^\/+/, '');
+    const normalizedRoute = route.toLowerCase();
+
+    if (!route || normalizedRoute === 'home' || normalizedRoute === 'new-tab' || normalizedRoute === 'newtab') {
+      return 'ghost://home';
+    }
+
+    if (normalizedRoute.startsWith('docs/')) {
+      return `ghost://docs/${route.slice(5)}`;
+    }
+
+    const allowedRoutes = new Set([
+      'apps',
+      'settings',
+      'entertainment',
+      'discover',
+      'games',
+      'tv',
+      'music',
+      'docs',
+      'search',
+      'code',
+      'ai',
+      'remote',
+    ]);
+
+    if (allowedRoutes.has(normalizedRoute)) {
+      if (['entertainment', 'discover', 'games', 'tv', 'music'].includes(normalizedRoute)) {
+        return 'ghost://entertainment';
+      }
+      return `ghost://${normalizedRoute}`;
+    }
+  }
 
   try {
-    const parsed = new URL(url, location.origin);
+    const parsed = new URL(raw, location.origin);
     if (parsed.origin !== location.origin) return null;
 
     const path = parsed.pathname.replace(/\/$/, '') || '/';
     if (path.startsWith('/docs/')) {
       return `ghost://docs/${path.slice('/docs/'.length)}`;
     }
+
+    if (path === '/discover' || path === '/discover/r') {
+      return 'ghost://entertainment';
+    }
+
     const map = {
       '/': 'ghost://home',
       '/new': 'ghost://new-tab',
       '/apps': 'ghost://apps',
       '/settings': 'ghost://settings',
-      '/discover': 'ghost://entertainment',
-      '/discover/r': 'ghost://entertainment',
       '/docs': 'ghost://docs',
       '/search': 'ghost://search',
       '/code': 'ghost://code',

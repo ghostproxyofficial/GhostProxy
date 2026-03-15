@@ -937,19 +937,12 @@ export default function AIPage() {
       {/* "Another AI Provider?" popup */}
       {aiProviderPopupOpen && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="w-[370px] rounded-2xl border border-white/10 bg-[#0f141d] p-5 shadow-2xl">
-            <div className="flex items-start justify-between mb-3">
-              <div>
-                <h2 className="text-lg font-semibold text-white">Another AI Provider?</h2>
-                <p className="text-sm text-white/60 mt-1">Choose your default provider in Settings.</p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setAiProviderPopupOpen(false)}
-                className="p-1 rounded-md hover:bg-white/10 text-white/60 hover:text-white transition-colors"
-              >
-                <X size={16} />
-              </button>
+          <div className="w-[370px] min-h-[148px] rounded-[24px] border border-white/10 bg-[#0f141d] p-4 shadow-2xl flex flex-col justify-between">
+            <div className="pr-3">
+              <h2 className="text-lg font-semibold text-white">Another AI Provider?</h2>
+              <p className="text-sm text-white/60 mt-1 leading-5">
+                Choose your default provider in Settings.
+              </p>
             </div>
             <div className="flex items-center justify-end gap-2 mt-4">
               <button

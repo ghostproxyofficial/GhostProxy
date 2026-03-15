@@ -38,18 +38,48 @@ const applyStorageSnapshot = (snapshot) => {
 
 const getGhostTabLabel = (url) => {
   if (!url) return null;
+
+  const raw = String(url || '').trim();
+  const normalizedGhost = raw.toLowerCase();
+  const ghostRouteMap = {
+    'ghost://home': 'Ghost Home',
+    'ghost://new-tab': 'Ghost Home',
+    'ghost://newtab': 'Ghost Home',
+    'ghost://apps': 'Ghost Apps',
+    'ghost://settings': 'Ghost Settings',
+    'ghost://entertainment': 'Ghost Entertainment',
+    'ghost://discover': 'Ghost Entertainment',
+    'ghost://games': 'Ghost Entertainment',
+    'ghost://tv': 'Ghost Entertainment',
+    'ghost://music': 'Ghost Entertainment',
+    'ghost://docs': 'Ghost Docs',
+    'ghost://search': 'Ghost Search',
+    'ghost://code': 'Ghost Code',
+    'ghost://ai': 'Ghost AI',
+    'ghost://remote': 'Ghost Remote Access',
+  };
+
+  if (ghostRouteMap[normalizedGhost]) {
+    return ghostRouteMap[normalizedGhost];
+  }
+
+  if (normalizedGhost.startsWith('ghost://docs/')) return 'Ghost Docs';
+
   try {
-    const parsed = new URL(url, location.origin);
+    const parsed = new URL(raw, location.origin);
     if (parsed.origin !== location.origin) return null;
 
     const path = parsed.pathname.replace(/\/$/, '') || '/';
     if (path.startsWith('/docs/')) return 'Ghost Docs';
+    if (path === '/discover' || path === '/discover/r') {
+      return 'Ghost Entertainment';
+    }
+
     const map = {
       '/': 'Ghost Home',
       '/new': 'Ghost Home',
       '/apps': 'Ghost Apps',
       '/settings': 'Ghost Settings',
-      '/discover': 'Ghost Entertainment',
       '/docs': 'Ghost Docs',
       '/search': 'Ghost Search',
       '/code': 'Ghost Code',

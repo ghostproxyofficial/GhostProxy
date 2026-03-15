@@ -12,6 +12,32 @@ import clsx from 'clsx';
 const Pagination = lazy(() => import('@mui/material/Pagination'));
 const CUSTOM_APPS_KEY = 'ghostCustomApps';
 const NO_ICON_APPS = new Set(['Google Drive', 'eBay', 'Best Buy', 'Epic Games', 'WhatsApp']);
+const MODAL_TRANSITION_MS = 180;
+
+const usePopupTransition = (open) => {
+  const [rendered, setRendered] = useState(open);
+  const [visible, setVisible] = useState(open);
+
+  useEffect(() => {
+    if (open) {
+      setRendered(true);
+      let inner = 0;
+      const outer = requestAnimationFrame(() => {
+        inner = requestAnimationFrame(() => setVisible(true));
+      });
+      return () => {
+        cancelAnimationFrame(outer);
+        cancelAnimationFrame(inner);
+      };
+    }
+
+    setVisible(false);
+    const timer = window.setTimeout(() => setRendered(false), MODAL_TRANSITION_MS);
+    return () => window.clearTimeout(timer);
+  }, [open]);
+
+  return { rendered, visible };
+};
 
 const REQUIRED_APPS = [
   {
@@ -225,7 +251,7 @@ const AppCard = memo(({ app, onClick, fallbackMap, onImgError, itemTheme, itemSt
             e.stopPropagation();
             onDelete(app);
           }}
-          className="absolute top-2 right-2 p-1.5 rounded-md bg-[#00000040] hover:bg-[#00000066]"
+          className="absolute top-2 right-3 p-1.5 rounded-md bg-[#00000040] hover:bg-[#00000066]"
           aria-label={`Delete ${app.appName}`}
         >
           <X size={14} />
@@ -321,6 +347,7 @@ const Apps = memo(() => {
             ...app,
             isCustom: true,
             customId: app.customId || createId(),
+            noIcon: !!app.noIcon || !String(app.icon || '').trim(),
           })),
         );
       }
@@ -331,6 +358,7 @@ const Apps = memo(() => {
   const [page, setPage] = useState(1);
   const [fallback, setFallback] = useState({});
   const [developerOnly, setDeveloperOnly] = useState(false);
+  const customModal = usePopupTransition(showCustomModal);
 
   const perPage = options.itemsPerPage || 50;
 
@@ -355,12 +383,18 @@ const Apps = memo(() => {
   const sourceApps = useMemo(() => (developerOnly ? DEVELOPER_APPS : indexedApps), [developerOnly, indexedApps]);
 
   const sortedApps = useMemo(
-    () =>
-      [...sourceApps].sort(
-        (a, b) =>
-          (a.desc || '').localeCompare(b.desc || '', undefined, { sensitivity: 'base' }) ||
-          a.appName.localeCompare(b.appName, undefined, { sensitivity: 'base' }),
-      ),
+    () => {
+      const custom = sourceApps.filter((app) => app.isCustom);
+      const rest = sourceApps
+        .filter((app) => !app.isCustom)
+        .sort(
+          (a, b) =>
+            (a.desc || '').localeCompare(b.desc || '', undefined, { sensitivity: 'base' }) ||
+            a.appName.localeCompare(b.appName, undefined, { sensitivity: 'base' }),
+        );
+
+      return [...custom, ...rest];
+    },
     [sourceApps],
   );
 
@@ -429,15 +463,8 @@ const Apps = memo(() => {
     if (!appName || !rawUrl) return;
 
     const url = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
-    let icon = customIcon.trim();
-    if (!icon) {
-      try {
-        const domain = new URL(url).hostname;
-        icon = `https://www.google.com/s2/favicons?sz=128&domain=${domain}`;
-      } catch {
-        icon = 'https://www.google.com/s2/favicons?sz=128&domain=google.com';
-      }
-    }
+    const icon = customIcon.trim();
+    const useDefaultGridIcon = !icon;
 
     const next = [
       {
@@ -446,6 +473,7 @@ const Apps = memo(() => {
         appName,
         url,
         icon,
+        noIcon: useDefaultGridIcon,
         desc: customDesc.trim() || 'Custom app',
         disabled: false,
       },
@@ -477,6 +505,44 @@ const Apps = memo(() => {
   );
 
   const placeholder = useMemo(() => `Search ${visibleApps.length} apps`, [visibleApps.length]);
+  const isLightTheme =
+    options.type === 'light' ||
+    options.theme === 'light' ||
+    options.themeName === 'light';
+  const formCanSave = customName.trim().length > 0 && customUrl.trim().length > 0;
+  const modalSurfaceStyle = useMemo(
+    () => ({
+      backgroundColor: options.quickModalBgColor || options.menuColor || (isLightTheme ? '#f8fafc' : '#101722'),
+      color: options.siteTextColor || (isLightTheme ? '#0f172a' : '#dbe7f5'),
+      borderColor: isLightTheme ? 'rgba(15, 23, 42, 0.08)' : 'rgba(255, 255, 255, 0.12)',
+      boxShadow: isLightTheme
+        ? '0 30px 80px rgba(15, 23, 42, 0.18)'
+        : '0 34px 90px rgba(0, 0, 0, 0.42)',
+    }),
+    [options.quickModalBgColor, options.menuColor, options.siteTextColor, isLightTheme],
+  );
+  const modalFieldStyle = useMemo(
+    () => ({
+      backgroundColor: isLightTheme ? 'rgba(255, 255, 255, 0.82)' : 'rgba(255, 255, 255, 0.05)',
+      borderColor: isLightTheme ? 'rgba(15, 23, 42, 0.08)' : 'rgba(255, 255, 255, 0.1)',
+    }),
+    [isLightTheme],
+  );
+  const modalSecondaryButtonStyle = useMemo(
+    () => ({
+      backgroundColor: isLightTheme ? 'rgba(15, 23, 42, 0.05)' : 'rgba(255, 255, 255, 0.06)',
+      borderColor: isLightTheme ? 'rgba(15, 23, 42, 0.08)' : 'rgba(255, 255, 255, 0.1)',
+      color: options.siteTextColor || (isLightTheme ? '#0f172a' : '#dbe7f5'),
+    }),
+    [options.siteTextColor, isLightTheme],
+  );
+  const modalPrimaryButtonStyle = useMemo(
+    () => ({
+      backgroundColor: '#ffffff',
+      color: '#0f172a',
+    }),
+    [],
+  );
 
   return (
     <div className={`${styles.appContainer} w-full mx-auto`}>
@@ -540,53 +606,100 @@ const Apps = memo(() => {
         )}
       </div>
 
-      {showCustomModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-black/50" onClick={() => setShowCustomModal(false)} />
-          <div className="relative w-full max-w-3xl rounded-xl border border-white/10 p-5 bg-[#252f3e]">
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="text-lg font-semibold">Add Custom App</h3>
-              <button onClick={() => setShowCustomModal(false)} className="p-1 rounded-md hover:bg-[#ffffff12]">
+      {customModal.rendered && (
+        <div
+          className={clsx(
+            'fixed inset-0 z-[9999] flex items-center justify-center p-4 transition-opacity duration-[220ms] ease-out',
+            customModal.visible ? 'opacity-100' : 'pointer-events-none opacity-0',
+          )}
+        >
+          <div
+            className={clsx(
+              'absolute inset-0 bg-black/55 backdrop-blur-[2px] transition-opacity duration-[220ms] ease-out',
+              customModal.visible ? 'opacity-100' : 'opacity-0',
+            )}
+            onClick={() => setShowCustomModal(false)}
+          />
+          <div
+            className={clsx(
+              'relative w-full max-w-2xl rounded-[28px] border px-5 py-5 md:px-6 md:py-6 backdrop-blur-xl transform-gpu transition-all duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
+              customModal.visible ? 'translate-y-0 scale-100 opacity-100' : 'translate-y-3 scale-[0.98] opacity-0',
+            )}
+            style={modalSurfaceStyle}
+          >
+            <div className="flex items-start justify-between gap-4 mb-5">
+              <div>
+                <h3 className="text-xl font-semibold tracking-tight">Create Custom App</h3>
+                <p className="text-sm opacity-70 mt-1">
+                  Add a site you use often.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCustomModal(false)}
+                className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl border transition-colors"
+                style={modalSecondaryButtonStyle}
+              >
                 <X size={18} />
               </button>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
               <input
                 type="text"
                 placeholder="App Name"
                 value={customName}
                 onChange={(e) => setCustomName(e.target.value)}
-                className="bg-[#00000020] rounded-lg px-3 h-12 outline-none text-base"
+                className="h-11 rounded-2xl border px-3.5 outline-none text-sm placeholder:opacity-60"
+                style={modalFieldStyle}
               />
               <input
                 type="text"
                 placeholder="URL"
                 value={customUrl}
                 onChange={(e) => setCustomUrl(e.target.value)}
-                className="bg-[#00000020] rounded-lg px-3 h-12 outline-none text-base"
+                className="h-11 rounded-2xl border px-3.5 outline-none text-sm placeholder:opacity-60"
+                style={modalFieldStyle}
               />
               <input
                 type="text"
                 placeholder="Description (optional)"
                 value={customDesc}
                 onChange={(e) => setCustomDesc(e.target.value)}
-                className="bg-[#00000020] rounded-lg px-3 h-12 outline-none text-base"
+                className="h-11 rounded-2xl border px-3.5 outline-none text-sm placeholder:opacity-60"
+                style={modalFieldStyle}
               />
               <input
                 type="text"
                 placeholder="Icon URL (optional)"
                 value={customIcon}
                 onChange={(e) => setCustomIcon(e.target.value)}
-                className="bg-[#00000020] rounded-lg px-3 h-12 outline-none text-base"
+                className="h-11 rounded-2xl border px-3.5 outline-none text-sm placeholder:opacity-60"
+                style={modalFieldStyle}
               />
             </div>
-            <div className="pt-4 flex justify-end">
-              <button
-                onClick={addCustomApp}
-                className="px-5 h-11 rounded-lg bg-[#ffffff18] hover:bg-[#ffffff28] transition-colors text-sm cursor-pointer"
-              >
-                Save Custom App
-              </button>
+            <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm opacity-70">
+              
+              </p>
+              <div className="flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setShowCustomModal(false)}
+                  className="h-10 px-4 rounded-2xl border text-sm transition-colors"
+                  style={modalSecondaryButtonStyle}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={addCustomApp}
+                  disabled={!formCanSave}
+                  className="h-10 px-4 rounded-2xl text-sm font-medium transition-opacity disabled:cursor-not-allowed disabled:opacity-45"
+                  style={modalPrimaryButtonStyle}
+                >
+                  Create App
+                </button>
+              </div>
             </div>
           </div>
         </div>
