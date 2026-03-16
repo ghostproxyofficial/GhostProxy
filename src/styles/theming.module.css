@@ -133,23 +133,23 @@
   --result-hover: #95a4ff22;
 }
 
-.theme-paper {
-  --nav-bg: #fff9ece6;
-  --nav-border: #e8e2cf;
-  --search-border: #e6dec7;
-  --search-bg: #fffaf2;
-  --search-ph: #4b5563;
-  --search-color: #1a1a1a;
-  --settings-panel: #faf4e6;
-  --settings-content: #fefbf5;
-  --settings-border: #ebe3cd;
-  --apps-bg: #fffcf3;
-  --apps-border: #eae1ca;
-  --apps-text: #1f2937;
-  --apps-ph: #4b5563;
-  --item-bg: #fffbef;
-  --item-border: #e6dec7;
-  --result-hover: #5b5a5222;
+.theme-graphite {
+  --nav-bg: #141c26cc;
+  --nav-border: #354658;
+  --search-border: #2d3e50;
+  --search-bg: #1b2431;
+  --search-ph: #9db1ca;
+  --search-color: #dbe8f8;
+  --settings-panel: #1a212b;
+  --settings-content: #0f141b;
+  --settings-border: #354658;
+  --apps-bg: #1b2431;
+  --apps-border: #2d3e50;
+  --apps-text: #d3deec;
+  --apps-ph: #9db1ca;
+  --item-bg: #1e2834;
+  --item-border: #324457;
+  --result-hover: #8fa5c022;
 }
 
 .theme-sunset {
@@ -190,24 +190,122 @@
   --result-hover: #a9dcf822;
 }
 
-.theme-rose {
-  --nav-bg: #fff7fbf0;
-  --nav-border: #d8bdcb;
-  --search-border: #d9c2cd;
-  --search-bg: #fff7fb;
-  --search-ph: #6b5561;
-  --search-color: #4b3a45;
-  --settings-panel: #f8eef4;
-  --settings-content: #fff7fb;
-  --settings-border: #d8bdcb;
-  --apps-bg: #f8eef4;
-  --apps-border: #d8bdcb;
-  --apps-text: #4b3a45;
-  --apps-ph: #6b5561;
-  --item-bg: #ffffff;
-  --item-border: #d8bdcb;
-  --result-hover: #a7779020;
+.theme-obsidian {
+  --nav-bg: #101624cc;
+  --nav-border: #334059;
+  --search-border: #2d3447;
+  --search-bg: #1c2333;
+  --search-ph: #a6b2ca;
+  --search-color: #e6ebf7;
+  --settings-panel: #141b27;
+  --settings-content: #0a0c13;
+  --settings-border: #334059;
+  --apps-bg: #1c2230;
+  --apps-border: #2d3447;
+  --apps-text: #d8dfef;
+  --apps-ph: #a6b2ca;
+  --item-bg: #1f2736;
+  --item-border: #334059;
+  --result-hover: #91a8d322;
 }
+
+.theme-nebula {
+  --nav-bg: #171125cc;
+  --nav-border: #4d3a73;
+  --search-border: #3a2f56;
+  --search-bg: #241b36;
+  --search-ph: #bca8de;
+  --search-color: #ebdcff;
+  --settings-panel: #171126;
+  --settings-content: #0e0918;
+  --settings-border: #4d3a73;
+  --apps-bg: #221b32;
+  --apps-border: #3a2f56;
+  --apps-text: #dccbf7;
+  --apps-ph: #bca8de;
+  --item-bg: #2a203f;
+  --item-border: #4d3a73;
+  --result-hover: #c7a5ff24;
+}
+
+.theme-violet {
+  --nav-bg: #171122cc;
+  --nav-border: #463867;
+  --search-border: #3d3158;
+  --search-bg: #231a33;
+  --search-ph: #b8a7d6;
+  --search-color: #e9deff;
+  --settings-panel: #1f182d;
+  --settings-content: #110d18;
+  --settings-border: #463867;
+  --apps-bg: #231a33;
+  --apps-border: #3d3158;
+  --apps-text: #d9cbee;
+  --apps-ph: #b8a7d6;
+  --item-bg: #2a1f3d;
+  --item-border: #3f315e;
+  --result-hover: #b293ff24;
+}
+
+.theme-crimson {
+  --nav-bg: #1f1010cc;
+  --nav-border: #4a1f1f;
+  --search-border: #5a2828;
+  --search-bg: #2a1414;
+  --search-ph: #d49393;
+  --search-color: #ffe8e8;
+  --settings-panel: #200f0f;
+  --settings-content: #160b0b;
+  --settings-border: #5a2828;
+  --apps-bg: #2a1414;
+  --apps-border: #5a2828;
+  --apps-text: #ffe8e8;
+  --apps-ph: #d49393;
+  --item-bg: #321818;
+  --item-border: #5a2828;
+  --result-hover: #ff787830;
+}
+
+.theme-slate {
+  --nav-bg: #10202bcc;
+  --nav-border: #2f516a;
+  --search-border: #304a60;
+  --search-bg: #17303d;
+  --search-ph: #9dc0d9;
+  --search-color: #d6ebff;
+  --settings-panel: #132330;
+  --settings-content: #0c141b;
+  --settings-border: #2f516a;
+  --apps-bg: #17303d;
+  --apps-border: #304a60;
+  --apps-text: #c8deef;
+  --apps-ph: #9dc0d9;
+  --item-bg: #1a3342;
+  --item-border: #2f516a;
+  --result-hover: #8fb8d322;
+}
+
+.theme-evergreen {
+  --nav-bg: #102017cc;
+  --nav-border: #2f4f3c;
+  --search-border: #2e513f;
+  --search-bg: #1a2b22;
+  --search-ph: #9fc8b0;
+  --search-color: #d9f5e4;
+  --settings-panel: #122017;
+  --settings-content: #0a1510;
+  --settings-border: #2f4f3c;
+  --apps-bg: #1a2b22;
+  --apps-border: #2e513f;
+  --apps-text: #bde4cf;
+  --apps-ph: #9fc8b0;
+  --item-bg: #1d3126;
+  --item-border: #2f4f3c;
+  --result-hover: #7dd6a222;
+}
+
+/* Custom theme — CSS variables are injected via :root in App.jsx when active */
+.theme-custom {}
 
 .nav-backgroundColor {
   background-color: var(--nav-bg);

@@ -35,8 +35,6 @@ const baseConfigs = [
       'size',
       'performance mode',
       'custom background',
-      'css editor',
-      'custom css',
       'logo color',
     ],
     key: 'customizeConfig',

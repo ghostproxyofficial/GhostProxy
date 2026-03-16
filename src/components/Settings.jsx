@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import clsx from 'clsx';
 import theme from '/src/styles/theming.module.css';
 import { useOptions } from '/src/utils/optionsContext';
@@ -17,17 +17,22 @@ import {
   Heart,
   Library,
   MessagesSquare,
+  Moon,
   Scale,
   ShieldAlert,
+  Sun,
   Users,
   X,
 } from 'lucide-react';
 import { showAlert, showConfirm } from '/src/utils/uiDialog';
 import { createId } from '/src/utils/id';
+import { themeConfig as siteThemeConfig } from '/src/utils/config';
 import pkg from '../../package.json';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const BUG_REPORT_FORM_URL = 'https://forms.gle/94VwArsXReWqyWWr9';
+const LIGHT_MODE_AVAILABLE = false;
+const selectableThemePresets = siteThemeConfig.filter((entry) => entry.option !== 'Light');
 
 const Type = ({ type, title }) => {
   const { options, updateOption } = useOptions();
@@ -253,6 +258,110 @@ const InfoPanel = () => {
   );
 };
 
+// ─── Custom Theme helpers (module-level, no re-creation) ──────────────────────
+
+const hsvToRgb = (h, s, v) => {
+  s /= 100; v /= 100;
+  const f = (n) => { const k = (n + h / 60) % 6; return v - v * s * Math.max(0, Math.min(k, 4 - k, 1)); };
+  return [Math.round(f(5) * 255), Math.round(f(3) * 255), Math.round(f(1) * 255)];
+};
+
+const hsvToHex = (h, s, v) => {
+  const [r, g, b] = hsvToRgb(h, s, v);
+  return '#' + [r, g, b].map((x) => x.toString(16).padStart(2, '0')).join('');
+};
+
+const cl = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
+const hsl = (h, s, l) => `hsl(${Math.round(h)}, ${Math.round(cl(s, 0, 100))}%, ${Math.round(cl(l, 0, 100))}%)`;
+const hsla = (h, s, l, a) => `hsla(${Math.round(h)}, ${Math.round(cl(s, 0, 100))}%, ${Math.round(cl(l, 0, 100))}%, ${a})`;
+
+const generateCustomTheme = (h, s, v, mode) => {
+  const isDark = mode === 'dark';
+  // Derive rough HSL lightness for accent
+  const sv = s / 100, vv = v / 100;
+  const lAcc = vv * (1 - sv / 2) * 100;
+  const [rA, gA, bA] = hsvToRgb(h, s, v);
+  const designRgb = `${rA}, ${gA}, ${bA}`;
+
+  if (isDark) {
+    const bgS = cl(Math.round(s * 0.35), 2, 18);
+    const fgS = cl(Math.round(s * 0.28), 4, 22);
+    const accentFg = hsl(h, cl(s * 0.75, 20, 80), cl(lAcc + 15, 68, 93));
+    const accentEnabled = hsl(h, cl(s, 30, 70), cl(lAcc * 0.4 + 20, 24, 45));
+    const siteText = hsl(h, fgS, 80);
+    const p = { // palette shorthand
+      bg5: hsl(h, bgS, 5),   bg8: hsl(h, bgS + 2, 8),  bg10: hsl(h, bgS + 2, 10),
+      bg12: hsl(h, bgS + 3, 12), bg14: hsl(h, bgS + 3, 14), bg18: hsl(h, bgS + 4, 18),
+      border: hsl(h, fgS, 22), muted: hsl(h, fgS - 5, 58),
+    };
+    const navBg = hsla(h, bgS + 2, 8, 0.72);
+    const themeCss = `:root {\n` +
+      `  --nav-bg: ${navBg};\n  --nav-border: ${hsl(h, fgS, 20)};\n` +
+      `  --search-border: ${hsl(h, fgS, 22)};\n  --search-bg: ${p.bg10};\n` +
+      `  --search-ph: ${p.muted};\n  --search-color: ${accentFg};\n` +
+      `  --settings-panel: ${p.bg8};\n  --settings-content: ${hsl(h, bgS, 6)};\n` +
+      `  --settings-border: ${hsl(h, fgS, 22)};\n  --apps-bg: ${p.bg10};\n` +
+      `  --apps-border: ${hsl(h, fgS, 22)};\n  --apps-text: ${accentFg};\n` +
+      `  --apps-ph: ${p.muted};\n  --item-bg: ${p.bg12};\n` +
+      `  --item-border: ${hsl(h, fgS, 22)};\n` +
+      `  --result-hover: ${hsla(h, s, 70, 0.12)};\n}`;
+    return {
+      theme: 'custom', type: 'dark', themeName: 'customTheme',
+      bgColor: p.bg5, siteTextColor: siteText,
+      settingsContainerColor: p.bg14, navItemActive: accentFg,
+      settingsSearchBar: p.bg14, settingsPanelItemBackgroundColor: p.bg18,
+      settingsDropdownColor: p.bg8, bgDesignColor: designRgb, glowWrapperColor: designRgb,
+      switchColor: p.bg14, switchEnabledColor: accentEnabled,
+      quickModalBgColor: p.bg12, paginationTextColor: p.muted,
+      paginationBorderColor: 'rgba(255,255,255,0.11)', paginationBgColor: p.bg10,
+      paginationSelectedColor: accentEnabled,
+      tabColor: hsla(h, bgS + 3, 10, 0.70), tabOutline: hsl(h, fgS - 2, 20),
+      barColor: hsl(h, bgS + 2, 7), tabBarColor: hsl(h, bgS, 5),
+      omninputColor: hsla(h, bgS + 2, 8, 0.56), menuColor: p.bg10,
+      customThemeCss: themeCss,
+    };
+  } else {
+    const bgS = cl(Math.round(s * 0.12), 1, 8);
+    const fgS = cl(Math.round(s * 0.18), 2, 16);
+    const accentColor = hsl(h, cl(s, 40, 80), cl(lAcc * 0.5, 25, 55));
+    const siteText = hsl(h, fgS + 5, 12);
+    const p = {
+      bg97: hsl(h, bgS + 2, 97), bg95: hsl(h, bgS, 95),
+      bg93: hsl(h, bgS + 2, 93), bg90: hsl(h, bgS + 4, 90),
+      bg85: hsl(h, bgS + 5, 85), bg78: hsl(h, fgS + 5, 78),
+      border: hsl(h, fgS + 8, 82), ph: hsl(h, fgS + 5, 44),
+    };
+    const navBg = hsla(h, bgS + 1, 99, 0.92);
+    const themeCss = `:root {\n` +
+      `  --nav-bg: ${navBg};\n  --nav-border: ${p.border};\n` +
+      `  --search-border: ${p.border};\n  --search-bg: ${p.bg97};\n` +
+      `  --search-ph: ${p.ph};\n  --search-color: ${siteText};\n` +
+      `  --settings-panel: ${hsl(h, bgS + 3, 94)};\n  --settings-content: ${p.bg97};\n` +
+      `  --settings-border: ${p.border};\n  --apps-bg: ${hsl(h, bgS + 3, 95)};\n` +
+      `  --apps-border: ${p.border};\n  --apps-text: ${siteText};\n` +
+      `  --apps-ph: ${p.ph};\n  --item-bg: ${p.bg97};\n` +
+      `  --item-border: ${p.border};\n` +
+      `  --result-hover: ${hsla(h, s, 40, 0.08)};\n}`;
+    return {
+      theme: 'custom', type: 'light', themeName: 'customTheme',
+      bgColor: p.bg95, siteTextColor: siteText,
+      settingsContainerColor: p.bg85, navItemActive: siteText,
+      settingsSearchBar: p.bg85, settingsPanelItemBackgroundColor: p.bg78,
+      settingsDropdownColor: hsl(h, bgS + 2, 95), bgDesignColor: designRgb, glowWrapperColor: designRgb,
+      switchColor: p.bg85, switchEnabledColor: accentColor,
+      quickModalBgColor: p.bg97, paginationTextColor: p.ph,
+      paginationBorderColor: 'rgba(0,0,0,0.11)', paginationBgColor: p.bg90,
+      paginationSelectedColor: accentColor,
+      tabColor: hsla(h, bgS + 1, 99, 0.82), tabOutline: p.border,
+      barColor: p.bg93, tabBarColor: hsl(h, bgS + 2, 90),
+      omninputColor: hsla(h, bgS + 1, 99, 0.56), menuColor: p.bg97,
+      customThemeCss: themeCss,
+    };
+  }
+};
+
+// ──────────────────────────────────────────────────────────────────────────────
+
 const Setting = ({ setting }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -279,6 +388,19 @@ const Setting = ({ setting }) => {
   const [fontFamilyDraft, setFontFamilyDraft] = useState('');
   const [paddingDraft, setPaddingDraft] = useState('');
   const [radiusDraft, setRadiusDraft] = useState('');
+
+  // Custom Theme picker state
+  const [customThemeOpen, setCustomThemeOpen] = useState(false);
+  const [customThemeRender, setCustomThemeRender] = useState(false);
+  const [customThemeAnim, setCustomThemeAnim] = useState(false);
+  const [pickerHue, setPickerHue] = useState(220);
+  const [pickerSat, setPickerSat] = useState(65);
+  const [pickerVal, setPickerVal] = useState(72);
+  const [pickerMode, setPickerMode] = useState('dark');
+  const [draggingSV, setDraggingSV] = useState(false);
+  const [draggingHue, setDraggingHue] = useState(false);
+  const svPickerRef = useRef(null);
+  const hueStripRef = useRef(null);
 
   const cssPresets = useMemo(
     () => (Array.isArray(options.cssEditorPresets) ? options.cssEditorPresets : []),
@@ -364,6 +486,91 @@ const Setting = ({ setting }) => {
     return () => clearTimeout(t);
   }, [historyOpen]);
 
+  // Custom Theme popup animation
+  useEffect(() => {
+    if (customThemeOpen) {
+      setCustomThemeAnim(false);
+      setCustomThemeRender(true);
+      let inner = 0;
+      const outer = requestAnimationFrame(() => {
+        inner = requestAnimationFrame(() => setCustomThemeAnim(true));
+      });
+      return () => { cancelAnimationFrame(outer); cancelAnimationFrame(inner); };
+    }
+    setCustomThemeAnim(false);
+    const t = setTimeout(() => setCustomThemeRender(false), 200);
+    return () => clearTimeout(t);
+  }, [customThemeOpen]);
+
+  // Color picker drag handlers
+  const updateSV = useCallback((clientX, clientY) => {
+    if (!svPickerRef.current) return;
+    const rect = svPickerRef.current.getBoundingClientRect();
+    setPickerSat(Math.round(Math.max(0, Math.min(100, ((clientX - rect.left) / rect.width) * 100))));
+    setPickerVal(Math.round(Math.max(0, Math.min(100, (1 - (clientY - rect.top) / rect.height) * 100))));
+  }, []);
+
+  const updateHue = useCallback((clientX) => {
+    if (!hueStripRef.current) return;
+    const rect = hueStripRef.current.getBoundingClientRect();
+    setPickerHue(Math.round(Math.max(0, Math.min(360, ((clientX - rect.left) / rect.width) * 360))));
+  }, []);
+
+  useEffect(() => {
+    if (!draggingSV && !draggingHue) return;
+    const onMove = (e) => {
+      const cx = e.touches?.[0]?.clientX ?? e.clientX;
+      const cy = e.touches?.[0]?.clientY ?? e.clientY;
+      if (draggingSV) updateSV(cx, cy);
+      if (draggingHue) updateHue(cx);
+    };
+    const onUp = () => { setDraggingSV(false); setDraggingHue(false); };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('touchmove', onMove, { passive: true });
+    window.addEventListener('touchend', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+      window.removeEventListener('touchmove', onMove);
+      window.removeEventListener('touchend', onUp);
+    };
+  }, [draggingSV, draggingHue, updateSV, updateHue]);
+
+  const pickerModeLocks = useMemo(() => ({
+    darkMaxValue: 42,
+    lightMinValue: 58,
+  }), []);
+
+  const getForcedPickerMode = useCallback(
+    (baseMode, val = pickerVal) => {
+      const shouldForceLight = val >= pickerModeLocks.lightMinValue;
+      const shouldForceDark = val <= pickerModeLocks.darkMaxValue;
+      if (shouldForceDark) return 'dark';
+      if (shouldForceLight && LIGHT_MODE_AVAILABLE) return 'light';
+      return baseMode;
+    },
+    [pickerVal, pickerModeLocks.darkMaxValue, pickerModeLocks.lightMinValue],
+  );
+
+  const handlePickerMode = useCallback(
+    (newMode) => {
+      setPickerMode(newMode);
+      const forced = getForcedPickerMode(newMode);
+      if (forced !== newMode) {
+        requestAnimationFrame(() => setPickerMode(forced));
+      }
+    },
+    [getForcedPickerMode],
+  );
+
+  useEffect(() => {
+    const forced = getForcedPickerMode(pickerMode);
+    if (forced !== pickerMode) {
+      setPickerMode(forced);
+    }
+  }, [pickerHue, pickerSat, pickerVal, pickerMode, getForcedPickerMode]);
+
   useEffect(() => {
     const handleExport = () => setExportOpen(true);
     const handleImport = () => setImportOpen(true);
@@ -387,12 +594,41 @@ const Setting = ({ setting }) => {
     openShortcuts: () => setShortcutsOpen(true),
   });
 
+  const previousThemePreset = useMemo(() => {
+    const preferredThemeName = options.lastThemePresetName || options.themeName || 'darkTheme';
+    return (
+      selectableThemePresets.find((entry) => entry.value?.themeName === preferredThemeName) ||
+      selectableThemePresets.find((entry) => entry.option === 'Dark') ||
+      selectableThemePresets[0] ||
+      null
+    );
+  }, [options.lastThemePresetName, options.themeName]);
+
+  const confirmCustomThemePresetSwitch = useCallback(async () => {
+    if (options.theme !== 'custom') return;
+
+    const targetPreset = previousThemePreset;
+    const presetLabel = targetPreset?.option || 'Dark';
+    const ok = await showConfirm(
+      `Custom Theme is active. Switch back to "${presetLabel}" preset?`,
+      'Switch Site Theme',
+    );
+    if (!ok || !targetPreset?.value) return;
+
+    updateOption({
+      ...targetPreset.value,
+      lastThemePresetName:
+        targetPreset.value.themeName || options.lastThemePresetName || options.themeName || 'darkTheme',
+    });
+  }, [options.theme, options.lastThemePresetName, options.themeName, previousThemePreset, updateOption]);
+
   const customizeSettings = settings.customizeConfig({
     options,
     updateOption,
     openCssEditor: {
-      openCssEditor: () => setCssEditorOpen(true),
       openSidebarEditor: () => setSidebarEditorOpen(true),
+      openCustomTheme: () => setCustomThemeOpen(true),
+      confirmCustomThemePresetSwitch,
     },
   });
 
@@ -617,6 +853,14 @@ const Setting = ({ setting }) => {
       ? 'scrollbar-thumb-gray-600'
       : 'scrollbar-thumb-gray-500',
   );
+  const isUiLight = options?.type === 'light';
+  const popupSurface = options.quickModalBgColor || options.menuColor || (isUiLight ? '#f8fafc' : '#1a252f');
+  const popupTextColor = options.siteTextColor || (isUiLight ? '#0f172a' : '#e2e8f0');
+  const popupMutedColor = isUiLight ? 'rgba(15,23,42,0.62)' : 'rgba(226,232,240,0.62)';
+  const popupBorderColor = isUiLight ? 'rgba(15,23,42,0.14)' : 'rgba(255,255,255,0.12)';
+  const popupSoftBg = isUiLight ? 'rgba(15,23,42,0.06)' : 'rgba(255,255,255,0.08)';
+  const popupInputBg = isUiLight ? 'rgba(255,255,255,0.84)' : 'rgba(0,0,0,0.25)';
+  const popupInputBorder = isUiLight ? 'rgba(15,23,42,0.16)' : 'rgba(255,255,255,0.1)';
 
   return (
     <div
@@ -795,11 +1039,15 @@ const Setting = ({ setting }) => {
           <div
             className={clsx(
               theme[`theme-${options.theme || 'default'}`],
-              `relative w-full max-w-4xl max-h-[80dvh] rounded-xl border border-white/10 overflow-hidden transition-all duration-200 ${historyAnim ? 'scale-100 translate-y-0' : 'scale-[0.965] translate-y-[6px]'}`
+              `relative w-full max-w-4xl max-h-[80dvh] rounded-xl border overflow-hidden transition-all duration-200 ${historyAnim ? 'scale-100 translate-y-0' : 'scale-[0.965] translate-y-[6px]'}`
             )}
-            style={{ backgroundColor: options.quickModalBgColor || options.menuColor || '#1a252f' }}
+            style={{
+              backgroundColor: popupSurface,
+              borderColor: popupBorderColor,
+              color: popupTextColor,
+            }}
           >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+            <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: popupBorderColor }}>
               <h2 className="text-lg font-semibold">View History</h2>
               <div className="flex items-center gap-2">
                 {historyItems.length > 0 && (
@@ -813,20 +1061,26 @@ const Setting = ({ setting }) => {
               </div>
             </div>
             <div className="px-4 pb-4 pt-0 overflow-y-auto max-h-[calc(80dvh-4rem)] space-y-2">
-              <div className="sticky top-0 z-10 pb-2 pt-0" style={{ backgroundColor: '#2d2d30' }}>
-                <div className="h-2" style={{ backgroundColor: '#2d2d30' }} />
+              <div className="sticky top-0 z-10 pb-2 pt-0" style={{ backgroundColor: popupSurface }}>
+                <div className="h-2" style={{ backgroundColor: popupSurface }} />
                 <input
                   value={historyQuery}
                   onChange={(e) => setHistoryQuery(e.target.value)}
                   placeholder="Search history"
-                  className="w-full h-9 rounded-md border border-white/10 bg-[#00000025] px-3 text-sm outline-none"
+                  className="w-full h-9 rounded-md border px-3 text-sm outline-none"
+                  style={{
+                    backgroundColor: popupInputBg,
+                    borderColor: popupInputBorder,
+                    color: popupTextColor,
+                  }}
                 />
               </div>
               {filteredHistoryItems.length === 0 && <p className="text-sm opacity-70">No matching history entries.</p>}
               {filteredHistoryItems.map((item) => (
                 <div
                   key={item.id || `${item.url}-${item.time}`}
-                  className="rounded-lg bg-[#ffffff0d] p-3 hover:bg-[#ffffff14] transition-colors cursor-pointer"
+                  className="rounded-lg p-3 transition-opacity cursor-pointer hover:opacity-90"
+                  style={{ backgroundColor: popupSoftBg }}
                   onClick={() => openHistoryItem(item)}
                 >
                   <p className="text-sm font-medium truncate">{item.title || item.url}</p>
@@ -844,11 +1098,15 @@ const Setting = ({ setting }) => {
           <div
             className={clsx(
               theme[`theme-${options.theme || 'default'}`],
-              "relative w-full max-w-5xl max-h-[85dvh] rounded-xl border border-white/10 overflow-hidden"
+              'relative w-full max-w-5xl max-h-[85dvh] rounded-xl border overflow-hidden',
             )}
-            style={{ backgroundColor: options.quickModalBgColor || options.menuColor || '#1a252f' }}
+            style={{
+              backgroundColor: popupSurface,
+              borderColor: popupBorderColor,
+              color: popupTextColor,
+            }}
           >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+            <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: popupBorderColor }}>
               <h2 className="text-lg font-semibold">View Data</h2>
               <button onClick={() => setDataOpen(false)} className="p-1 rounded-md hover:bg-[#ffffff12]">
                 <X size={18} />
@@ -859,7 +1117,7 @@ const Setting = ({ setting }) => {
                 <h3 className="text-sm font-semibold mb-2">Local Storage ({storageEntries.local.length})</h3>
                 <div className="space-y-2">
                   {storageEntries.local.map((entry) => (
-                    <div key={entry.key} className="rounded-lg bg-[#ffffff0d] p-3">
+                    <div key={entry.key} className="rounded-lg p-3" style={{ backgroundColor: popupSoftBg }}>
                       <p className="text-sm font-medium break-all">{entry.key}</p>
                       <pre className="text-xs opacity-80 mt-1 whitespace-pre-wrap break-words">{entry.value}</pre>
                     </div>
@@ -871,7 +1129,7 @@ const Setting = ({ setting }) => {
                 <h3 className="text-sm font-semibold mb-2">Session Storage ({storageEntries.session.length})</h3>
                 <div className="space-y-2">
                   {storageEntries.session.map((entry) => (
-                    <div key={entry.key} className="rounded-lg bg-[#ffffff0d] p-3">
+                    <div key={entry.key} className="rounded-lg p-3" style={{ backgroundColor: popupSoftBg }}>
                       <p className="text-sm font-medium break-all">{entry.key}</p>
                       <pre className="text-xs opacity-80 mt-1 whitespace-pre-wrap break-words">{entry.value}</pre>
                     </div>
@@ -897,6 +1155,173 @@ const Setting = ({ setting }) => {
       <SidebarEditor open={sidebarEditorOpen} onClose={() => setSidebarEditorOpen(false)} />
       <ExportDialog open={exportOpen} onClose={() => setExportOpen(false)} />
       <ImportDialog open={importOpen} onClose={() => setImportOpen(false)} />
+
+      {/* ── Custom Theme Popup ── */}
+      {customThemeRender && (
+        <div
+          className={`fixed inset-0 z-[10000] flex items-center justify-center p-4 transition-all duration-200 ${customThemeAnim ? 'opacity-100' : 'opacity-0'}`}
+        >
+          <div className="absolute inset-0 bg-black/50" onClick={() => setCustomThemeOpen(false)} />
+          <div
+            className={clsx(
+              theme[`theme-${options.theme || 'default'}`],
+              `relative w-full max-w-[410px] rounded-[28px] border overflow-hidden transition-all duration-200 ${customThemeAnim ? 'scale-100 translate-y-0' : 'scale-[0.965] translate-y-[6px]'}`,
+            )}
+            style={{ backgroundColor: popupSurface, borderColor: popupBorderColor, color: popupTextColor }}
+          >
+            {/* Header */}
+            <div className="flex items-start justify-between px-5 pt-5 pb-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-semibold">Custom Theme</h2>
+                  <span
+                    className="text-[0.6rem] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full"
+                    style={{
+                      backgroundColor: isUiLight ? 'rgba(15,23,42,0.08)' : 'rgba(255,255,255,0.12)',
+                      color: popupMutedColor,
+                    }}
+                  >
+                    BETA
+                  </span>
+                </div>
+                <p className="text-sm mt-0.5" style={{ color: popupMutedColor }}>Create a theme from a single color.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setCustomThemeOpen(false)}
+                className={clsx(
+                  'p-1 rounded-md shrink-0 ml-4 transition-colors',
+                  isUiLight ? 'hover:bg-black/10' : 'hover:bg-white/10',
+                )}
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="px-5 pb-5 space-y-3">
+              {/* SV Picker box */}
+              <div
+                ref={svPickerRef}
+                className="relative w-full rounded-xl overflow-hidden select-none"
+                style={{
+                  height: 156,
+                  background: `linear-gradient(to bottom, transparent, #000), linear-gradient(to right, #fff, hsl(${pickerHue}, 100%, 50%))`,
+                  cursor: 'crosshair',
+                }}
+                onMouseDown={(e) => { setDraggingSV(true); updateSV(e.clientX, e.clientY); }}
+                onTouchStart={(e) => { setDraggingSV(true); updateSV(e.touches[0].clientX, e.touches[0].clientY); }}
+              >
+                <div
+                  className="absolute w-4 h-4 rounded-full border-2 border-white shadow-[0_0_0_1px_rgba(0,0,0,0.4)] pointer-events-none"
+                  style={{
+                    left: `${pickerSat}%`,
+                    top: `${100 - pickerVal}%`,
+                    transform: 'translate(-50%, -50%)',
+                    backgroundColor: hsvToHex(pickerHue, pickerSat, pickerVal),
+                  }}
+                />
+              </div>
+
+              {/* Hue strip */}
+              <div
+                ref={hueStripRef}
+                className="relative w-full h-[14px] rounded-full overflow-visible select-none"
+                style={{
+                  background: 'linear-gradient(to right, #f00 0%, #ff0 17%, #0f0 33%, #0ff 50%, #00f 67%, #f0f 83%, #f00 100%)',
+                  cursor: 'pointer',
+                }}
+                onMouseDown={(e) => { setDraggingHue(true); updateHue(e.clientX); }}
+                onTouchStart={(e) => { setDraggingHue(true); updateHue(e.touches[0].clientX); }}
+              >
+                <div
+                  className="absolute top-1/2 w-4 h-4 rounded-full border-2 border-white shadow-md pointer-events-none"
+                  style={{
+                    left: `${(pickerHue / 360) * 100}%`,
+                    transform: 'translate(-50%, -50%)',
+                    backgroundColor: `hsl(${pickerHue}, 100%, 50%)`,
+                  }}
+                />
+              </div>
+
+              {/* Swatch + hex display */}
+              <div className="flex items-center gap-3 pt-0.5">
+                <div
+                  className="w-8 h-8 rounded-lg border border-white/15 shrink-0"
+                  style={{ backgroundColor: hsvToHex(pickerHue, pickerSat, pickerVal) }}
+                />
+                <code className="text-sm opacity-75 font-mono tracking-wider">
+                  {hsvToHex(pickerHue, pickerSat, pickerVal).toUpperCase()}
+                </code>
+              </div>
+
+              {/* Dark / Light toggle */}
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => handlePickerMode('dark')}
+                  className={clsx(
+                    'h-10 rounded-xl border text-sm font-medium flex items-center justify-center gap-1.5 transition-colors',
+                    pickerMode === 'dark'
+                      ? (isUiLight ? 'bg-black/10 border-black/25' : 'bg-white/12 border-white/25')
+                      : (isUiLight ? 'bg-transparent border-black/10 hover:bg-black/5' : 'bg-transparent border-white/8 hover:bg-white/6'),
+                  )}
+                  style={{ color: pickerMode === 'dark' ? popupTextColor : popupMutedColor }}
+                >
+                  <Moon size={15} /> Dark
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handlePickerMode('light')}
+                  className={clsx(
+                    'h-10 rounded-xl border text-sm font-medium flex items-center justify-center gap-1.5 transition-colors',
+                    pickerMode === 'light'
+                      ? (isUiLight ? 'bg-black/10 border-black/25' : 'bg-white/12 border-white/25')
+                      : (isUiLight ? 'bg-transparent border-black/10 hover:bg-black/5' : 'bg-transparent border-white/8 hover:bg-white/6'),
+                  )}
+                  style={{ color: pickerMode === 'light' ? popupTextColor : popupMutedColor }}
+                >
+                  <Sun size={15} /> Light
+                </button>
+              </div>
+
+              {/* Apply */}
+              <button
+                type="button"
+                onClick={() => {
+                  const resolvedMode = getForcedPickerMode(pickerMode);
+                  if (resolvedMode !== pickerMode) {
+                    setPickerMode(resolvedMode);
+                  }
+
+                  if (resolvedMode === 'light' && !LIGHT_MODE_AVAILABLE) {
+                    showAlert('Light mode is in development.', 'Custom Theme');
+                    setPickerMode('dark');
+                    return;
+                  }
+
+                  const preservedPresetThemeName =
+                    options.theme === 'custom'
+                      ? options.lastThemePresetName || previousThemePreset?.value?.themeName || 'darkTheme'
+                      : options.themeName || previousThemePreset?.value?.themeName || 'darkTheme';
+
+                  updateOption({
+                    ...generateCustomTheme(pickerHue, pickerSat, pickerVal, resolvedMode),
+                    lastThemePresetName: preservedPresetThemeName,
+                  });
+                }}
+                className={clsx(
+                  'w-full h-11 rounded-2xl border text-sm font-semibold active:scale-[0.98] transition-all flex items-center justify-center gap-2',
+                  isUiLight
+                    ? 'bg-[#111827] border-[#111827] text-white hover:bg-[#0b1220]'
+                    : 'bg-white/15 border-white/20 text-white hover:bg-white/20',
+                )}
+              >
+                ↑ Apply Theme!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

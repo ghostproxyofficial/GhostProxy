@@ -12,19 +12,23 @@ const Zoom = () => {
   const actab = tabs.find((tab) => tab.active);
   const currentz = actab ? zoomLevels[actab.id] || 100 : 100;
   const isNewTab = actab?.url === 'tabs://new';
-  const canZoom = actab && !isNewTab && activeFrameRef?.current;
+  // Allow zoom for all tabs, including ghost://home (NewTab). When on the home
+  // page there is no iframe, so we pass null as the frame ref – the Viewer reads
+  // zoomLevels and applies a CSS transform to the NewTab wrapper instead.
+  const canZoom = !!actab;
+  const frameRef = isNewTab ? null : activeFrameRef;
 
   const zIn = useCallback(() => {
-    canZoom && currentz < 200 && setZoom(actab.id, Math.min(currentz + 10, 200), activeFrameRef);
-  }, [canZoom, actab, currentz, setZoom, activeFrameRef]);
+    canZoom && currentz < 200 && setZoom(actab.id, Math.min(currentz + 10, 200), frameRef);
+  }, [canZoom, actab, currentz, setZoom, frameRef]);
 
   const zout = useCallback(() => {
-    canZoom && currentz > 50 && setZoom(actab.id, Math.max(currentz - 10, 50), activeFrameRef);
-  }, [canZoom, actab, currentz, setZoom, activeFrameRef]);
+    canZoom && currentz > 50 && setZoom(actab.id, Math.max(currentz - 10, 50), frameRef);
+  }, [canZoom, actab, currentz, setZoom, frameRef]);
 
   const ressetLvl = useCallback(() => {
-    canZoom && resetZoom(actab.id, activeFrameRef);
-  }, [canZoom, actab, resetZoom, activeFrameRef]);
+    canZoom && resetZoom(actab.id, frameRef);
+  }, [canZoom, actab, resetZoom, frameRef]);
 
   return (
     <div className="w-full flex justify-between items-center px-3 py-2">

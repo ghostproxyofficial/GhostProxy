@@ -15,6 +15,7 @@ const DEFAULT_OPTIONS = {
   ...gridDesignDefaults,
   ...duckDuckGoDefaults,
   ...scramjetDefaults,
+  lastThemePresetName: darkThemeDefaults.themeName || 'darkTheme',
   tabName: 'Ghost',
   tabIcon: '/ghost.ico',
   clkOff: false,
@@ -33,6 +34,7 @@ const DEFAULT_OPTIONS = {
   cssEditorPresets: [],
   activeCssPresetId: null,
   customGlobalCss: '',
+  customThemeCss: '',
   logoColor: '',
   itemsPerPage: 50,
   searchRecommendationsTop: true,
@@ -53,6 +55,40 @@ const DEFAULT_OPTIONS = {
 const normalizeLegacyOptions = (stored) => {
   if (!stored || typeof stored !== 'object') return stored;
   const out = { ...stored };
+
+  const legacyThemeMap = {
+    paper: { theme: 'graphite', themeName: 'graphiteTheme', type: 'dark' },
+    rose: { theme: 'violet', themeName: 'violetTheme', type: 'dark' },
+    arctic: { theme: 'slate', themeName: 'slateTheme', type: 'dark' },
+  };
+  const legacyNameMap = {
+    paperTheme: legacyThemeMap.paper,
+    roseTheme: legacyThemeMap.rose,
+    arcticTheme: legacyThemeMap.arctic,
+  };
+  const normalizedTheme = String(out.theme || '').trim().toLowerCase();
+  const normalizedThemeName = String(out.themeName || '').trim();
+  const mappedTheme = legacyThemeMap[normalizedTheme] || legacyNameMap[normalizedThemeName] || null;
+  if (mappedTheme) {
+    const replacement = themeConfig.find(
+      (entry) =>
+        entry?.value?.theme === mappedTheme.theme || entry?.value?.themeName === mappedTheme.themeName,
+    )?.value;
+    if (replacement && typeof replacement === 'object') {
+      Object.assign(out, replacement);
+    }
+    out.theme = mappedTheme.theme;
+    out.themeName = mappedTheme.themeName;
+    out.type = mappedTheme.type;
+  }
+
+  if (out.theme !== 'custom' && out.themeName) {
+    out.lastThemePresetName = out.themeName;
+  }
+
+  if (!out.lastThemePresetName || out.lastThemePresetName === 'lightTheme') {
+    out.lastThemePresetName = darkThemeDefaults.themeName || 'darkTheme';
+  }
 
   const legacyTitle = typeof out.tabName === 'string' && out.tabName.startsWith('v5-');
   const legacyIcon = out.tabIcon === '/icon.svg' || out.tabIcon === '/icon.png';

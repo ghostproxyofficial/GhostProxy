@@ -13,6 +13,7 @@ const SettingsContainerItem = ({
   children,
   value,
   disabled = false,
+  disabledAction,
   isLast = false,
   isFirst = false,
   dividerTop = false,
@@ -21,6 +22,7 @@ const SettingsContainerItem = ({
   dropdownDirection,
 }) => {
   const { options } = useOptions();
+  const hasDisabledAction = disabled && typeof disabledAction === 'function';
 
   return (
     <div
@@ -30,8 +32,10 @@ const SettingsContainerItem = ({
         isFirst && 'rounded-t-xl',
         isLast && 'rounded-b-xl',
         dividerTop && 'border-t border-white/15 mt-3',
-        disabled && 'opacity-50 pointer-events-none',
+        disabled && !hasDisabledAction && 'opacity-50 pointer-events-none',
+        hasDisabledAction && 'cursor-pointer',
       )}
+      onClick={hasDisabledAction ? disabledAction : undefined}
       style={{ backgroundColor: options.settingsContainerColor || '#18283e' }}
     >
       <div className="flex-1 min-w-0 overflow-hidden">
@@ -39,10 +43,17 @@ const SettingsContainerItem = ({
         <p className="text-[0.8125rem] text-gray-400 leading-snug">{children}</p>
       </div>
 
-      {!disabled && (
-        <div className="flex-shrink-0">
+      {(!disabled || hasDisabledAction) && (
+        <div className={clsx('relative flex-shrink-0', disabled && hasDisabledAction && 'opacity-50 pointer-events-none')}>
           {type === 'select' && (
-            <ComboBox config={config} action={action} selectedValue={value} maxW={56} dropdownDirection={dropdownDirection || 'down'} />
+            <ComboBox
+              config={config}
+              action={action}
+              selectedValue={value}
+              maxW={56}
+              dropdownDirection={dropdownDirection || 'down'}
+              disabled={disabled}
+            />
           )}
           {type === 'switch' && <Switch action={action} value={value} />}
           {type === 'input' && (

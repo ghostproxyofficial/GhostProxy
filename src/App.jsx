@@ -205,6 +205,9 @@ const ThemedApp = memo(() => {
         --ghost-logo-color: ${options.logoColor || '#ffffff'};
         --ghost-text-color: ${options.siteTextColor || '#a0b0c8'};
         --ghost-muted-text-color: ${options.siteMutedTextColor || 'rgba(160, 176, 200, 0.78)'};
+        --ghost-public-logo-filter: ${(options.type === 'light' || options.theme === 'light')
+          ? 'invert(0) brightness(0.12)'
+          : 'invert(1) brightness(1.8)'};
         ${options.customFontFamily ? `--font-family: ${options.customFontFamily} !important;` : ''}
         ${options.customPadding ? `--main-padding: ${options.customPadding} !important;` : ''}
         ${options.customBorderRadius ? `--border-radius: ${options.customBorderRadius} !important;` : ''}
@@ -213,6 +216,7 @@ const ThemedApp = memo(() => {
       ${options.customFontFamily ? `* { font-family: ${options.customFontFamily} !important; }` : ''}
 
       ${options.customGlobalCss || ''}
+      ${options.theme === 'custom' ? (options.customThemeCss || '') : ''}
 
       html {
         background-image: ${finalBgImageHtml};
@@ -251,6 +255,12 @@ const ThemedApp = memo(() => {
         color: var(--ghost-muted-text-color);
       }
 
+      img[src="/ghost.png"],
+      img[src$="/ghost.png"],
+      img[src*="/ghost.png?"] {
+        filter: var(--ghost-public-logo-filter) !important;
+      }
+
       ${options.performanceMode
         ? `
       *, *::before, *::after {
@@ -279,6 +289,8 @@ const ThemedApp = memo(() => {
     options.performanceMode,
     options.logoColor,
     options.customGlobalCss,
+    options.customThemeCss,
+    options.theme,
     resolvedCustomBg,
     options.bgTransparency,
   ]);

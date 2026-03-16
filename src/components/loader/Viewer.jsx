@@ -588,6 +588,8 @@ const Viewer = ({ zoom }) => {
     });
   }, [tabs]);
 
+  const zoomLevels = loaderStore((state) => state.zoomLevels);
+
   const activeNewTab = tabs.find((tab) => isNewTabLikeUrl(tab.url) && tab.active);
 
   return (
@@ -685,14 +687,32 @@ const Viewer = ({ zoom }) => {
           </div>
         );
       })}
-      {activeNewTab && (
-        <div
-          key={activeNewTab.id}
-          className={clsx('absolute inset-0 w-full h-full', 'opacity-100 z-10 pointer-events-auto')}
-        >
-          <NewTab id={activeNewTab.id} updateFn={updateUrl} />
-        </div>
-      )}
+      {activeNewTab && (() => {
+        const zl = zoomLevels[activeNewTab.id] ?? 100;
+        const scale = zl / 100;
+        const isDefaultScale = Math.abs(scale - 1) < 0.001;
+        return (
+          <div
+            key={activeNewTab.id}
+            className={clsx('absolute inset-0 w-full h-full', 'opacity-100 z-10 pointer-events-auto')}
+          >
+            {isDefaultScale ? (
+              <NewTab id={activeNewTab.id} updateFn={updateUrl} />
+            ) : (
+              <div
+                style={{
+                  transform: `scale(${scale})`,
+                  transformOrigin: 'top left',
+                  width: `${100 / scale}%`,
+                  height: `${100 / scale}%`,
+                }}
+              >
+                <NewTab id={activeNewTab.id} updateFn={updateUrl} />
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 };

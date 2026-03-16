@@ -21,7 +21,10 @@ const prioritizeOption = (config, optionName) => {
   return [config[index], ...config.slice(0, index), ...config.slice(index + 1)];
 };
 
-const themeConfigForSettings = prioritizeOption(themeConfig, 'Dark');
+const themeConfigForSettings = prioritizeOption(
+  themeConfig.filter((entry) => entry.option !== 'Light'),
+  'Dark',
+);
 const designConfigForSettings = prioritizeOption(designConfig, 'Griddy');
 
 const transportConfig = [
@@ -132,11 +135,30 @@ export const customizeConfig = ({ options, updateOption, openCssEditor }) => ({
     name: 'Site Theme',
     desc: 'Customize the appearance of the website by selecting a theme.',
     config: themeConfigForSettings,
-    value: find(themeConfigForSettings, (c) => c.value?.themeName === options.themeName, 0),
+    value: find(
+      themeConfigForSettings,
+      (c) =>
+        c.value?.themeName ===
+        (options.theme === 'custom' ? options.lastThemePresetName || 'darkTheme' : options.themeName),
+      0,
+    ),
     type: 'select',
-    action: (a) => updateOption(a),
+    action: (a) =>
+      updateOption({
+        ...a,
+        lastThemePresetName: a?.themeName || options.lastThemePresetName || 'darkTheme',
+      }),
+    disabled: options.theme === 'custom',
+    disabledAction: openCssEditor?.confirmCustomThemePresetSwitch,
   },
   2: {
+    name: 'Custom Theme',
+    desc: 'Create a custom theme from a single accent color with Dark or Light base.',
+    type: 'button',
+    value: 'Open Custom Theme',
+    action: openCssEditor?.openCustomTheme,
+  },
+  3: {
     name: 'Background Design',
     desc: "Customize the site's background design. Background designs do not work with Custom Background URL.",
     config: designConfigForSettings,
@@ -145,7 +167,7 @@ export const customizeConfig = ({ options, updateOption, openCssEditor }) => ({
     action: (a) => updateOption(a),
     disabled: !!options.customBackgroundImage,
   },
-  3: {
+  4: {
     name: 'Background Transparency',
     desc: 'Set the transparency/dim of the background image or design (0-100). Lower values make it darker/dimmer.',
     value: options.bgTransparency ?? '20',
@@ -159,7 +181,7 @@ export const customizeConfig = ({ options, updateOption, openCssEditor }) => ({
       updateOption({ bgTransparency: String(val) });
     },
   },
-  4: {
+  5: {
     name: 'Apps per Page',
     desc: 'Number of apps to show per page ("All" will show everything).',
     config: appsPerPageConfig,
@@ -167,7 +189,7 @@ export const customizeConfig = ({ options, updateOption, openCssEditor }) => ({
     type: 'select',
     action: (a) => updateOption(a),
   },
-  5: {
+  6: {
     name: 'Navigation Scale',
     desc: 'Scale navigation bar size (logo & font) globally.',
     config: navScaleConfig,
@@ -175,21 +197,21 @@ export const customizeConfig = ({ options, updateOption, openCssEditor }) => ({
     type: 'select',
     action: (a) => updateOption(a),
   },
-  6: {
+  7: {
     name: 'Typography',
     desc: 'Set any Google Font name (example: Inter, Poppins, Roboto). Some fonts may not fit to elements well.',
     value: options.globalFont || 'Inter',
     type: 'input',
     action: (v) => updateOption({ globalFont: (v || 'Inter').trim() || 'Inter' }),
   },
-  7: {
+  8: {
     name: 'Performance Mode',
     desc: 'Disable heavy animations and app/media icon loading for faster performance.',
     value: !!options.performanceMode,
     type: 'switch',
     action: (b) => setTimeout(() => updateOption({ performanceMode: b }), 100),
   },
-  8: {
+  9: {
     name: 'Custom Background URL',
     desc: 'Set a custom background image URL (leave empty to use design presets).',
     value: options.customBackgroundImage || '',
@@ -203,19 +225,12 @@ export const customizeConfig = ({ options, updateOption, openCssEditor }) => ({
       updateOption({ customBackgroundImage: cleaned });
     },
   },
-  9: {
+  10: {
     name: 'Sidebar Editor',
     desc: 'Add custom apps and manage sidebar toggles.',
     type: 'button',
     value: 'Open Sidebar Editor',
-    action: openCssEditor?.openSidebarEditor, // Note: Need to pass openSidebarEditor
-  },
-  10: {
-    name: 'CSS Editor',
-    desc: 'Create and manage custom CSS presets, including global CSS and colors.',
-    type: 'button',
-    value: 'Open CSS Editor',
-    action: openCssEditor?.openCssEditor || openCssEditor, // fallback for backward compatibility
+    action: openCssEditor?.openSidebarEditor,
   },
   11: {
     name: 'Clock Format',

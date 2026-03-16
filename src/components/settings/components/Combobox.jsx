@@ -17,6 +17,7 @@ const ComboBox = ({
   placeholder = '',
   compact = false,
   dropdownDirection = 'down',
+  disabled = false,
 }) => {
   const { options } = useOptions();
 
@@ -57,11 +58,14 @@ const ComboBox = ({
       value={selectedValue !== undefined ? selectedValue : ''}
       onChange={action}
       by={(a, b) => getOptionId(a) === getOptionId(b)}
+      disabled={disabled}
     >
       <div
         className={clsx(
           'group/combo relative w-full rounded-xl border transition-all duration-200',
-          'border-white/10 hover:border-white/30 focus-within:border-white/35 focus-within:shadow-[0_0_0_1px_rgba(255,255,255,0.12)] has-[[data-open]]:border-white/35 has-[[data-open]]:shadow-[0_0_0_1px_rgba(255,255,255,0.12)]'
+          disabled
+            ? 'border-white/10 opacity-75'
+            : 'border-white/10 hover:border-white/30 focus-within:border-white/35 focus-within:shadow-[0_0_0_1px_rgba(255,255,255,0.12)] has-[[data-open]]:border-white/35 has-[[data-open]]:shadow-[0_0_0_1px_rgba(255,255,255,0.12)]',
         )}
         style={{
           backgroundColor: options.settingsDropdownColor || '#162337',
@@ -69,12 +73,18 @@ const ComboBox = ({
           maxWidth: `min(${maxW}rem, 92vw)`,
         }}
       >
-        <ComboboxButton className={clsx('group/btn flex w-full items-center px-3 pl-4 cursor-pointer outline-none', compact ? 'h-9' : 'h-11')}>
+        <ComboboxButton
+          className={clsx(
+            'group/btn flex w-full items-center px-3 pl-4 outline-none',
+            disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+            compact ? 'h-9' : 'h-11',
+          )}
+        >
           <span className={clsx('flex-1 min-w-0 text-left whitespace-nowrap', compact ? 'text-[0.82rem]' : 'text-[0.88rem]')}>{selectedLabel}</span>
           <span
             className={clsx(
               'flex flex-shrink-0 items-center justify-center px-1 transition-transform duration-200',
-              'group-data-[open]/btn:rotate-180'
+              !disabled && 'group-data-[open]/btn:rotate-180',
             )}
           >
             <ChevronDown size={compact ? 15 : 17} />
