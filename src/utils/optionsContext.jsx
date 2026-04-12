@@ -19,6 +19,8 @@ const DEFAULT_OPTIONS = {
   tabName: 'Ghost',
   tabIcon: '/ghost.ico',
   clkOff: false,
+  hideLocation: false,
+  antiClose: false,
   saveTabs: true,
   shortcuts: buildDefaultShortcutsMap(),
   transport: 'libcurl',
@@ -48,13 +50,81 @@ const DEFAULT_OPTIONS = {
   weatherUseIpLocation: true,
   weatherCoordsOverride: '',
   defaultMusicPlayer: '',
-  defaultAiProvider: '',
+  defaultAiProvider: 'ghostai',
   debugMode: false,
 };
 
 const normalizeLegacyOptions = (stored) => {
   if (!stored || typeof stored !== 'object') return stored;
   const out = { ...stored };
+
+  const sanitizeEndpointLikeValue = (value, fallback = null) => {
+    if (value == null) return fallback;
+    const raw = String(value).trim();
+    if (!raw || raw === 'undefined' || raw === 'null') return fallback;
+
+    try {
+      const withScheme =
+        raw.startsWith('http://') ||
+        raw.startsWith('https://') ||
+        raw.startsWith('ws://') ||
+        raw.startsWith('wss://')
+          ? raw
+          : `https://${raw}`;
+      const parsed = new URL(withScheme);
+      const host = String(parsed.hostname || '').trim().toLowerCase();
+      if (!host || host === 'undefined' || host === 'null') return fallback;
+      return raw;
+    } catch {
+      return fallback;
+    }
+  };
+
+  out.wServer = sanitizeEndpointLikeValue(out.wServer, null);
+  out.remoteProxyServer = sanitizeEndpointLikeValue(out.remoteProxyServer, '');
+
+  const proxyRouting = String(out.proxyRouting || '').toLowerCase();
+  if (proxyRouting !== 'direct' && proxyRouting !== 'remote') {
+    out.proxyRouting = 'direct';
+  }
+
+  const toBool = (value, fallback = false) => {
+    if (typeof value === 'boolean') return value;
+    if (typeof value === 'string') {
+      const normalized = value.trim().toLowerCase();
+      if (normalized === 'true') return true;
+      if (normalized === 'false') return false;
+    }
+    return fallback;
+  };
+
+  out.hideLocation = toBool(out.hideLocation, false);
+  out.antiClose = toBool(out.antiClose, false);
+  out.popupBlockDefault = toBool(out.popupBlockDefault, false);
+  out.downloadBlockDefault = toBool(out.downloadBlockDefault, false);
+
+  const validAiProviders = new Set([
+    '',
+    'ghostai',
+    'duckai',
+    'chatgpt',
+    'gemini',
+    'claude',
+    'perplexity',
+    'copilot',
+    'deepseek',
+    'mistral',
+    'grok',
+    'you',
+    'poe',
+    'huggingchat',
+  ]);
+  const normalizedProvider = String(out.defaultAiProvider ?? '').trim().toLowerCase();
+  if (!validAiProviders.has(normalizedProvider) || normalizedProvider === 'undefined' || normalizedProvider === 'null' || normalizedProvider === '--') {
+    out.defaultAiProvider = '';
+  } else {
+    out.defaultAiProvider = normalizedProvider;
+  }
 
   const legacyThemeMap = {
     paper: { theme: 'graphite', themeName: 'graphiteTheme', type: 'dark' },
@@ -207,9 +277,9 @@ export const OptionsProvider = ({ children }) => {
 
   useEffect(() => {
     import('/src/utils/utils.js').then(({ applyBeforeUnload }) => {
-      applyBeforeUnload(!!options.beforeUnload);
+      applyBeforeUnload(!!options.beforeUnload || options.antiClose === true);
     });
-  }, [options.beforeUnload]);
+  }, [options.beforeUnload, options.antiClose]);
 
   const updateOption = useCallback((obj, immediate = true) => {
     if (!obj || typeof obj !== 'object') return;

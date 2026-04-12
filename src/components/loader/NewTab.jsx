@@ -178,6 +178,13 @@ const NewTab = ({ id, updateFn }) => {
 
   useEffect(() => {
     let cancelled = false;
+
+    if (options.hideLocation === true) {
+      setIpMeta((prev) => ({ ...prev, city: '', latitude: null, longitude: null }));
+      return () => {
+        cancelled = true;
+      };
+    }
     const loadBattery = async () => {
       try {
         const battery = await navigator.getBattery?.();
@@ -201,13 +208,30 @@ const NewTab = ({ id, updateFn }) => {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [options.hideLocation]);
 
   useEffect(() => {
     let cancelled = false;
 
+    if (options.hideLocation === true) {
+      setMenuWeather({ temp: null, weatherCode: null, isDay: true });
+      setForecastDays([]);
+      return () => {
+        cancelled = true;
+      };
+    }
+
     const parseProviderMeta = (payload, source) => {
       if (!payload || typeof payload !== 'object') return null;
+
+      if (source === 'proxy') {
+        return {
+          timezone: String(payload.timezone || ''),
+          latitude: Number(payload.latitude),
+          longitude: Number(payload.longitude),
+          city: String(payload.city || ''),
+        };
+      }
 
       if (source === 'ipapi') {
         return {
@@ -256,9 +280,7 @@ const NewTab = ({ id, updateFn }) => {
 
     const fetchIpMeta = async () => {
       const providers = [
-        { url: 'https://ipapi.co/json/', source: 'ipapi' },
-        { url: 'https://ipwho.is/', source: 'ipwho' },
-        { url: 'https://ipinfo.io/json', source: 'ipinfo' },
+        { url: '/api/ip/meta', source: 'proxy' },
       ];
 
       for (const provider of providers) {
@@ -426,7 +448,7 @@ const NewTab = ({ id, updateFn }) => {
       cancelled = true;
       clearInterval(timer);
     };
-  }, [options.weatherUseIpLocation, options.weatherCoordsOverride, options.weatherUnit, ipMeta.latitude, ipMeta.longitude]);
+  }, [options.weatherUseIpLocation, options.weatherCoordsOverride, options.weatherUnit, ipMeta.latitude, ipMeta.longitude, options.hideLocation]);
 
   const navigating = {
     id: id,
@@ -495,7 +517,7 @@ const NewTab = ({ id, updateFn }) => {
                 const WxIcon = weatherIcon;
                 return <WxIcon size={13} />;
               })()}
-              {Number.isFinite(menuWeather.temp) ? `${Math.round(menuWeather.temp)}°${weatherUnitLabel}` : '--'}
+              {options.hideLocation !== true && Number.isFinite(menuWeather.temp) ? `${Math.round(menuWeather.temp)}°${weatherUnitLabel}` : '--'}
             </span>
           </div>
 
@@ -508,7 +530,7 @@ const NewTab = ({ id, updateFn }) => {
             <div className="overflow-hidden">
               <div className="flex items-center justify-between text-[11px] opacity-80 px-0.5">
                 <span>{menuDateLabel}</span>
-                <span className="truncate max-w-[10.5rem] text-right">{effectiveTimezone}</span>
+                <span className="truncate max-w-[10.5rem] text-right">{options.hideLocation === true ? 'Location Hidden' : effectiveTimezone}</span>
               </div>
 
               <div className="mt-2 grid grid-cols-3 gap-2">

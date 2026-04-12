@@ -16,6 +16,7 @@ export default function ExportDialog({ open, onClose }) {
         session: true,
         cookies: true,
     });
+    const [exportFormat, setExportFormat] = useState('ghost');
 
     useEffect(() => {
         if (open) {
@@ -85,7 +86,8 @@ export default function ExportDialog({ open, onClose }) {
             const year = dateObj.getFullYear();
             const month = String(dateObj.getMonth() + 1).padStart(2, '0');
             const day = String(dateObj.getDate()).padStart(2, '0');
-            const defaultName = `GhostBackup-${year}-${month}-${day}.ghost`;
+            const ext = exportFormat === 'json' ? 'json' : 'ghost';
+            const defaultName = `GhostBackup-${year}-${month}-${day}.${ext}`;
 
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -121,7 +123,33 @@ export default function ExportDialog({ open, onClose }) {
                 </div>
 
                 <div className="p-4 space-y-4">
-                    <p className="text-sm opacity-80">Select which data categories to include in your backup. The file will be exported in the `.ghost` format.</p>
+                    <p className="text-sm opacity-80">Select which data categories to include in your backup. You can export as `.ghost` or `.json`.</p>
+
+                    <div className="rounded-lg bg-[#ffffff0a] p-3 border border-white/10">
+                        <p className="text-sm font-medium mb-2">File Format</p>
+                        <div className="flex items-center gap-2">
+                            <button
+                                type="button"
+                                className={clsx(
+                                    'px-3 py-1.5 rounded-md text-sm border',
+                                    exportFormat === 'ghost' ? 'bg-[#22c55e]/20 border-[#22c55e]/40 text-[#22c55e]' : 'border-white/15 hover:bg-[#ffffff10]'
+                                )}
+                                onClick={() => setExportFormat('ghost')}
+                            >
+                                .ghost
+                            </button>
+                            <button
+                                type="button"
+                                className={clsx(
+                                    'px-3 py-1.5 rounded-md text-sm border',
+                                    exportFormat === 'json' ? 'bg-[#22c55e]/20 border-[#22c55e]/40 text-[#22c55e]' : 'border-white/15 hover:bg-[#ffffff10]'
+                                )}
+                                onClick={() => setExportFormat('json')}
+                            >
+                                .json
+                            </button>
+                        </div>
+                    </div>
 
                     <div className="space-y-2">
                         {[

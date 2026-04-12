@@ -9,6 +9,17 @@ import { process } from '/src/utils/hooks/loader/utils';
 
 const PROFILE_STORE_KEY = 'ghostBrowserProfiles';
 const PROFILE_ACTIVE_KEY = 'ghostBrowserActiveProfileId';
+const SAVED_TABS_KEY = 'ghostSavedTabs';
+
+const getLiveTabsSnapshot = () => {
+  try {
+    const state = loaderStore.getState();
+    const tabs = Array.isArray(state.tabs) ? state.tabs : [];
+    return tabs;
+  } catch {
+    return [];
+  }
+};
 
 const snapshotCurrentStorage = () => {
   const data = {};
@@ -118,6 +129,7 @@ const TabBar = () => {
           id: createId(),
           name: 'Default',
           snapshot: snapshotCurrentStorage(),
+          tabs: getLiveTabsSnapshot(),
           updatedAt: Date.now(),
         };
         localStorage.setItem(PROFILE_STORE_KEY, JSON.stringify([initial]));
@@ -136,6 +148,7 @@ const TabBar = () => {
         id: createId(),
         name: 'Default',
         snapshot: snapshotCurrentStorage(),
+        tabs: getLiveTabsSnapshot(),
         updatedAt: Date.now(),
       };
       localStorage.setItem(PROFILE_STORE_KEY, JSON.stringify([initial]));
@@ -163,6 +176,7 @@ const TabBar = () => {
       id: createId(),
       name,
       snapshot: snapshotCurrentStorage(),
+      tabs: getLiveTabsSnapshot(),
       updatedAt: Date.now(),
     };
     const next = [...profiles, nextProfile];
@@ -172,9 +186,14 @@ const TabBar = () => {
 
   const switchProfile = (targetId) => {
     if (!targetId || targetId === activeProfileId) return;
+    const liveTabs = getLiveTabsSnapshot();
+    try {
+      localStorage.setItem(SAVED_TABS_KEY, JSON.stringify({ tabs: liveTabs }));
+    } catch { }
+
     const next = profiles.map((profile) => {
       if (profile.id === activeProfileId) {
-        return { ...profile, snapshot: snapshotCurrentStorage(), updatedAt: Date.now() };
+        return { ...profile, snapshot: snapshotCurrentStorage(), tabs: liveTabs, updatedAt: Date.now() };
       }
       return profile;
     });
@@ -183,6 +202,14 @@ const TabBar = () => {
 
     persistProfiles(next, targetId);
     applyStorageSnapshot(target.snapshot || {});
+    try {
+      const targetTabs = Array.isArray(target.tabs)
+        ? target.tabs
+        : JSON.parse(String(target?.snapshot?.[SAVED_TABS_KEY] || '{}')).tabs;
+      if (Array.isArray(targetTabs)) {
+        localStorage.setItem(SAVED_TABS_KEY, JSON.stringify({ tabs: targetTabs }));
+      }
+    } catch { }
     window.location.reload();
   };
 
@@ -214,14 +241,15 @@ const TabBar = () => {
     setRenameValue('');
   };
 
-  const exportSpecificProfile = (profile) => {
+  const exportSpecificProfile = (profile, ext = 'json') => {
     if (!profile) return;
     const payload = JSON.stringify(profile, null, 2);
     const blob = new Blob([payload], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `${(profile.name || 'profile').replace(/\s+/g, '_').toLowerCase()}.json`;
+    const normalizedExt = ext === 'ghost' ? 'ghost' : 'json';
+    a.download = `${(profile.name || 'profile').replace(/\s+/g, '_').toLowerCase()}.${normalizedExt}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -229,7 +257,7 @@ const TabBar = () => {
   };
 
   const exportActiveProfile = () => {
-    exportSpecificProfile(activeProfile);
+    exportSpecificProfile(activeProfile, 'ghost');
   };
 
   const importProfile = (event) => {
@@ -243,6 +271,7 @@ const TabBar = () => {
           id: createId(),
           name: String(parsed.name || `Imported ${profiles.length + 1}`).trim() || `Imported ${profiles.length + 1}`,
           snapshot: parsed.snapshot && typeof parsed.snapshot === 'object' ? parsed.snapshot : {},
+          tabs: Array.isArray(parsed.tabs) ? parsed.tabs : [],
           updatedAt: Date.now(),
         };
         persistProfiles([...profiles, imported], activeProfileId);
@@ -308,17 +337,20 @@ const TabBar = () => {
     const interval = setInterval(() => {
       const latestSnapshot = snapshotCurrentStorage();
       const serialized = JSON.stringify(latestSnapshot);
+      const latestTabs = getLiveTabsSnapshot();
+      const serializedTabs = JSON.stringify(latestTabs);
 
       setProfiles((prev) => {
         const current = prev.find((profile) => profile.id === activeProfileId);
         if (!current) return prev;
 
         const currentSerialized = JSON.stringify(current.snapshot || {});
-        if (currentSerialized === serialized) return prev;
+        const currentTabsSerialized = JSON.stringify(Array.isArray(current.tabs) ? current.tabs : []);
+        if (currentSerialized === serialized && currentTabsSerialized === serializedTabs) return prev;
 
         const next = prev.map((profile) =>
           profile.id === activeProfileId
-            ? { ...profile, snapshot: latestSnapshot, updatedAt: Date.now() }
+            ? { ...profile, snapshot: latestSnapshot, tabs: latestTabs, updatedAt: Date.now() }
             : profile,
         );
 
@@ -338,11 +370,12 @@ const TabBar = () => {
       clearTimeout(debounceTimer);
       debounceTimer = setTimeout(() => {
         const latestSnapshot = snapshotCurrentStorage();
+        const latestTabs = getLiveTabsSnapshot();
         try {
           const storedProfiles = JSON.parse(localStorage.getItem(PROFILE_STORE_KEY) || '[]');
           const next = storedProfiles.map((p) =>
             p.id === activeProfileId
-              ? { ...p, snapshot: latestSnapshot, updatedAt: Date.now() }
+              ? { ...p, snapshot: latestSnapshot, tabs: latestTabs, updatedAt: Date.now() }
               : p
           );
           localStorage.setItem(PROFILE_STORE_KEY, JSON.stringify(next));
@@ -404,7 +437,7 @@ const TabBar = () => {
               <div className="px-4 py-3 border-b flex items-center justify-between" style={{ borderColor: profileBorderColor }}>
                 <p className="text-sm font-semibold">Profile Manager</p>
                 <div className="flex items-center gap-1">
-                  <button className={clsx('p-1.5 rounded-md', profileIconHover)} title="Export profile" onClick={exportActiveProfile}>
+                  <button className={clsx('p-1.5 rounded-md', profileIconHover)} title="Export profile (.ghost)" onClick={exportActiveProfile}>
                     <Download size={14} />
                   </button>
                 </div>
@@ -457,7 +490,7 @@ const TabBar = () => {
                             </button>
                           )}
 
-                          <button className={clsx('p-1 rounded', profileIconHover)} onClick={() => exportSpecificProfile(profile)} title="Export Profile">
+                          <button className={clsx('p-1 rounded', profileIconHover)} onClick={() => exportSpecificProfile(profile, 'json')} title="Export Profile (.json)">
                             <Download size={13} />
                           </button>
                           {profiles.length > 1 && (
@@ -510,7 +543,7 @@ const TabBar = () => {
                 <input
                   ref={fileInputRef}
                   type="file"
-                  accept="application/json"
+                  accept=".json,.ghost,application/json"
                   className="hidden"
                   onChange={importProfile}
                 />

@@ -19,6 +19,7 @@
 
   html,
   body {
+    min-height: 100dvh;
     height: 100dvh;
     width: 100vw;
     overflow: hidden;
@@ -28,6 +29,7 @@
     position: absolute;
     inset: 0;
     overflow: hidden;
+    min-height: 100dvh;
   }
 
   #root {
@@ -81,6 +83,21 @@
       width: calc(100% / var(--ui-scale));
       height: calc(100% / var(--ui-scale));
       transform: scale(var(--ui-scale));
+    }
+  }
+
+  @media (max-width: 900px), (max-height: 760px) {
+    :root {
+      --ui-scale: 1;
+    }
+
+    #root {
+      position: fixed;
+      inset: 0;
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 100dvh;
+      transform: none !important;
     }
   }
 }

@@ -121,6 +121,83 @@ app.get("/return", async (req, reply) =>
     : reply.code(401).send({ error: "query parameter?" })
 );
 
+app.get("/api/ip/meta", async (req, reply) => {
+  const neutralMeta = {
+    timezone: "UTC",
+    latitude: 0,
+    longitude: 0,
+    city: "",
+  };
+
+  const host = String(req.hostname || "").toLowerCase();
+  if (["localhost", "127.0.0.1", "::1"].includes(host)) {
+    return reply.send(neutralMeta);
+  }
+
+  const providers = [
+    {
+      url: "https://ipapi.co/json/",
+      parse: (payload) => ({
+        timezone: String(payload?.timezone || ""),
+        latitude: Number(payload?.latitude),
+        longitude: Number(payload?.longitude),
+        city: String(payload?.city || ""),
+      }),
+    },
+    {
+      url: "https://ipwho.is/",
+      parse: (payload) => ({
+        timezone: String(
+          typeof payload?.timezone === "string" ? payload.timezone : payload?.timezone?.id || "",
+        ),
+        latitude: Number(payload?.latitude),
+        longitude: Number(payload?.longitude),
+        city: String(payload?.city || ""),
+      }),
+    },
+    {
+      url: "https://ipinfo.io/json",
+      parse: (payload) => {
+        const loc = String(payload?.loc || "").split(",");
+        return {
+          timezone: String(payload?.timezone || ""),
+          latitude: Number(loc[0]),
+          longitude: Number(loc[1]),
+          city: String(payload?.city || ""),
+        };
+      },
+    },
+  ];
+
+  const isValid = (meta) =>
+    !!meta &&
+    Number.isFinite(meta.latitude) &&
+    Number.isFinite(meta.longitude) &&
+    meta.latitude >= -90 &&
+    meta.latitude <= 90 &&
+    meta.longitude >= -180 &&
+    meta.longitude <= 180;
+
+  try {
+    for (const provider of providers) {
+      try {
+        const response = await fetch(provider.url, { headers: { "user-agent": "GhostProxy/1.0" } });
+        if (!response.ok) continue;
+        const data = await response.json();
+        const parsed = provider.parse(data);
+        if (!isValid(parsed)) continue;
+        return reply.send(parsed);
+      } catch {
+        continue;
+      }
+    }
+
+    return reply.send(neutralMeta);
+  } catch {
+    return reply.send(neutralMeta);
+  }
+});
+
 app.options("/api/ai/chat", async (_req, reply) => {
   reply
     .header("Access-Control-Allow-Origin", "*")

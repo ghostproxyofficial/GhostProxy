@@ -57,7 +57,9 @@ const musicPlayerConfig = [
 ];
 
 const aiProviderConfig = [
-  { option: 'Ghost AI (Default)', value: { defaultAiProvider: '' } },
+  { option: '--', value: { defaultAiProvider: '' } },
+  { option: 'Duck.ai', value: { defaultAiProvider: 'duckai' } },
+  { option: 'Ghost AI (Bring your own API/Endpoint)', value: { defaultAiProvider: 'ghostai' } },
   { option: 'ChatGPT', value: { defaultAiProvider: 'chatgpt' } },
   { option: 'Google Gemini', value: { defaultAiProvider: 'gemini' } },
   { option: 'Claude', value: { defaultAiProvider: 'claude' } },
@@ -128,6 +130,20 @@ export const privacyConfig = ({ options, updateOption, openPanic }) => ({
     action: openPanic,
     disabled: !options.panicToggleEnabled,
   },
+  7: {
+    name: 'Hide Location',
+    desc: 'Hide location details in the Ghost menu and home screen info card.',
+    value: !!options.hideLocation,
+    type: 'switch',
+    action: (b) => setTimeout(() => updateOption({ hideLocation: b }), 100),
+  },
+  8: {
+    name: 'Anti Close',
+    desc: 'Show a confirmation popup before any tab close action.',
+    value: !!options.antiClose,
+    type: 'switch',
+    action: (b) => setTimeout(() => updateOption({ antiClose: b }), 100),
+  },
 });
 
 export const customizeConfig = ({ options, updateOption, openCssEditor }) => ({
@@ -153,7 +169,7 @@ export const customizeConfig = ({ options, updateOption, openCssEditor }) => ({
   },
   2: {
     name: 'Custom Theme',
-    desc: 'Create a custom theme from a single accent color with Dark or Light base.',
+    desc: 'Create a custom theme from a single accent color.',
     type: 'button',
     value: 'Open Custom Theme',
     action: openCssEditor?.openCustomTheme,
@@ -386,13 +402,12 @@ export const advancedConfig = ({ options, updateOption }) => ({
   2: {
     name: 'Wisp Config',
     desc: 'Configure the websocket server location.',
+    // Empty custom value falls back to the fixed default endpoint.
     value: options.wServer
       ? options.wServer
-      : !isStaticBuild
-        ? `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/wisp/`
-        : '',
+      : 'wss://dogekeepthisasecret.undoanarchy.rocks/wisp/',
     type: 'input',
-    action: (b) => updateOption({ wServer: b || null }),
+    action: (b) => updateOption({ wServer: b || null, proxyRouting: 'direct' }),
   },
   3: {
     name: 'Transport',

@@ -1,48 +1,48 @@
-[
+﻿[
   {
     "name": "Five Nights at Freddy's",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/38.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/38.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/38.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/38.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Five Nights at Freddy's 2",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/39.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/39.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/39.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/39.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Five Nights at Freddy's 3",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/40.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/40.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/40.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/40.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Five Nights at Freddy's 4",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/41.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/41.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/41.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/41.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Crazy Cattle 3D",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/164.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/164-temp2.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/164.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/164-temp2.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Bad Parenting 1",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/166.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/166.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/166.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/166.html",
     "featured": true,
     "special": [
       "port"
@@ -50,8 +50,8 @@
   },
   {
     "name": "Five Nights at Freddy's: Sister Location",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/185.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/185.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/185.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/185.html",
     "featured": true,
     "special": [
       "port"
@@ -59,16 +59,16 @@
   },
   {
     "name": "Five Nights at Freddy's: World",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/190.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/190.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/190.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/190.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Five Nights at Freddy's: Pizza Simulator",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/191.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/191.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/191.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/191.html",
     "featured": true,
     "special": [
       "port"
@@ -76,24 +76,24 @@
   },
   {
     "name": "Five Nights at Freddy's: Ultimate Custom Night",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/192.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/192.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/192.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/192.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Do NOT Take This Cat Home",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/193.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/193.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/193.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/193.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "People Playground",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/194-m.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/194-a.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/194-m.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/194-a.html",
     "featured": true,
     "special": [
       "port"
@@ -101,8 +101,8 @@
   },
   {
     "name": "R.E.P.O",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/195.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/195.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/195.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/195.html",
     "featured": true,
     "special": [
       "port"
@@ -110,8 +110,8 @@
   },
   {
     "name": "ULTRAKILL",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/196.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/196-fixed.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/196.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/196-fixed.html",
     "featured": true,
     "special": [
       "port"
@@ -119,8 +119,8 @@
   },
   {
     "name": "Buckshot Roulette",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/205.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/205.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/205.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/205.html",
     "featured": true,
     "special": [
       "port"
@@ -128,8 +128,8 @@
   },
   {
     "name": "Bendy and the Ink Machine",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/215.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/215.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/215.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/215.html",
     "featured": true,
     "special": [
       "port"
@@ -137,8 +137,8 @@
   },
   {
     "name": "That's Not My Neighbor",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/216.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/216.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/216.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/216.html",
     "featured": true,
     "special": [
       "port"
@@ -146,8 +146,8 @@
   },
   {
     "name": "Hotline Miami",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/217.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/217-c.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/217.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/217-c.html",
     "featured": true,
     "special": [
       "port"
@@ -155,32 +155,32 @@
   },
   {
     "name": "A Bite at Freddy's",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/258.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/258.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/258.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/258.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Class of '09",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/259.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/259.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/259.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/259.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "RE:RUN",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/260.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/260.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/260.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/260.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Half Life",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/262.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/262.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/262.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/262.html",
     "featured": true,
     "special": [
       "port"
@@ -188,8 +188,8 @@
   },
   {
     "name": "Quake III Arena",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/263.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/263.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/263.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/263.html",
     "featured": true,
     "special": [
       "port"
@@ -197,16 +197,16 @@
   },
   {
     "name": "Speed Stars",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/266.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/266-a.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/266.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/266-a.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Pizza Tower",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/267.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/267.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/267.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/267.html",
     "featured": true,
     "special": [
       "port"
@@ -214,16 +214,16 @@
   },
   {
     "name": "Endoparasitic",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/286.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/286.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/286.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/286.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "WebFishing",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/423.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/423.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/423.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/423.html",
     "featured": true,
     "special": [
       "port"
@@ -231,16 +231,16 @@
   },
   {
     "name": "Andy's Apple Farm",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/426.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/426.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/426.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/426.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "OMORI",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/427.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/427-z.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/427.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/427-z.html",
     "featured": true,
     "special": [
       "port"
@@ -248,16 +248,16 @@
   },
   {
     "name": "Five Nights at Freddy's 4: Halloween",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/428.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/428.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/428.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/428.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Yume Nikki",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/433.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/433.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/433.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/433.html",
     "featured": true,
     "special": [
       "port"
@@ -265,8 +265,8 @@
   },
   {
     "name": "Kindergarten",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/445.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/445.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/445.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/445.html",
     "featured": true,
     "special": [
       "port"
@@ -274,8 +274,8 @@
   },
   {
     "name": "Kindergarten 2",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/446.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/446.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/446.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/446.html",
     "featured": true,
     "special": [
       "port"
@@ -283,96 +283,96 @@
   },
   {
     "name": "Amanda the Adventurer",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/450.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/450.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/450.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/450.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Slender: The 8 Pages",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/451.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/451.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/451.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/451.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "BLOODMONEY!",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/454.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/454.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/454.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/454.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "BERGENTRUCK 201x",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/455.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/455.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/455.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/455.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Undertale Yellow",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/456.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/456.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/456.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/456.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Raft",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/457.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/457.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/457.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/457.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "The Deadseat",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/458.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/458.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/458.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/458.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "The Man In The Window",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/459.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/459.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/459.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/459.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Fears to Fathom: Home Alone",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/460.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/460.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/460.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/460.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "DEAD PLATE",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/462.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/462.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/462.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/462.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Lacey's Flash Games",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/463.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/463.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/463.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/463.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Cuphead",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/465.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/465.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/465.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/465.html",
     "featured": true,
     "special": [
       "port"
@@ -380,16 +380,16 @@
   },
   {
     "name": "Baldi's Basics Classic Remastered",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/466.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/466.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/466.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/466.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Baldi's Basics Plus",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/467.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/467-updatee.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/467.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/467-updatee.html",
     "featured": true,
     "special": [
       "port"
@@ -397,64 +397,64 @@
   },
   {
     "name": "Human Expenditure Program",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/482.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/482-2.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/482.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/482-2.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Kindergarten 3",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/501.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/501.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/501.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/501.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Stick With It",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/502.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/502.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/502.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/502.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Five Nights at Candy's",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/503.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/503.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/503.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/503.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Five Nights at Candy's 2",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/504.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/504.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/504.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/504.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Nubby's Number Factory",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/517.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/517.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/517.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/517.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Touhou Mother",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/523.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/523.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/523.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/523.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Karlson",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/542.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/542-a.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/542.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/542-a.html",
     "featured": true,
     "special": [
       "port"
@@ -462,8 +462,8 @@
   },
   {
     "name": "Jelly Drift",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/543.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/543-a.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/543.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/543-a.html",
     "featured": true,
     "special": [
       "port"
@@ -471,64 +471,64 @@
   },
   {
     "name": "Yandere Simulator",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/554.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/554.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/554.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/554.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Getting Over It with Bennett Foddy",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/557.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/557.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/557.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/557.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Deltatraveler",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/560.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/560.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/560.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/560.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Fallout",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/585.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/585.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/585.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/585.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Super Mario 64",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/588.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/588.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/588.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/588.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Sonic CD",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/589.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/589.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/589.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/589.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Sonic Mania",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/590.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/590.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/590.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/590.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Slime Rancher",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/591.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/591-a.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/591.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/591-a.html",
     "special": [
       "port"
     ],
@@ -536,16 +536,16 @@
   },
   {
     "name": "Minesweeper Plus",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/604.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/604.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/604.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/604.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Schoolboy Runaway",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/605.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/605-e.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/605.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/605-e.html",
     "special": [
       "port"
     ],
@@ -553,16 +553,16 @@
   },
   {
     "name": "Sonic.EXE (ORIGINAL)",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/606.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/606-e.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/606.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/606-e.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Tattletail",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/607.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/607-e.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/607.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/607-e.html",
     "special": [
       "port"
     ],
@@ -570,8 +570,8 @@
   },
   {
     "name": "Oneshot (LEGACY)",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/622.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/622.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/622.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/622.html",
     "special": [
       "port"
     ],
@@ -579,8 +579,8 @@
   },
   {
     "name": "Celeste",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/623.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/623-work.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/623.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/623-work.html",
     "special": [
       "port"
     ],
@@ -588,72 +588,72 @@
   },
   {
     "name": "Doom 3",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/626.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/626-f.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/626.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/626-f.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Pizza Tower: Scoutdigo",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/628.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/628-f.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/628.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/628-f.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Arthur's Nightmare",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/645.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/645-e.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/645.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/645-e.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Buster Jam",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/646.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/646-fixed.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/646.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/646-fixed.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Mindwave",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/648.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/648-el.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/648.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/648-el.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Look Outside",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/649.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/649.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/649.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/649.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Milk Inside a Bag of Milk Inside a Bag of Milk",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/650.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/650.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/650.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/650.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Milk Outside A Bag Of Milk Outside A Bag Of Milk",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/651.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/651.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/651.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/651.html",
     "special": [
       "port"
     ]
   },
   {
     "name": "Midnight Shift",
-    "cover": "https://cdn.jsdelivr.net/gh/gn-math/covers@main/658.png",
-    "url": "https://cdn.jsdelivr.net/gh/gn-math/html@main/658.html",
+    "cover": "https://cdn.jsdelivr.net/gh/freebuisness/covers@main/658.png",
+    "url": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/658.html",
     "special": [
       "port"
     ]

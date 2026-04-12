@@ -1,1737 +1,2157 @@
-[
-  {
-    "name": "1",
-    "cover": "png/games/1.webp",
-    "url": "/games/1/index.html"
-  },
-  {
-    "name": "1 on 1 Soccer",
-    "cover": "/png/games/12.webp",
-    "url": "/games/1on1soccer/index.html"
-  },
-  {
-    "name": "10 Minutes Till Dawn",
-    "cover": "/png/games/10.webp",
-    "url": "/games/10minutestilldawn/index.html"
-  },
-  {
-    "name": "1v1.lol",
-    "cover": "png/games/1v1.webp",
-    "url": "/gamefile/1v1.html"
-  },
-  {
-    "name": "2048",
-    "cover": "png/games/2048.webp",
-    "url": "/games/2048/index.html"
-  },
-  {
-    "name": "30",
-    "cover": "/png/games/30.webp",
-    "url": "/games/30dolar/index.html"
-  },
-  {
-    "name": "A Difficult Game About Climbing",
-    "cover": "png/games/adgac.webp",
-    "url": "/gamefile/adgac.html"
-  },
-  {
-    "name": "A Small World Cup",
-    "cover": "png/games/worldcup.webp",
-    "url": "/gamefile/aswc.html"
-  },
-  {
-    "name": "Achievement Unlocked",
-    "cover": "/png/games/achieve.webp",
-    "url": "/games/achieveunlocked/index.html"
-  },
-  {
-    "name": "ADOFAI",
-    "cover": "png/games/adofai.webp",
-    "url": "/games/a-dance-of-fire-and-ice/index.html"
-  },
-  {
-    "name": "Adventure Capitalist",
-    "cover": "/png/games/adventure.webp",
-    "url": "/games/adventure-capitalist/index.html"
-  },
-  {
-    "name": "Amanda the adventurer, Webport",
-    "cover": "/png/games/aman.webp",
-    "url": "/games/amanda-the-adventurer/index.html"
-  },
-  {
-    "name": "Among us",
-    "cover": "/png/games/among.webp",
-    "url": "/games/amongus/index.html"
-  },
-  {
-    "name": "Angry Birds",
-    "cover": "/png/games/angry.webp",
-    "url": "/gamefile/Angrybirds.html"
-  },
-  {
-    "name": "Angry Birds Epic",
-    "cover": "/png/games/epic.webp",
-    "url": "/games/Epic/index.html"
-  },
-  {
-    "name": "Angry Birds Online",
-    "cover": "/png/games/angrybirdsonline.webp",
-    "url": "/gamefile/angrybirdsonline.html"
-  },
-  {
-    "name": "Antonblast",
-    "cover": "/png/games/anton.webp",
-    "url": "/gamefile/anton.html"
-  },
-  {
-    "name": "Apes Vs Helium, Webport",
-    "cover": "/png/games/avh.webp",
-    "url": "/games/AVHPort/index.html"
-  },
-  {
-    "name": "Arthur's Nightmare, Webport",
-    "cover": "/png/games/arthursnight.webp",
-    "url": "/gamefile/arthur.html"
-  },
-  {
-    "name": "Bad Parenting, Webport",
-    "cover": "png/games/bad.webp",
-    "url": "/games/bad/index.html"
-  },
-  {
-    "name": "Bad Piggies",
-    "cover": "/png/games/badp.webp",
-    "url": "/games/badpiggies/index.html"
-  },
-  {
-    "name": "Bad time Simulator",
-    "cover": "/png/games/badt.webp",
-    "url": "/games/bts/index.html"
-  },
-  {
-    "name": "Balatro, Webport",
-    "cover": "png/games/bal.webp",
-    "url": "/games/balatro/index.html"
-  },
-  {
-    "name": "Baldi's Basics",
-    "cover": "/png/games/baldi.webp",
-    "url": "/games/baldis-basics/index.html"
-  },
-  {
-    "name": "Baldi's Basics Classic Remastered, Webport",
-    "cover": "/png/games/baldire.webp",
-    "url": "/games/BBCR/index.html"
-  },
-  {
-    "name": "Baldi's Basics Plus, Webport",
-    "cover": "/png/games/baldiplus.webp",
-    "url": "/games/BBP/index.html"
-  },
-  {
-    "name": "Baldi's Fun New School Plus Ultimate Edition",
-    "cover": "/png/games/bfs.webp",
-    "url": "/games/bfs/"
-  },
-  {
-    "name": "Baldurs Gate 2, Webport",
-    "cover": "/png/games/gate2.webp",
-    "url": "/games/baldurs-gate-2/index.html"
-  },
-  {
-    "name": "Bart Blast",
-    "cover": "/png/games/bart.webp",
-    "url": "/gamefile/bart.html"
-  },
-  {
-    "name": "Baseball Bros",
-    "cover": "png/games/basebros.webp",
-    "url": "/games/baseballbros/index.html"
-  },
-  {
-    "name": "Basket Bros",
-    "cover": "/png/games/basketbro.webp",
-    "url": "/gamefile/basket.html"
-  },
-  {
-    "name": "Basket Random",
-    "cover": "png/games/basket.webp",
-    "url": "/games/basket-random/index.html"
-  },
-  {
-    "name": "Basketball stars",
-    "cover": "/png/games/basketstars.webp",
-    "url": "/games/basketballstars/index.html"
-  },
-  {
-    "name": "Bendy And The Ink Machine, Webport",
-    "cover": "png/games/bendy.webp",
-    "url": "/games/BATIM/BATIM/index.html"
-  },
-  {
-    "name": "Bergentruck, Webport",
-    "cover": "/png/games/ber.webp",
-    "url": "/games/bergentruck/index.html"
-  },
-  {
-    "name": "Bfdia 5b",
-    "cover": "/png/games/bfdia5b.webp",
-    "url": "/games/bfdia 5b/index.html"
-  },
-  {
-    "name": "Bitlife",
-    "cover": "png/games/bit.webp",
-    "url": "/games/bitlife/index.html"
-  },
-  {
-    "name": "Black Jack",
-    "cover": "/png/games/blackjack.webp",
-    "url": "/gamefile/BlackJack.html"
-  },
-  {
-    "name": "Block Blast",
-    "cover": "png/games/unnamed.webp",
-    "url": "/games/block-blast/index.html"
-  },
-  {
-    "name": "Bloodmoney, Webport",
-    "cover": "/png/games/blood.webp",
-    "url": "/games/bloodmoney/index.html"
-  },
-  {
-    "name": "Bloon TD1",
-    "cover": "png/games/bloons.webp",
-    "url": "/games/bloonstd/index.html"
-  },
-  {
-    "name": "Bloon TD2",
-    "cover": "/png/games/blo2.webp",
-    "url": "/games/bloonstd2/index.html"
-  },
-  {
-    "name": "Bloon TD3",
-    "cover": "/png/games/blo3.webp",
-    "url": "/games/btd3/index.html"
-  },
-  {
-    "name": "Bloon TD4",
-    "cover": "/png/games/btd4.webp",
-    "url": "/gamefile/bloonstd4.html"
-  },
-  {
-    "name": "Bloons TD5",
-    "cover": "/png/games/blo5.webp",
-    "url": "/games/btd5/index.html"
-  },
-  {
-    "name": "Bloons TD6",
-    "cover": "/png/games/blo6.webp",
-    "url": "/games/btd6/index.html"
-  },
-  {
-    "name": "Bloxors",
-    "cover": "/png/games/bloxorz.webp",
-    "url": "/games/bloxors/index.html"
-  },
-  {
-    "name": "Bombmerman",
-    "cover": "png/games/bomberman.webp",
-    "url": "/gamefile/bomberman.html"
-  },
-  {
-    "name": "Bombmerman 2",
-    "cover": "png/games/bomberman2.webp",
-    "url": "/gamefile/bomberman2.html"
-  },
-  {
-    "name": "Bop City",
-    "cover": "png/games/bopcity.webp",
-    "url": "/gamefile/bopcity.html"
-  },
-  {
-    "name": "Boxing Random",
-    "cover": "png/games/boxing.webp",
-    "url": "/gamefile/boxing.html"
-  },
-  {
-    "name": "Brotato, Webport",
-    "cover": "png/games/brotat.webp",
-    "url": "/games/brotato/Brotato.html"
-  },
-  {
-    "name": "Buckshot Roulette, Webport",
-    "cover": "png/games/buck.webp",
-    "url": "/games/buckshot/index.html"
-  },
-  {
-    "name": "Burrito Bison",
-    "cover": "png/games/burrito.webp",
-    "url": "/games/burrito/index.html"
-  },
-  {
-    "name": "Burrito Bison Revenge",
-    "cover": "png/games/bbe.webp",
-    "url": "/gamefile/bbe.html"
-  },
-  {
-    "name": "Celeste",
-    "cover": "/png/games/celeste.webp",
-    "url": "/games/celeste/index.html"
-  },
-  {
-    "name": "Christmas Massacre",
-    "cover": "/png/games/christmas.webp",
-    "url": "/gamefile/christmas.html"
-  },
-  {
-    "name": "Class Of 09, Webport",
-    "cover": "png/games/class.webp",
-    "url": "/extra/co09loader/index.html"
-  },
-  {
-    "name": "Clover Pit",
-    "cover": "/png/games/clover.webp",
-    "url": "/gamefile/cloverpit.html"
-  },
-  {
-    "name": "Cluster Rush",
-    "cover": "/png/games/cluster.webp",
-    "url": "/games/cluster/index.html"
-  },
-  {
-    "name": "Cookie Clicker",
-    "cover": "png/games/cookie.webp",
-    "url": "/games/cookie-clicker/index.html"
-  },
-  {
-    "name": "Cooking Mama",
-    "cover": "png/games/cookingmama.webp",
-    "url": "/gamefile/cookingmama.html"
-  },
-  {
-    "name": "Cooking Mama 2",
-    "cover": "png/games/cookingmama2.webp",
-    "url": "/gamefile/cookingmama2.html"
-  },
-  {
-    "name": "Cooking Mama 3",
-    "cover": "png/games/cookingmama3.webp",
-    "url": "/gamefile/cookingmama3.html"
-  },
-  {
-    "name": "Counter Stike 0.8",
-    "cover": "/png/games/cs08.webp",
-    "url": "/games/psp/cs/index.html"
-  },
-  {
-    "name": "Crazy Balls",
-    "cover": "/png/games/balls.webp",
-    "url": "/gamefile/balls.html"
-  },
-  {
-    "name": "CrazyCattle3D, Webport",
-    "cover": "/png/games/crazyca.webp",
-    "url": "/extra/cc3ddevice.html"
-  },
-  {
-    "name": "Crossy Roads",
-    "cover": "/png/games/crossy.webp",
-    "url": "/gamefile/crossy.html"
-  },
-  {
-    "name": "Csgo Clicker",
-    "cover": "png/games/csgo.webp",
-    "url": "/games/csgo-clicker/index.html"
-  },
-  {
-    "name": "Cuphead, Webport",
-    "cover": "/png/games/cup.webp",
-    "url": "/games/Cuphead/index.html"
-  },
-  {
-    "name": "Customer Support, Webport",
-    "cover": "/png/games/cus.webp",
-    "url": "/games/CustomerSupport/index.html"
-  },
-  {
-    "name": "Cut The Rope",
-    "cover": "png/games/cut1.webp",
-    "url": "/gamefile/cut.html"
-  },
-  {
-    "name": "Cut The Rope : Time Travel",
-    "cover": "png/games/time.webp",
-    "url": "/gamefile/time.html"
-  },
-  {
-    "name": "Cut The Rope Holiday",
-    "cover": "/png/games/cut2.webp",
-    "url": "/gamefile/hol.html"
-  },
-  {
-    "name": "Dadish",
-    "cover": "/png/games/dadish.webp",
-    "url": "/gamefile/dadish.html"
-  },
-  {
-    "name": "Dadish 2",
-    "cover": "/png/games/dadish2.webp",
-    "url": "/gamefile/dadish2.html"
-  },
-  {
-    "name": "Dadish 3",
-    "cover": "/png/games/dadish3.webp",
-    "url": "/gamefile/dadish3.html"
-  },
-  {
-    "name": "Dadish 3d",
-    "cover": "/png/games/dadish3d.webp",
-    "url": "/gamefile/dadish3d.html"
-  },
-  {
-    "name": "Dadish Daily",
-    "cover": "/png/games/daily.webp",
-    "url": "/gamefile/daily.html"
-  },
-  {
-    "name": "Danganronpa",
-    "cover": "/png/games/dan.webp",
-    "url": "/games/danganronpa/index.html"
-  },
-  {
-    "name": "DEAD PLATE, Webport",
-    "cover": "/png/games/deadp.webp",
-    "url": "/gamefile/dead.html"
-  },
-  {
-    "name": "Dead Tapes",
-    "cover": "/png/games/deadta.webp",
-    "url": "/games/deadtapesfinal/index.html"
-  },
-  {
-    "name": "Deadseat, Webport",
-    "cover": "/png/games/deadseat.webp",
-    "url": "/games/deadseat/index.html"
-  },
-  {
-    "name": "Death Run 3D",
-    "cover": "png/games/death.webp",
-    "url": "/games/death-run-3d/index.html"
-  },
-  {
-    "name": "Deltatraveler, Webport",
-    "cover": "/png/games/deltatr.webp",
-    "url": "/gamefile/deltatr.html"
-  },
-  {
-    "name": "Dinosaur",
-    "cover": "/png/games/dino.webp",
-    "url": "/games/dinosaur/index.html"
-  },
-  {
-    "name": "Do Not Take This Cat Home, Webport",
-    "cover": "png/games/dont.webp",
-    "url": "/games/donottakethiscathome/index.html"
-  },
-  {
-    "name": "Doge Miner",
-    "cover": "/png/games/doge.webp",
-    "url": "/gamefile/Doge Miner.html"
-  },
-  {
-    "name": "Doge Miner 2",
-    "cover": "/png/games/dogeminer2.webp",
-    "url": "/gamefile/dm2.html"
-  },
-  {
-    "name": "Doodle Jump",
-    "cover": "png/games/doodle.webp",
-    "url": "/gamefile/Doodle Jump.html"
-  },
-  {
-    "name": "Doom",
-    "cover": "/png/games/doom.webp",
-    "url": "/games/doom/index.html"
-  },
-  {
-    "name": "Doom 2",
-    "cover": "/png/games/doom2.webp",
-    "url": "/gamefile/doom2.html"
-  },
-  {
-    "name": "Doom 3",
-    "cover": "/png/games/doom3.webp",
-    "url": "/games/doom3/index.html"
-  },
-  {
-    "name": "Dr. Mario",
-    "cover": "png/games/drmario.webp",
-    "url": "/gamefile/drmario.html"
-  },
-  {
-    "name": "Dreadhead Parkour",
-    "cover": "png/games/dread.webp",
-    "url": "/gamefile/dread.html"
-  },
-  {
-    "name": "Drift Boss",
-    "cover": "png/games/driftboss.webp",
-    "url": "/games/drift-boss/index.html"
-  },
-  {
-    "name": "Drift Hunter",
-    "cover": "png/games/hunt.webp",
-    "url": "/gamefile/drift.html"
-  },
-  {
-    "name": "Drive Mad",
-    "cover": "png/games/drive.webp",
-    "url": "/games/drive-mad/index.html"
-  },
-  {
-    "name": "Duck Life 1",
-    "cover": "png/games/duck1.webp",
-    "url": "/games/ducklife1/index.html"
-  },
-  {
-    "name": "Duck Life 2",
-    "cover": "/png/games/duck2.webp",
-    "url": "/games/ducklife2/index.html"
-  },
-  {
-    "name": "Duck Life 3",
-    "cover": "/png/games/duck3.webp",
-    "url": "/games/ducklife3/index.html"
-  },
-  {
-    "name": "Duck Life 4",
-    "cover": "/png/games/duck4.webp",
-    "url": "/games/ducklife4/index.html"
-  },
-  {
-    "name": "Duck Life 5",
-    "cover": "/png/games/duck5.webp",
-    "url": "/games/ducklife5/index.html"
-  },
-  {
-    "name": "Duck Life 6",
-    "cover": "/png/games/ducklife6.webp",
-    "url": "/games/ducklife6/index.html"
-  },
-  {
-    "name": "Duck Life 7",
-    "cover": "/png/games/ducklife7.webp",
-    "url": "/games/ducklife7/index.html"
-  },
-  {
-    "name": "Duck Life 8",
-    "cover": "/png/games/ducklifeadc.webp",
-    "url": "/games/ducklifeadv/"
-  },
-  {
-    "name": "Dumb Ways To Die",
-    "cover": "/png/games/dumb.webp",
-    "url": "/gamefile/dumb.html"
-  },
-  {
-    "name": "Escape Road",
-    "cover": "/png/games/road.webp",
-    "url": "/gamefile/escape.html"
-  },
-  {
-    "name": "Escape Road 2",
-    "cover": "/png/games/escape2.webp",
-    "url": "/gamefile/escape2.html"
-  },
-  {
-    "name": "Falling Fred",
-    "cover": "/png/games/super-falling-fred.webp",
-    "url": "/games/falling/index.html"
-  },
-  {
-    "name": "Fallout",
-    "cover": "/png/games/fallout.webp",
-    "url": "/gamefile/falloutt.html"
-  },
-  {
-    "name": "Fallout 2",
-    "cover": "/png/games/fallout2.webp",
-    "url": "/games/fo2/index.html"
-  },
-  {
-    "name": "Fancy Pants Adventures",
-    "cover": "/png/games/fpa1.webp",
-    "url": "/games/fancypantsadventures/index.html"
-  },
-  {
-    "name": "Fancy Pants Adventures 2",
-    "cover": "/png/games/fancy2.webp",
-    "url": "/games/fancypantsadventures2/index.html"
-  },
-  {
-    "name": "Fancy Pants Adventures 3",
-    "cover": "/png/games/fpa3.webp",
-    "url": "/gamefile/fpa3.html"
-  },
-  {
-    "name": "Fears To Fathom: Home Alone",
-    "cover": "/png/games/fear.webp",
-    "url": "/games/ftf/index.html"
-  },
-  {
-    "name": "Final Fantasy VII",
-    "cover": "/png/games/ffvii.webp",
-    "url": "/gamefile/ffvii.html"
-  },
-  {
-    "name": "Fireboy and Watergirl",
-    "cover": "/png/games/fire1.webp",
-    "url": "/games/watergirl-1/index.html"
-  },
-  {
-    "name": "Fireboy and Watergirl 2",
-    "cover": "/png/games/fire2.webp",
-    "url": "/games/watergirl-2/index.html"
-  },
-  {
-    "name": "Fireboy and Watergirl 3",
-    "cover": "/png/games/fire3.webp",
-    "url": "/games/watergirl-3/index.html"
-  },
-  {
-    "name": "Fireboy and Watergirl 4",
-    "cover": "/png/games/fire4.webp",
-    "url": "/games/watergirl-4/index.html"
-  },
-  {
-    "name": "Five Nights At Candys",
-    "cover": "/png/games/fnac.webp",
-    "url": "/gamefile/fnac.html"
-  },
-  {
-    "name": "Five Nights At Candys 2",
-    "cover": "/png/games/fnac2.webp",
-    "url": "/gamefile/fnac2.html"
-  },
-  {
-    "name": "Five Nights At Epsteins",
-    "cover": "/png/games/fnae.webp",
-    "url": "/gamefile/fnae.html"
-  },
-  {
-    "name": "Flappy bird",
-    "cover": "/png/games/flapp.webp",
-    "url": "/games/flappybird/index.html"
-  },
-  {
-    "name": "FNAF",
-    "cover": "png/games/splash.webp",
-    "url": "/games/fnaf/index.html"
-  },
-  {
-    "name": "FNAF Sisters Location",
-    "cover": "/png/games/sister.webp",
-    "url": "/gamefile/fnafs.html"
-  },
-  {
-    "name": "FNAF Ultimate Custom Night",
-    "cover": "/png/games/custom.webp",
-    "url": "/gamefile/fnafu.html"
-  },
-  {
-    "name": "FNAF World",
-    "cover": "/png/games/fnafworld.webp",
-    "url": "/gamefile/fnafw.html"
-  },
-  {
-    "name": "FNAF World Refreshed",
-    "cover": "/png/games/fne.webp",
-    "url": "/gamefile/fnw.html"
-  },
-  {
-    "name": "FNAF2",
-    "cover": "/png/games/fnaf2.webp",
-    "url": "/games/2/index.html"
-  },
-  {
-    "name": "FNAF3",
-    "cover": "/png/games/3f.webp",
-    "url": "/games/3/index.html"
-  },
-  {
-    "name": "FNAF4",
-    "cover": "/png/games/fnaf4.webp",
-    "url": "/games/fnaf4/index.html"
-  },
-  {
-    "name": "FNAF4 Halloween",
-    "cover": "/png/games/hollowween.webp",
-    "url": "/gamefile/ween.html"
-  },
-  {
-    "name": "FNAW",
-    "cover": "/png/games/fnaw.webp",
-    "url": "/gamefile/fnaw.html"
-  },
-  {
-    "name": "FNF, Friday Night Funkin",
-    "cover": "png/games/fnf.webp",
-    "url": "/gamefile/fnf.html"
-  },
-  {
-    "name": "Football Bros",
-    "cover": "png/games/footbros.webp",
-    "url": "/games/footballbros/index.html"
-  },
-  {
-    "name": "Fruit Ninja",
-    "cover": "/png/games/ninja.webp",
-    "url": "/games/fruitninja/index.html"
-  },
-  {
-    "name": "Fused240",
-    "cover": "png/games/fused240.webp",
-    "url": "/games/fused240/index.html"
-  },
-  {
-    "name": "Gacha Life",
-    "cover": "/png/games/gachalife.webp",
-    "url": "/gamefile/life.html"
-  },
-  {
-    "name": "Gacha Verse",
-    "cover": "/png/games/gachaverse.webp",
-    "url": "/gamefile/verse.html"
-  },
-  {
-    "name": "Getaway Shootout",
-    "cover": "/png/games/getaway.webp",
-    "url": "/games/getaway-shootout/index.html"
-  },
-  {
-    "name": "Getting Over It",
-    "cover": "/png/games/gettin.webp",
-    "url": "/gamefile/goi.html"
-  },
-  {
-    "name": "Gladihoppers",
-    "cover": "/png/games/glad.webp",
-    "url": "/gamefile/Gladihoppers.html"
-  },
-  {
-    "name": "Go to bed, Webport",
-    "cover": "/png/games/gotobed.webp",
-    "url": "/games/GTB/index.html"
-  },
-  {
-    "name": "Google Baseball",
-    "cover": "/png/games/google.webp",
-    "url": "/gamefile/gbase.html"
-  },
-  {
-    "name": "Gorilla Tag, Webport",
-    "cover": "/png/games/gtag.webp",
-    "url": "/games/gtag/index.html"
-  },
-  {
-    "name": "Granny",
-    "cover": "/png/games/granny.webp",
-    "url": "/gamefile/Granny.html"
-  },
-  {
-    "name": "Granny 2",
-    "cover": "/png/games/gran2.webp",
-    "url": "/gamefile/Granny 2.html"
-  },
-  {
-    "name": "Granny 3",
-    "cover": "/png/games/gran3.webp",
-    "url": "/gamefile/Granny 3.html"
-  },
-  {
-    "name": "Gravity run",
-    "cover": "/png/games/gravity.webp",
-    "url": "/games/gravity-run/index.html"
-  },
-  {
-    "name": "Greybox",
-    "cover": "/png/games/grey.webp",
-    "url": "/games/graybox/index.html"
-  },
-  {
-    "name": "GTA Vice City",
-    "cover": "/png/games/vice.webp",
-    "url": "/games/vicecity/index.html"
-  },
-  {
-    "name": "Gun Mayhem",
-    "cover": "/png/games/gun.webp",
-    "url": "/games/funmayhem/index.html"
-  },
-  {
-    "name": "Gun Mayhem 2",
-    "cover": "png/games/gun2.webp",
-    "url": "/games/funmayhem2/index.html"
-  },
-  {
-    "name": "Gun Mayhem Redux",
-    "cover": "/png/games/gun3.webp",
-    "url": "/games/funmayhemredux/index.html"
-  },
-  {
-    "name": "Gunspin",
-    "cover": "/png/games/guns.webp",
-    "url": "/games/gunspin/index.html"
-  },
-  {
-    "name": "Half life",
-    "cover": "/png/games/halflife.webp",
-    "url": "/games/hl-main/index.html"
-  },
-  {
-    "name": "Half life: Opposing Force",
-    "cover": "/png/games/hlof.webp",
-    "url": "/gamefile/hlof.html"
-  },
-  {
-    "name": "Happy Wheels",
-    "cover": "/png/games/happy.webp",
-    "url": "/games/happywheels/index.html"
-  },
-  {
-    "name": "Hollow Knight, Webport",
-    "cover": "png/games/hollow.webp",
-    "url": "/games/hollowknight/index.html"
-  },
-  {
-    "name": "Hotline Miami, Webport",
-    "cover": "png/games/hot.webp",
-    "url": "/games/whores/index.html"
-  },
-  {
-    "name": "House Of Hazards",
-    "cover": "/png/games/house.webp",
-    "url": "/games/houseofhazards/index.html"
-  },
-  {
-    "name": "HUMAN EXPENDITURE PROGRAM, Webport",
-    "cover": "png/games/human.webp",
-    "url": "/gamefile/human.html"
-  },
-  {
-    "name": "Idle Breakout",
-    "cover": "png/games/idle.webp",
-    "url": "/games/idle-breakout/index.html"
-  },
-  {
-    "name": "Iron Lung",
-    "cover": "png/games/iroonlung.webp",
-    "url": "/games/ironlung/index.html"
-  },
-  {
-    "name": "Jelly Drift",
-    "cover": "/png/games/jelly.webp",
-    "url": "/gamefile/jelly.html"
-  },
-  {
-    "name": "Jetpack Joyride",
-    "cover": "/png/games/jet.webp",
-    "url": "/games/jetpackjoyride/index.html"
-  },
-  {
-    "name": "Jumbo Mario",
-    "cover": "/png/games/jumbo.webp",
-    "url": "/games/JumboMario/index.html"
-  },
-  {
-    "name": "Karlson, Webport",
-    "cover": "/png/games/karlson.webp",
-    "url": "/gamefile/Karlson.html"
-  },
-  {
-    "name": "Karlson2D, Webport",
-    "cover": "/png/games/karlson2d.webp",
-    "url": "/games/karlson2d/truffledkarlson2d/index.html"
-  },
-  {
-    "name": "Kindergarten 1, Webport",
-    "cover": "/png/games/kind1.webp",
-    "url": "/games/kindergarten/1/index.html"
-  },
-  {
-    "name": "Kindergarten 2, Webport",
-    "cover": "/png/games/kind2.webp",
-    "url": "/games/kindergarten/2/index.html"
-  },
-  {
-    "name": "Kindergarten 3, Webport",
-    "cover": "/png/games/kind3.webp",
-    "url": "/games/Kindergarten3/index.html"
-  },
-  {
-    "name": "Lacey's Flash Games, Webport",
-    "cover": "png/games/lacey.webp",
-    "url": "/gamefile/lacy.html"
-  },
-  {
-    "name": "Learn To Fly",
-    "cover": "png/games/learn1.webp",
-    "url": "/games/learntofly/index.html"
-  },
-  {
-    "name": "Learn To Fly 2",
-    "cover": "/png/games/learn2.webp",
-    "url": "/games/learntofly2/index.html"
-  },
-  {
-    "name": "Learn To Fly 3",
-    "cover": "/png/games/learn3.webp",
-    "url": "/games/ltf3/index.html"
-  },
-  {
-    "name": "Learn To Fly Idle",
-    "cover": "/png/games/learni.webp",
-    "url": "/games/learntoflyidle/index.html"
-  },
-  {
-    "name": "Lego Star Wars",
-    "cover": "/png/games/legostarwars.webp",
-    "url": "/gamefile/legostarwars.html"
-  },
-  {
-    "name": "Level Devil",
-    "cover": "/png/games/level.webp",
-    "url": "/games/lvldevil/index.html"
-  },
-  {
-    "name": "Line Rider",
-    "cover": "/png/games/line.webp",
-    "url": "/games/linerider/index.html"
-  },
-  {
-    "name": "Little Alchemy",
-    "cover": "/png/games/lil.webp",
-    "url": "/games/littlealchemy/index.html"
-  },
-  {
-    "name": "Little Big Planet",
-    "cover": "/png/games/lbp.webp",
-    "url": "/games/lbp/index.html"
-  },
-  {
-    "name": "Madness Melee",
-    "cover": "/png/games/madness.webp",
-    "url": "/games/bogtruffled/index.html"
-  },
-  {
-    "name": "Mario party 1",
-    "cover": "/png/games/marioparty1.webp",
-    "url": "/gamefile/marioparty.html"
-  },
-  {
-    "name": "Mario party 2",
-    "cover": "/png/games/marioparty2.webp",
-    "url": "/gamefile/marioparty2.html"
-  },
-  {
-    "name": "Mario party 3",
-    "cover": "/png/games/marioparty3.webp",
-    "url": "/gamefile/marioparty3.html"
-  },
-  {
-    "name": "Megaman",
-    "cover": "/png/games/megaman.webp",
-    "url": "/gamefile/megaman.html"
-  },
-  {
-    "name": "Melon Playground",
-    "cover": "/png/games/melon.webp",
-    "url": "/games/melon-playground/index.html"
-  },
-  {
-    "name": "Merge Rot",
-    "cover": "/png/games/rot.webp",
-    "url": "/games/mergerot/index.html"
-  },
-  {
-    "name": "Milkman karlson, Webport",
-    "cover": "png/games/milk.webp",
-    "url": "/games/milk/index.html"
-  },
-  {
-    "name": "Minecraft",
-    "cover": "/png/games/mine.webp",
-    "url": "/extra/eaglardevice.html"
-  },
-  {
-    "name": "Minesweeper Mania",
-    "cover": "/png/games/minese.webp",
-    "url": "/gamefile/minesweepermania.html"
-  },
-  {
-    "name": "Minesweeper Plus",
-    "cover": "/png/games/mineseplu.webp",
-    "url": "/gamefile/mineplus.html"
-  },
-  {
-    "name": "Monkey Mart",
-    "cover": "png/games/monkey.webp",
-    "url": "/games/MonkeyMart/index.html"
-  },
-  {
-    "name": "Moto X3M",
-    "cover": "/png/games/moto.webp",
-    "url": "/games/motox3m/index.html"
-  },
-  {
-    "name": "My teardrop, daniel",
-    "cover": "/png/games/mytear.webp",
-    "url": "/gamefile/mytear.html"
-  },
-  {
-    "name": "n-gon",
-    "cover": "/png/games/ngon.webp",
-    "url": "/games/n-gon/index.html"
-  },
-  {
-    "name": "Nazi Zombies: Portable",
-    "cover": "png/games/nazi.webp",
-    "url": "/gamefile/nzp.html"
-  },
-  {
-    "name": "Needy Streamer Overload",
-    "cover": "/png/games/nso.webp",
-    "url": "/games/nso/index.html"
-  },
-  {
-    "name": "New Super Mario Bros",
-    "cover": "/png/games/nsmb.webp",
-    "url": "/games/nsmb/index.html"
-  },
-  {
-    "name": "Nubbys Number Factory",
-    "cover": "/png/games/nubby.webp",
-    "url": "/gamefile/nubby.html"
-  },
-  {
-    "name": "Om Nom Run",
-    "cover": "png/games/omnomrun.webp",
-    "url": "/gamefile/omnomrun.html"
-  },
-  {
-    "name": "OMORI",
-    "cover": "png/games/omori.webp",
-    "url": "/gamefile/OMORI.html"
-  },
-  {
-    "name": "Oneshot",
-    "cover": "png/games/oneshot.webp",
-    "url": "/gamefile/oneshot.html"
-  },
-  {
-    "name": "Orange Roulette",
-    "cover": "/png/games/orange.webp",
-    "url": "/gamefile/orange.html"
-  },
-  {
-    "name": "Oshi Oshi Punch",
-    "cover": "/png/games/oshi.webp",
-    "url": "/gamefile/onshi.html"
-  },
-  {
-    "name": "Osu!",
-    "cover": "/png/games/osu.webp",
-    "url": "/games/osu!/index.html"
-  },
-  {
-    "name": "OvO",
-    "cover": "png/games/ovo.webp",
-    "url": "/games/ovo/index.html"
-  },
-  {
-    "name": "OvO 2",
-    "cover": "/png/games/ovo2.webp",
-    "url": "/games/OvO2/index.html"
-  },
-  {
-    "name": "OvO Dimensions",
-    "cover": "/png/games/ovodi.webp",
-    "url": "/games/OvoDimensions/index.html"
-  },
-  {
-    "name": "Pacman",
-    "cover": "/png/games/pacman.webp",
-    "url": "/games/pacman/index.html"
-  },
-  {
-    "name": "Papas Bakeria",
-    "cover": "/png/games/bake.webp",
-    "url": "/games/papasbakeria/index.html"
-  },
-  {
-    "name": "Papas Burgeria",
-    "cover": "/png/games/burger.webp",
-    "url": "/games/papasburgeria/index.html"
-  },
-  {
-    "name": "Papas Cheeseria",
-    "cover": "/png/games/cheese.webp",
-    "url": "/games/papascheeseria/index.html"
-  },
-  {
-    "name": "Papas Donuteria",
-    "cover": "/png/games/donut.webp",
-    "url": "/games/papasdonuteria/index.html"
-  },
-  {
-    "name": "Papas Freezeria",
-    "cover": "/png/games/freeze.webp",
-    "url": "/games/papasfreezeria/index.html"
-  },
-  {
-    "name": "Papas Pizzaeria",
-    "cover": "/png/games/pizza.webp",
-    "url": "/games/papaspizza/index.html"
-  },
-  {
-    "name": "Paper Mario",
-    "cover": "/png/games/papermario.webp",
-    "url": "/gamefile/papermario.html"
-  },
-  {
-    "name": "Paperio 2",
-    "cover": "/png/games/paperio2.webp",
-    "url": "/games/paperio2/index.html"
-  },
-  {
-    "name": "Papers, Please",
-    "cover": "/png/games/papers.webp",
-    "url": "/gamefile/papers.html"
-  },
-  {
-    "name": "Parappa The Rapper",
-    "cover": "/png/games/rapper.webp",
-    "url": "/games/paps/index.html"
-  },
-  {
-    "name": "Peaks of Yore",
-    "cover": "png/games/peaksofyore.webp",
-    "url": "/gamefile/peaksofyore.html"
-  },
-  {
-    "name": "Peggle",
-    "cover": "png/games/peggle.webp",
-    "url": "/gamefile/Peggle.html"
-  },
-  {
-    "name": "People Playground",
-    "cover": "png/games/peoplepg.webp",
-    "url": "/games/PPG/index.html"
-  },
-  {
-    "name": "Pixel Gun 3D",
-    "cover": "/png/games/pixelgun.webp",
-    "url": "/games/pixl/index.html"
-  },
-  {
-    "name": "Pizza Tower",
-    "cover": "/png/games/pizzatower.webp",
-    "url": "/gamefile/Pizza Tower.html"
-  },
-  {
-    "name": "Pizza Tower: Scoutdigo",
-    "cover": "/png/games/pts.webp",
-    "url": "/gamefile/pts.html"
-  },
-  {
-    "name": "Plants VS Zombies",
-    "cover": "/png/games/pvz.webp",
-    "url": "/gamefile/pvs.html"
-  },
-  {
-    "name": "Plants VS Zombies 2",
-    "cover": "/png/games/pvz2.webp",
-    "url": "/gamefile/pvs2.html"
-  },
-  {
-    "name": "Pokemon Blue",
-    "cover": "/png/games/blue.webp",
-    "url": "/gamefile/blue.html"
-  },
-  {
-    "name": "Pokemon Crystal",
-    "cover": "/png/games/crystal.webp",
-    "url": "/gamefile/blob.html"
-  },
-  {
-    "name": "Pokemon Emerald",
-    "cover": "/png/games/em.webp",
-    "url": "/gamefile/em.html"
-  },
-  {
-    "name": "Pokemon Gold",
-    "cover": "/png/games/gold.webp",
-    "url": "/gamefile/red.html"
-  },
-  {
-    "name": "Pokemon Red",
-    "cover": "/png/games/pokemonfirered.webp",
-    "url": "/gamefile/red.html"
-  },
-  {
-    "name": "Polytrack",
-    "cover": "png/games/poly.webp",
-    "url": "/games/polytrack/index.html"
-  },
-  {
-    "name": "Portal",
-    "cover": "png/games/portal.webp",
-    "url": "/games/portal/index.html"
-  },
-  {
-    "name": "Postal",
-    "cover": "/png/games/postal.webp",
-    "url": "/gamefile/postal.html"
-  },
-  {
-    "name": "Pretend its not there, Webport",
-    "cover": "/png/games/pre.webp",
-    "url": "/games/pretenditsnotthere/index.html"
-  },
-  {
-    "name": "Quake III",
-    "cover": "png/games/quakeiii.webp",
-    "url": "/gamefile/quakeiii.html"
-  },
-  {
-    "name": "Raft Wars",
-    "cover": "/png/games/raft1.webp",
-    "url": "/games/raft-wars/index.html"
-  },
-  {
-    "name": "Raft Wars 2",
-    "cover": "/png/games/raft2.webp",
-    "url": "/games/raft-wars-2/index.html"
-  },
-  {
-    "name": "RAFT, Webport",
-    "cover": "/png/games/raft.webp",
-    "url": "/games/raft/index.html"
-  },
-  {
-    "name": "Ragdoll Archers",
-    "cover": "/png/games/archer.webp",
-    "url": "/games/ragdoll-archers/index.html"
-  },
-  {
-    "name": "Ragdoll Hit",
-    "cover": "/png/games/hit.webp",
-    "url": "/games/ragdoll/index.html"
-  },
-  {
-    "name": "Raldi's Crack House",
-    "cover": "/png/games/raldi.webp",
-    "url": "/games/raldi/index.html"
-  },
-  {
-    "name": "RE:RUN, Webport",
-    "cover": "png/games/rerun.webp",
-    "url": "/games/rerun/index.html"
-  },
-  {
-    "name": "REPO, Webport",
-    "cover": "/png/games/repo.webp",
-    "url": "/games/repo/index.html"
-  },
-  {
-    "name": "Resident Evil 1",
-    "cover": "png/games/res1.webp",
-    "url": "/gamefile/res1.html"
-  },
-  {
-    "name": "Resident Evil 2",
-    "cover": "png/games/res2.webp",
-    "url": "/gamefile/res2.html"
-  },
-  {
-    "name": "Retro Bowl",
-    "cover": "png/games/retro.webp",
-    "url": "/games/retro-bowl/index.html"
-  },
-  {
-    "name": "Retro Bowl College",
-    "cover": "png/games/retroc.webp",
-    "url": "/games/rbcollege/index.html"
-  },
-  {
-    "name": "Riddle School",
-    "cover": "png/games/riddle1.webp",
-    "url": "/games/riddleschool/index.html"
-  },
-  {
-    "name": "Riddle School 2",
-    "cover": "/png/games/riddle2.webp",
-    "url": "/games/sriddleschool2/index.html"
-  },
-  {
-    "name": "Riddle School 3",
-    "cover": "/png/games/riddle3.webp",
-    "url": "/games/riddleschool3/index.html"
-  },
-  {
-    "name": "Riddle School 4",
-    "cover": "/png/games/riddle4.webp",
-    "url": "/games/riddleschool4/index.html"
-  },
-  {
-    "name": "Riddle School 5",
-    "cover": "/png/games/riddle5.webp",
-    "url": "/games/riddleschool5/index.html"
-  },
-  {
-    "name": "Riddle School Transfer",
-    "cover": "/png/games/riddletr.webp",
-    "url": "/games/riddleschooltransfer/index.html"
-  },
-  {
-    "name": "Riddle School Transfer 2",
-    "cover": "/png/games/riddletr2.webp",
-    "url": "/games/riddleschooltransfer2/index.html"
-  },
-  {
-    "name": "Rooftop Snipers",
-    "cover": "/png/games/roof2.webp",
-    "url": "/games/rooftop-snipers/index.html"
-  },
-  {
-    "name": "Rooftop Snipers 2",
-    "cover": "/png/games/roof1.webp",
-    "url": "/games/rooftop-snipers-2/index.html"
-  },
-  {
-    "name": "Run",
-    "cover": "png/games/run1.webp",
-    "url": "/gamefile/run.html"
-  },
-  {
-    "name": "Run 2",
-    "cover": "png/games/run2.webp",
-    "url": "/gamefile/run2.html"
-  },
-  {
-    "name": "Run 3",
-    "cover": "png/games/run3.webp",
-    "url": "/gamefile/run3.html"
-  },
-  {
-    "name": "Running Fred",
-    "cover": "png/games/fred.webp",
-    "url": "/games/fred/index.html"
-  },
-  {
-    "name": "Sandboxels",
-    "cover": "png/games/sand.webp",
-    "url": "/gamefile/Sandboxels.html"
-  },
-  {
-    "name": "Scary Path",
-    "cover": "png/games/path.webp",
-    "url": "/games/scary-path/index.html"
-  },
-  {
-    "name": "Shift At Midnight",
-    "cover": "/png/games/shift.webp",
-    "url": "/gamefile/shift.html"
-  },
-  {
-    "name": "Skibidi Shooter",
-    "cover": "/png/games/ski.webp",
-    "url": "/games/skibidi-shooter/index.html"
-  },
-  {
-    "name": "Slender: The 8 Pages, Webport",
-    "cover": "/png/games/slender.webp",
-    "url": "/games/slender/index.html"
-  },
-  {
-    "name": "Slendytubbies",
-    "cover": "/png/games/slendy.webp",
-    "url": "/games/slendy/index.html"
-  },
-  {
-    "name": "Slient Hill",
-    "cover": "/png/games/slienthill.webp",
-    "url": "/gamefile/slienthill.html"
-  },
-  {
-    "name": "Slime Ranchers, Webport",
-    "cover": "png/games/slime.webp",
-    "url": "/games/slimerancher/index.html"
-  },
-  {
-    "name": "Slither.io, Webport",
-    "cover": "png/games/sli.webp",
-    "url": "/gamefile/sfge.html"
-  },
-  {
-    "name": "Slope",
-    "cover": "png/games/slope.webp",
-    "url": "/games/slope/index.html"
-  },
-  {
-    "name": "Slowroads",
-    "cover": "/png/games/slow.webp",
-    "url": "/games/slowroads/index.html"
-  },
-  {
-    "name": "SM64, Super Mario 64",
-    "cover": "png/games/sm64.webp",
-    "url": "/games/sm64/index.html"
-  },
-  {
-    "name": "Smash Karts",
-    "cover": "png/games/smashkarts.webp",
-    "url": "/games/smashkarts/index.html"
-  },
-  {
-    "name": "Snow Rider 3D",
-    "cover": "png/games/snow.webp",
-    "url": "/games/snowrider3D-main/index.html"
-  },
-  {
-    "name": "Soccer Bros",
-    "cover": "png/games/soccer.webp",
-    "url": "/games/soccerbros/index.html"
-  },
-  {
-    "name": "Soccer Random",
-    "cover": "png/games/soccerra.webp",
-    "url": "/games/soccer-random/index.html"
-  },
-  {
-    "name": "Solar Smash",
-    "cover": "/png/games/solar.webp",
-    "url": "/gamefile/solar.html"
-  },
-  {
-    "name": "Solitaire",
-    "cover": "/png/games/soli.webp",
-    "url": "/games/solitaire/index.html"
-  },
-  {
-    "name": "Sonic 1",
-    "cover": "png/games/sonic1.webp",
-    "url": "/games/sonic/index.html"
-  },
-  {
-    "name": "Sonic 2",
-    "cover": "png/games/sonic2.webp",
-    "url": "/games/sonic2/index.html"
-  },
-  {
-    "name": "Sonic 3",
-    "cover": "png/games/sonic3.webp",
-    "url": "/games/sonic3/sonic3.html"
-  },
-  {
-    "name": "Sonic CD",
-    "cover": "png/games/soniccd.webp",
-    "url": "/games/soniccd/soniccd.html"
-  },
-  {
-    "name": "Sonic Mania",
-    "cover": "png/games/mania.webp",
-    "url": "/extra/main/index.html"
-  },
-  {
-    "name": "Sonic Robo Blast 2",
-    "cover": "/png/games/robo.webp",
-    "url": "/games/srb2/index.html"
-  },
-  {
-    "name": "Space waves",
-    "cover": "png/games/space.webp",
-    "url": "/gamefile/spacewaves.html"
-  },
-  {
-    "name": "Spank the monkey, bogs favorites",
-    "cover": "/png/games/monk.webp",
-    "url": "/gamefile/monkey.html"
-  },
-  {
-    "name": "Speed Stars",
-    "cover": "png/games/speed.webp",
-    "url": "/games/speed-stars/index.html"
-  },
-  {
-    "name": "Stick With It",
-    "cover": "png/games/stick.webp",
-    "url": "/games/stick/index.html"
-  },
-  {
-    "name": "Stickman Hook",
-    "cover": "png/games/stickman.webp",
-    "url": "/games/stickman-hook/index.html"
-  },
-  {
-    "name": "Subway Surfers",
-    "cover": "png/games/sub.webp",
-    "url": "/games/subway-surfers/index.html"
-  },
-  {
-    "name": "Super Hot",
-    "cover": "/png/games/superhot.webp",
-    "url": "/games/superhot/index.html"
-  },
-  {
-    "name": "Super Meat Boy",
-    "cover": "/png/games/meat.webp",
-    "url": "/games/meatboy/index.html"
-  },
-  {
-    "name": "Super Monkey Ball JR",
-    "cover": "/png/games/supermonkey.webp",
-    "url": "/gamefile/supermonkey.html"
-  },
-  {
-    "name": "Super Smash Flash",
-    "cover": "/png/games/supersmash.webp",
-    "url": "/gamefile/ssf.html"
-  },
-  {
-    "name": "Super Smash Flash 2",
-    "cover": "/png/games/ssf2.webp",
-    "url": "/gamefile/ssf2.html"
-  },
-  {
-    "name": "Survivor.io",
-    "cover": "/png/games/survivorio.webp",
-    "url": "/gamefile/survivor.html"
-  },
-  {
-    "name": "Taiko No Tatsujini",
-    "cover": "/png/games/taiko.webp",
-    "url": "/games/psp/tja/index.html"
-  },
-  {
-    "name": "Tanuki Sunset",
-    "cover": "/png/games/tanukisunset.webp",
-    "url": "/games/tanukisunset/index.html"
-  },
-  {
-    "name": "Tattle Tail",
-    "cover": "/png/games/tat.webp",
-    "url": "/games/tattletail/index.html"
-  },
-  {
-    "name": "Ten Basket",
-    "cover": "/png/games/ten.webp",
-    "url": "/games/ten-basket/index.html"
-  },
-  {
-    "name": "Terraria",
-    "cover": "/png/games/ter.webp",
-    "url": "/games/terraria/terraria-wrapper.html"
-  },
-  {
-    "name": "Tetris",
-    "cover": "/png/games/tet.webp",
-    "url": "/games/tetris/index.html"
-  },
-  {
-    "name": "Tetrisweeper",
-    "cover": "/png/games/tetriss.webp",
-    "url": "/games/tetrisweeper/"
-  },
-  {
-    "name": "The Binding Of Issac",
-    "cover": "/png/games/tboi.webp",
-    "url": "/games/binding-of-isaac/index.html"
-  },
-  {
-    "name": "The Binding Of Issac Wrath Of The Lamb",
-    "cover": "/png/games/tboiw.webp",
-    "url": "/gamefile/tboiw.html"
-  },
-  {
-    "name": "The Binding Of Issac: Rebirth",
-    "cover": "/png/games/tboir.webp",
-    "url": "/games/psp/tboir/index.html"
-  },
-  {
-    "name": "The Impossible Quiz",
-    "cover": "/png/games/quiz.webp",
-    "url": "/games/theimpossiblequiz/index.html"
-  },
-  {
-    "name": "The Legend of Zelda Ocarina of Time",
-    "cover": "/png/games/tloz.webp",
-    "url": "/gamefile/tloz.html"
-  },
-  {
-    "name": "There Is No Game",
-    "cover": "/png/games/ting.webp",
-    "url": "/games/there-is-no-game/index.html"
-  },
-  {
-    "name": "Time Shooter 1",
-    "cover": "/png/games/tim1.webp",
-    "url": "/gamefile/time1.html"
-  },
-  {
-    "name": "Time Shooter 2",
-    "cover": "/png/games/tim2.webp",
-    "url": "/games/timeshooter2/index.html"
-  },
-  {
-    "name": "Time Shooter 3",
-    "cover": "/png/games/tim3.webp",
-    "url": "/games/timeshoot3/index.html"
-  },
-  {
-    "name": "Tiny Fishing",
-    "cover": "png/games/tiny.webp",
-    "url": "/games/tiny-fishing/index.html"
-  },
-  {
-    "name": "To The Core, Webport",
-    "cover": "/png/games/to.webp",
-    "url": "/games/tothecore/index.html"
-  },
-  {
-    "name": "Tomb Of The Mask",
-    "cover": "/png/games/tomb.webp",
-    "url": "/games/tombofthemask/index.html"
-  },
-  {
-    "name": "Tomodachi Collection",
-    "cover": "/png/games/tomo.webp",
-    "url": "/gamefile/tomo.html"
-  },
-  {
-    "name": "Touhou Mother, Webport",
-    "cover": "/png/games/touhou.webp",
-    "url": "/games/touhoumother/index.html"
-  },
-  {
-    "name": "Tube Jumpers",
-    "cover": "/png/games/tube.webp",
-    "url": "/gamefile/tube.html"
-  },
-  {
-    "name": "Tung Tung Horror",
-    "cover": "/png/games/tung.webp",
-    "url": "/gamefile/tung.html"
-  },
-  {
-    "name": "Ultrakill, Webport",
-    "cover": "png/games/ultra.webp",
-    "url": "/games/ultrakill/ultrakill/index.html"
-  },
-  {
-    "name": "Undertale Yellow, Webport",
-    "cover": "/png/games/udy.webp",
-    "url": "/games/undertale-yellow/index.html"
-  },
-  {
-    "name": "Untitled Goose Game, Webport",
-    "cover": "/png/games/untitled.webp",
-    "url": "/games/UntitledGooseGameBog/index.html"
-  },
-  {
-    "name": "Vex",
-    "cover": "/png/games/vex.webp",
-    "url": "/games/vex/index.html"
-  },
-  {
-    "name": "Vex 2",
-    "cover": "/png/games/vex2.webp",
-    "url": "/gamefile/vex2.html"
-  },
-  {
-    "name": "Vex 3",
-    "cover": "/png/games/vex3.webp",
-    "url": "/games/vex3/index.html"
-  },
-  {
-    "name": "Vex 4",
-    "cover": "/png/games/vex4.webp",
-    "url": "/games/vex4/index.html"
-  },
-  {
-    "name": "Vex 5",
-    "cover": "/png/games/vex5.webp",
-    "url": "/games/vex5/index.html"
-  },
-  {
-    "name": "Vex 6",
-    "cover": "/png/games/vex6.webp",
-    "url": "/gamefile/vex6.html"
-  },
-  {
-    "name": "Vex 7",
-    "cover": "/png/games/vex7.webp",
-    "url": "/gamefile/vex7.html"
-  },
-  {
-    "name": "Vex 8",
-    "cover": "/png/games/vex8.webp",
-    "url": "/gamefile/vex8.html"
-  },
-  {
-    "name": "Volley Random",
-    "cover": "/games/volley-random/splash.png",
-    "url": "/games/volley-random/index.html"
-  },
-  {
-    "name": "Warioware D.I.Y",
-    "cover": "png/games/wariowarediy.webp",
-    "url": "/gamefile/wariowarediy.html"
-  },
-  {
-    "name": "We Become What We behold",
-    "cover": "png/games/wbwwb.webp",
-    "url": "/gamefile/wbwwb.html"
-  },
-  {
-    "name": "Webfishing, Webport",
-    "cover": "/png/games/web.webp",
-    "url": "/games/webfishing/"
-  },
-  {
-    "name": "Wordle",
-    "cover": "/png/games/world.webp",
-    "url": "/games/wordle-unlimited/index.html"
-  },
-  {
-    "name": "Worlds Hardest Game",
-    "cover": "png/games/wrdd.webp",
-    "url": "/gamefile/twhg.html"
-  },
-  {
-    "name": "Worlds Hardest Game 2",
-    "cover": "/games/worlds-hardest-game-2/the-worlds-hardest-game-2.jpg",
-    "url": "/games/worlds-hardest-game-2/index.html"
-  },
-  {
-    "name": "Worlds Hardest Game 3",
-    "cover": "/png/games/3.webp",
-    "url": "/games/worlds-hardest-game-3/index.html"
-  },
-  {
-    "name": "Yandere Simulator",
-    "cover": "/png/games/yandere.webp",
-    "url": "/gamefile/yandere.html"
-  },
-  {
-    "name": "Yoked",
-    "cover": "/png/games/yoked.webp",
-    "url": "/gamefile/yoked.html"
-  },
-  {
-    "name": "Yume Nikki",
-    "cover": "/png/games/yumi.webp",
-    "url": "/gamefile/yume.html"
-  }
+﻿[
+    {
+        "name":  "1",
+        "cover":  "png/games/1.webp",
+        "url":  "/games/1/index.html"
+    },
+    {
+        "name":  "1 on 1 Soccer",
+        "cover":  "/png/games/12.webp",
+        "url":  "/games/1on1soccer/index.html"
+    },
+    {
+        "name":  "10 Minutes Till Dawn",
+        "cover":  "/png/games/10.webp",
+        "url":  "/games/10minutestilldawn/index.html"
+    },
+    {
+        "name":  "1v1.lol",
+        "cover":  "png/games/1v1.webp",
+        "url":  "/gamefile/1v1.html"
+    },
+    {
+        "name":  "2048",
+        "cover":  "png/games/2048.webp",
+        "url":  "/games/2048/index.html"
+    },
+    {
+        "name":  "30",
+        "cover":  "/png/games/30.webp",
+        "url":  "/games/30dolar/index.html"
+    },
+    {
+        "name":  "-3",
+        "cover":  "/png/games/minus3.webp",
+        "url":  "/games/minus3/index.html"
+    },
+    {
+        "name":  "A Difficult Game About Climbing, Webport",
+        "cover":  "png/games/adgac.webp",
+        "url":  "/gamefile/adgac.html"
+    },
+    {
+        "name":  "A Game About Feeding A Blackhole",
+        "cover":  "/png/games/blackhole.webp",
+        "url":  "/gamefile/blackhole.html"
+    },
+    {
+        "name":  "A Small World Cup",
+        "cover":  "png/games/worldcup.webp",
+        "url":  "/gamefile/aswc.html"
+    },
+    {
+        "name":  "Academytale, Webport",
+        "cover":  "/png/games/academytale.webp",
+        "url":  "/games/academytale/index.html"
+    },
+    {
+        "name":  "Achievement Unlocked",
+        "cover":  "/png/games/achieve.webp",
+        "url":  "/games/achieveunlocked/index.html"
+    },
+    {
+        "name":  "ADOFAI",
+        "cover":  "png/games/adofai.webp",
+        "url":  "/games/a-dance-of-fire-and-ice/index.html"
+    },
+    {
+        "name":  "Adventure Capitalist",
+        "cover":  "/png/games/adventure.webp",
+        "url":  "/games/adventure/index.html"
+    },
+    {
+        "name":  "Amanda the adventurer, Webport",
+        "cover":  "/png/games/aman.webp",
+        "url":  "/games/amanda-the-adventurer/index.html"
+    },
+    {
+        "name":  "Among us",
+        "cover":  "/png/games/among.webp",
+        "url":  "/games/amongus/index.html"
+    },
+    {
+        "name":  "Amaze",
+        "cover":  "/png/games/amaze.webp",
+        "url":  "/games/amaze/index.html"
+    },
+    {
+        "name":  "Angry Birds",
+        "cover":  "/png/games/angry.webp",
+        "url":  "/gamefile/Angrybirds.html"
+    },
+    {
+        "name":  "Angry Birds Epic, Webport",
+        "cover":  "/png/games/epic.webp",
+        "url":  "/games/Epic/index.html"
+    },
+    {
+        "name":  "Angry Birds Online",
+        "cover":  "/png/games/angrybirdsonline.webp",
+        "url":  "/gamefile/angrybirdsonline.html"
+    },
+    {
+        "name":  "Antonblast",
+        "cover":  "/png/games/anton.webp",
+        "url":  "/gamefile/anton.html"
+    },
+    {
+        "name":  "Apes Vs Helium, Webport",
+        "cover":  "/png/games/avh.webp",
+        "url":  "/games/AVHPort/index.html"
+    },
+    {
+        "name":  "Arthur\u0027s Nightmare, Webport",
+        "cover":  "/png/games/arthursnight.webp",
+        "url":  "/gamefile/arthur.html"
+    },
+    {
+        "name":  "Bad Icecream 1",
+        "cover":  "/png/games/badice1.webp",
+        "url":  "/gamefile/badice1.html"
+    },
+    {
+        "name":  "Bad Icecream 2",
+        "cover":  "/png/games/badice2.webp",
+        "url":  "/gamefile/badice2.html"
+    },
+    {
+        "name":  "Bad Icecream 3",
+        "cover":  "/png/games/badice3.webp",
+        "url":  "/gamefile/badice3.html"
+    },
+    {
+        "name":  "Bad Parenting, Webport",
+        "cover":  "png/games/bad.webp",
+        "url":  "/games/bad/index.html"
+    },
+    {
+        "name":  "Bad Piggies",
+        "cover":  "/png/games/badp.webp",
+        "url":  "/gamefile/piggies.html"
+    },
+    {
+        "name":  "Bad time Simulator",
+        "cover":  "/png/games/badt.webp",
+        "url":  "/games/bts/index.html"
+    },
+    {
+        "name":  "Balatro, Webport",
+        "cover":  "png/games/bal.webp",
+        "url":  "/games/balatro/index.html"
+    },
+    {
+        "name":  "Baldi\u0027s Basics",
+        "cover":  "/png/games/baldi.webp",
+        "url":  "/games/baldis-basics/index.html"
+    },
+    {
+        "name":  "Baldi\u0027s Basics Birthday Bash, Webport",
+        "cover":  "/png/games/bday.webp",
+        "url":  "/games/bday/index.html"
+    },
+    {
+        "name":  "Baldi\u0027s Basics Classic Remastered, Webport",
+        "cover":  "/png/games/baldire.webp",
+        "url":  "/games/BBCR/index.html"
+    },
+    {
+        "name":  "Baldi\u0027s Basics Plus, Webport",
+        "cover":  "/png/games/baldiplus.webp",
+        "url":  "/gamefile/bbp.html"
+    },
+    {
+        "name":  "Baldi\u0027s Fun New School Plus Ultimate Edition",
+        "cover":  "/png/games/bfs.webp",
+        "url":  "/games/bfs/"
+    },
+    {
+        "name":  "Baldurs Gate 2, Webport",
+        "cover":  "/png/games/gate2.webp",
+        "url":  "/games/baldurs-gate-2/index.html"
+    },
+    {
+        "name":  "Banjo Kazooie",
+        "cover":  "/png/games/banjokazooie.webp",
+        "url":  "/gamefile/banjokazooie.html"
+    },
+    {
+        "name":  "Bart Bash",
+        "cover":  "/png/games/bartbash.webp",
+        "url":  "/gamefile/bartbash.html"
+    },
+    {
+        "name":  "Bart Blast",
+        "cover":  "/png/games/bart.webp",
+        "url":  "/gamefile/bart.html"
+    },
+    {
+        "name":  "Baseball Bros",
+        "cover":  "png/games/basebros.webp",
+        "url":  "/games/baseballbros/index.html"
+    },
+    {
+        "name":  "Basket Bros",
+        "cover":  "/png/games/basketbro.webp",
+        "url":  "/gamefile/basket.html"
+    },
+    {
+        "name":  "Basket Random",
+        "cover":  "png/games/basket.webp",
+        "url":  "/games/basket-random/index.html"
+    },
+    {
+        "name":  "Basketball stars",
+        "cover":  "/png/games/basketstars.webp",
+        "url":  "/games/basketballstars/index.html"
+    },
+    {
+        "name":  "Beatblock, Webport",
+        "cover":  "png/games/beatblock.webp",
+        "url":  "/games/beatblock/index.html"
+    },
+    {
+        "name":  "Bendy And The Ink Machine, Webport",
+        "cover":  "png/games/bendy.webp",
+        "url":  "/games/bendy/index.html"
+    },
+    {
+        "name":  "Bergentruck, Webport",
+        "cover":  "/png/games/ber.webp",
+        "url":  "/games/bergentruck/index.html"
+    },
+    {
+        "name":  "Bfdia 5b",
+        "cover":  "/png/games/bfdia5b.webp",
+        "url":  "/games/bfdia 5b/index.html"
+    },
+    {
+        "name":  "Bitlife",
+        "cover":  "png/games/bit.webp",
+        "url":  "/games/bitlife/index.html"
+    },
+    {
+        "name":  "Black Jack",
+        "cover":  "/png/games/blackjack.webp",
+        "url":  "/gamefile/BlackJack.html"
+    },
+    {
+        "name":  "Block Blast",
+        "cover":  "png/games/unnamed.webp",
+        "url":  "/games/block-blast/index.html"
+    },
+    {
+        "name":  "Bloodmoney, Webport",
+        "cover":  "/png/games/blood.webp",
+        "url":  "/games/bloodmoney/index.html"
+    },
+    {
+        "name":  "Bloon TD1",
+        "cover":  "png/games/bloons.webp",
+        "url":  "/games/bloonstd/index.html"
+    },
+    {
+        "name":  "Bloon TD2",
+        "cover":  "/png/games/blo2.webp",
+        "url":  "/games/bloonstd2/index.html"
+    },
+    {
+        "name":  "Bloon TD3",
+        "cover":  "/png/games/blo3.webp",
+        "url":  "/games/btd3/index.html"
+    },
+    {
+        "name":  "Bloon TD4",
+        "cover":  "/png/games/btd4.webp",
+        "url":  "/gamefile/bloonstd4.html"
+    },
+    {
+        "name":  "Bloons TD5",
+        "cover":  "/png/games/blo5.webp",
+        "url":  "/games/btd5/index.html"
+    },
+    {
+        "name":  "Bloons TD6",
+        "cover":  "/png/games/blo6.webp",
+        "url":  "/games/btd6/index.html"
+    },
+    {
+        "name":  "Bloxors",
+        "cover":  "/png/games/bloxorz.webp",
+        "url":  "/games/bloxors/index.html"
+    },
+    {
+        "name":  "Bombmerman",
+        "cover":  "png/games/bomberman.webp",
+        "url":  "/gamefile/bomberman.html"
+    },
+    {
+        "name":  "Bombmerman 2",
+        "cover":  "png/games/bomberman2.webp",
+        "url":  "/gamefile/bomberman2.html"
+    },
+    {
+        "name":  "Boxing Random",
+        "cover":  "png/games/boxing.webp",
+        "url":  "/gamefile/boxing.html"
+    },
+    {
+        "name":  "Brotato Paws And Claws, Webport",
+        "cover":  "png/games/paws.webp",
+        "url":  "/games/brotato2/index.html"
+    },
+    {
+        "name":  "Buckshot Roulette, Webport",
+        "cover":  "png/games/buck.webp",
+        "url":  "/games/buckshot/index.html"
+    },
+    {
+        "name":  "Burrito Bison",
+        "cover":  "png/games/burrito.webp",
+        "url":  "/games/burrito/index.html"
+    },
+    {
+        "name":  "Burrito Bison Revenge",
+        "cover":  "png/games/bbe.webp",
+        "url":  "/gamefile/bbe.html"
+    },
+    {
+        "name":  "Capuchin, Webport",
+        "cover":  "/png/games/capuchin.webp",
+        "url":  "/games/CapuchinBog/index.html"
+    },
+    {
+        "name":  "CaseOhs Basics in Eating and Fast Food, Webport",
+        "cover":  "/png/games/caseoh.webp",
+        "url":  "/gamefile/caseoh.html"
+    },
+    {
+        "name":  "Celeste, Webport",
+        "cover":  "/png/games/celeste.webp",
+        "url":  "/games/celeste/index.html"
+    },
+    {
+        "name":  "Cheese Rolling, Webport",
+        "cover":  "/png/games/cheeser.webp",
+        "url":  "/gamefile/cheese.html"
+    },
+    {
+        "name":  "Christmas Massacre, Webport",
+        "cover":  "/png/games/christmas.webp",
+        "url":  "/gamefile/christmas.html"
+    },
+    {
+        "name":  "Class Of 09, Webport",
+        "cover":  "png/games/class.webp",
+        "url":  "/games/C09/index.html"
+    },
+    {
+        "name":  "Class Of 09 Flipside, Webport",
+        "cover":  "png/games/flip.webp",
+        "url":  "/games/C09FS/index.html"
+    },
+    {
+        "name":  "Class Of 09 Re-Up, Webport",
+        "cover":  "png/games/reup.webp",
+        "url":  "/games/C09RU/index.html"
+    },
+    {
+        "name":  "Clover Pit",
+        "cover":  "/png/games/clover.webp",
+        "url":  "/gamefile/cloverpit.html"
+    },
+    {
+        "name":  "Cluster Rush",
+        "cover":  "/png/games/cluster.webp",
+        "url":  "/games/cluster/index.html"
+    },
+    {
+        "name":  "Coffee Talk",
+        "cover":  "png/games/coffee.webp",
+        "url":  "/games/coffee/index.html"
+    },
+    {
+        "name":  "Cookie Clicker",
+        "cover":  "png/games/cookie.webp",
+        "url":  "/games/cookie-clicker/index.html"
+    },
+    {
+        "name":  "Cooking Mama",
+        "cover":  "png/games/cookingmama.webp",
+        "url":  "/gamefile/cookingmama.html"
+    },
+    {
+        "name":  "Cooking Mama 2",
+        "cover":  "png/games/cookingmama2.webp",
+        "url":  "/gamefile/cookingmama2.html"
+    },
+    {
+        "name":  "Cooking Mama 3",
+        "cover":  "png/games/cookingmama3.webp",
+        "url":  "/gamefile/cookingmama3.html"
+    },
+    {
+        "name":  "Counter Stike 0.8",
+        "cover":  "/png/games/cs08.webp",
+        "url":  "/games/psp/cs/index.html"
+    },
+    {
+        "name":  "Crash Bandicoot 1",
+        "cover":  "/png/games/crash1.webp",
+        "url":  "/gamefile/crash1.html"
+    },
+    {
+        "name":  "Crash Bandicoot 2",
+        "cover":  "/png/games/crash2.webp",
+        "url":  "/gamefile/crash2.html"
+    },
+    {
+        "name":  "Crash Bandicoot 3",
+        "cover":  "/png/games/crash3.webp",
+        "url":  "/gamefile/crash3.html"
+    },
+    {
+        "name":  "Crazy Balls",
+        "cover":  "/png/games/balls.webp",
+        "url":  "/gamefile/balls.html"
+    },
+    {
+        "name":  "CrazyCattle3D, Webport",
+        "cover":  "/png/games/crazyca.webp",
+        "url":  "/games/cattle3d/index.html"
+    },
+    {
+        "name":  "Crossy Roads",
+        "cover":  "/png/games/crossy.webp",
+        "url":  "/gamefile/crossy.html"
+    },
+    {
+        "name":  "Cruelty Squad, Webport",
+        "cover":  "/png/games/cruelty.webp",
+        "url":  "/games/cruelty/index.html"
+    },
+    {
+        "name":  "Csgo Clicker",
+        "cover":  "png/games/csgo.webp",
+        "url":  "/games/csgo-clicker/index.html"
+    },
+    {
+        "name":  "Cuphead, Webport",
+        "cover":  "/png/games/cup.webp",
+        "url":  "/games/Cuphead/index.html"
+    },
+    {
+        "name":  "Customer Support, Webport",
+        "cover":  "/png/games/cus.webp",
+        "url":  "/games/CustomerSupport/index.html"
+    },
+    {
+        "name":  "Cut The Rope",
+        "cover":  "png/games/cut1.webp",
+        "url":  "/gamefile/cut.html"
+    },
+    {
+        "name":  "Cut The Rope : Time Travel",
+        "cover":  "png/games/time.webp",
+        "url":  "/gamefile/time.html"
+    },
+    {
+        "name":  "Cut The Rope Holiday",
+        "cover":  "/png/games/cut2.webp",
+        "url":  "/gamefile/hol.html"
+    },
+    {
+        "name":  "Dadish",
+        "cover":  "/png/games/dadish.webp",
+        "url":  "/gamefile/dadish.html"
+    },
+    {
+        "name":  "Dadish 2",
+        "cover":  "/png/games/dadish2.webp",
+        "url":  "/gamefile/dadish2.html"
+    },
+    {
+        "name":  "Dadish 3",
+        "cover":  "/png/games/dadish3.webp",
+        "url":  "/gamefile/dadish3.html"
+    },
+    {
+        "name":  "Dadish 3d",
+        "cover":  "/png/games/dadish3d.webp",
+        "url":  "/gamefile/dadish3d.html"
+    },
+    {
+        "name":  "Dadish Daily",
+        "cover":  "/png/games/daily.webp",
+        "url":  "/gamefile/daily.html"
+    },
+    {
+        "name":  "Danganronpa",
+        "cover":  "/png/games/dan.webp",
+        "url":  "/games/danganronpa/index.html"
+    },
+    {
+        "name":  "DEAD PLATE, Webport",
+        "cover":  "/png/games/deadp.webp",
+        "url":  "/gamefile/dead.html"
+    },
+    {
+        "name":  "Dead Tapes",
+        "cover":  "/png/games/deadta.webp",
+        "url":  "/games/deadtapesfinal/index.html"
+    },
+    {
+        "name":  "Deadseat, Webport",
+        "cover":  "/png/games/deadseat.webp",
+        "url":  "/games/deadseat/index.html"
+    },
+    {
+        "name":  "Death Run 3D",
+        "cover":  "png/games/death.webp",
+        "url":  "/games/death-run-3d/index.html"
+    },
+    {
+        "name":  "Deltarune, Webport",
+        "cover":  "/png/games/deltarune.webp",
+        "url":  "/gamefile/deltarune.html"
+    },
+    {
+        "name":  "Deltatraveler, Webport",
+        "cover":  "/png/games/deltatr.webp",
+        "url":  "/gamefile/deltatr.html"
+    },
+    {
+        "name":  "Diablo",
+        "cover":  "/png/games/diablo.webp",
+        "url":  "/games/diablo/index.html"
+    },
+    {
+        "name":  "Dice A Million, Webport",
+        "cover":  "/png/games/diceamillion.webp",
+        "url":  "/gamefile/diceamillion.html"
+    },
+    {
+        "name":  "Dinosaur",
+        "cover":  "/png/games/dino.webp",
+        "url":  "/games/dinosaur/index.html"
+    },
+    {
+        "name":  "Do Not Take This Cat Home, Webport",
+        "cover":  "png/games/dont.webp",
+        "url":  "/games/donottakethiscathome/index.html"
+    },
+    {
+        "name":  "Doge Miner",
+        "cover":  "/png/games/doge.webp",
+        "url":  "/gamefile/Doge Miner.html"
+    },
+    {
+        "name":  "Doge Miner 2",
+        "cover":  "/png/games/dogeminer2.webp",
+        "url":  "/gamefile/dm2.html"
+    },
+    {
+        "name":  "Dome Keeper, Webport",
+        "cover":  "/png/games/domekeeper.webp",
+        "url":  "/games/domekeeper/index.html"
+    },
+    {
+        "name":  "Doodle Jump",
+        "cover":  "png/games/doodle.webp",
+        "url":  "/gamefile/Doodle Jump.html"
+    },
+    {
+        "name":  "Doom",
+        "cover":  "/png/games/doom.webp",
+        "url":  "/games/doom/index.html"
+    },
+    {
+        "name":  "Doom 2",
+        "cover":  "/png/games/doom2.webp",
+        "url":  "/gamefile/doom2.html"
+    },
+    {
+        "name":  "Doom 3",
+        "cover":  "/png/games/doom3.webp",
+        "url":  "/games/doom3/index.html"
+    },
+    {
+        "name":  "Doom 64",
+        "cover":  "/png/games/doom64.webp",
+        "url":  "/gamefile/doom64.html"
+    },
+    {
+        "name":  "Dr. Mario",
+        "cover":  "png/games/drmario.webp",
+        "url":  "/gamefile/drmario.html"
+    },
+    {
+        "name":  "Dreadhead Parkour",
+        "cover":  "png/games/dread.webp",
+        "url":  "/gamefile/dread.html"
+    },
+    {
+        "name":  "Drift Boss",
+        "cover":  "png/games/driftboss.webp",
+        "url":  "/games/drift-boss/index.html"
+    },
+    {
+        "name":  "Drift Hunter",
+        "cover":  "png/games/hunt.webp",
+        "url":  "/gamefile/drift.html"
+    },
+    {
+        "name":  "Drive Mad",
+        "cover":  "png/games/drive.webp",
+        "url":  "/games/drive-mad/index.html"
+    },
+    {
+        "name":  "Duck Life 1",
+        "cover":  "png/games/duck1.webp",
+        "url":  "/games/ducklife1/index.html"
+    },
+    {
+        "name":  "Duck Life 2",
+        "cover":  "/png/games/duck2.webp",
+        "url":  "/games/ducklife2/index.html"
+    },
+    {
+        "name":  "Duck Life 3",
+        "cover":  "/png/games/duck3.webp",
+        "url":  "/games/ducklife3/index.html"
+    },
+    {
+        "name":  "Duck Life 4",
+        "cover":  "/png/games/duck4.webp",
+        "url":  "/games/ducklife4/index.html"
+    },
+    {
+        "name":  "Duck Life 5",
+        "cover":  "/png/games/duck5.webp",
+        "url":  "/games/ducklife5/index.html"
+    },
+    {
+        "name":  "Duck Life 6",
+        "cover":  "/png/games/ducklife6.webp",
+        "url":  "/games/ducklife6/index.html"
+    },
+    {
+        "name":  "Duck Life 7",
+        "cover":  "/png/games/ducklife7.webp",
+        "url":  "/games/ducklife7/index.html"
+    },
+    {
+        "name":  "Duck Life 8, Webport",
+        "cover":  "/png/games/ducklifeadc.webp",
+        "url":  "/games/ducklifeadv/"
+    },
+    {
+        "name":  "Dumb Ways To Die",
+        "cover":  "/png/games/dumb.webp",
+        "url":  "/games/dumb/index.html"
+    },
+    {
+        "name":  "Eggy Car",
+        "cover":  "/png/games/eggycar.webp",
+        "url":  "/gamefile/eggycar.html"
+    },
+    {
+        "name":  "Escape Road",
+        "cover":  "/png/games/road.webp",
+        "url":  "/gamefile/escape.html"
+    },
+    {
+        "name":  "Escape Road 2",
+        "cover":  "/png/games/escape2.webp",
+        "url":  "/gamefile/road2.html"
+    },
+    {
+        "name":  "Escape Road City 2",
+        "cover":  "/png/games/roadcity.webp",
+        "url":  "/gamefile/roadcity2.html"
+    },
+    {
+        "name":  "Falling Fred",
+        "cover":  "/png/games/super-falling-fred.webp",
+        "url":  "/games/falling/index.html"
+    },
+    {
+        "name":  "Fallout",
+        "cover":  "/png/games/fallout.webp",
+        "url":  "/gamefile/falloutt.html"
+    },
+    {
+        "name":  "Fallout 2, Webport",
+        "cover":  "/png/games/fallout2.webp",
+        "url":  "/games/fo2/index.html"
+    },
+    {
+        "name":  "Fancy Pants Adventures",
+        "cover":  "/png/games/fpa1.webp",
+        "url":  "/games/fancypantsadventures/index.html"
+    },
+    {
+        "name":  "Fancy Pants Adventures 2",
+        "cover":  "/png/games/fancy2.webp",
+        "url":  "/games/fancypantsadventures2/index.html"
+    },
+    {
+        "name":  "Fancy Pants Adventures 3",
+        "cover":  "/png/games/fpa3.webp",
+        "url":  "/gamefile/fpa3.html"
+    },
+    {
+        "name":  "Fears To Fathom: Home Alone, Webport",
+        "cover":  "/png/games/fear.webp",
+        "url":  "/games/ftf/index.html"
+    },
+    {
+        "name":  "Final Fantasy VII",
+        "cover":  "/png/games/ffvii.webp",
+        "url":  "/gamefile/ffvii.html"
+    },
+    {
+        "name":  "Fireboy and Watergirl",
+        "cover":  "/png/games/fire1.webp",
+        "url":  "/games/watergirl-1/index.html"
+    },
+    {
+        "name":  "Fireboy and Watergirl 2",
+        "cover":  "/png/games/fire2.webp",
+        "url":  "/games/watergirl-2/index.html"
+    },
+    {
+        "name":  "Fireboy and Watergirl 3",
+        "cover":  "/png/games/fire3.webp",
+        "url":  "/games/watergirl-3/index.html"
+    },
+    {
+        "name":  "Fireboy and Watergirl 4",
+        "cover":  "/png/games/fire4.webp",
+        "url":  "/games/watergirl-4/index.html"
+    },
+    {
+        "name":  "FISH, Webport",
+        "cover":  "/png/games/fish.webp",
+        "url":  "/gamefile/fish.html"
+    },
+    {
+        "name":  "Five Nights At Candys",
+        "cover":  "/png/games/fnac.webp",
+        "url":  "/gamefile/fnac.html"
+    },
+    {
+        "name":  "Five Nights At Candys 2",
+        "cover":  "/png/games/fnac2.webp",
+        "url":  "/gamefile/fnac2.html"
+    },
+    {
+        "name":  "Five Nights At Epsteins, Webport",
+        "cover":  "/png/games/fnae.webp",
+        "url":  "/gamefile/fnae.html"
+    },
+    {
+        "name":  "Five Nights At Last Breath, Webport",
+        "cover":  "/png/games/breath.webp",
+        "url":  "/gamefile/breath.html"
+    },
+    {
+        "name":  "Flappy bird",
+        "cover":  "/png/games/flapp.webp",
+        "url":  "/games/flappybird/index.html"
+    },
+    {
+        "name":  "Flying Gorilla, Webport",
+        "cover":  "/png/games/flying.webp",
+        "url":  "/gamefile/gorilla.html"
+    },
+    {
+        "name":  "FNAF",
+        "cover":  "png/games/splash.webp",
+        "url":  "/games/fnaf/index.html"
+    },
+    {
+        "name":  "FNAF Sisters Location",
+        "cover":  "/png/games/sister.webp",
+        "url":  "/gamefile/fnafs.html"
+    },
+    {
+        "name":  "FNAF Ultimate Custom Night",
+        "cover":  "/png/games/custom.webp",
+        "url":  "/gamefile/fnafu.html"
+    },
+    {
+        "name":  "FNAF World",
+        "cover":  "/png/games/fnafworld.webp",
+        "url":  "/gamefile/fnafw.html"
+    },
+    {
+        "name":  "FNAF World Refreshed",
+        "cover":  "/png/games/fne.webp",
+        "url":  "/games/fnw/index.html"
+    },
+    {
+        "name":  "FNAF2",
+        "cover":  "/png/games/fnaf2.webp",
+        "url":  "/games/2/index.html"
+    },
+    {
+        "name":  "FNAF3",
+        "cover":  "/png/games/3f.webp",
+        "url":  "/games/3/index.html"
+    },
+    {
+        "name":  "FNAF4",
+        "cover":  "/png/games/fnaf4.webp",
+        "url":  "/games/fnaf4/index.html"
+    },
+    {
+        "name":  "FNAF4 Halloween",
+        "cover":  "/png/games/hollowween.webp",
+        "url":  "/gamefile/ween.html"
+    },
+    {
+        "name":  "FNAW",
+        "cover":  "/png/games/fnaw.webp",
+        "url":  "/gamefile/fnaw.html"
+    },
+    {
+        "name":  "FNF, Friday Night Funkin",
+        "cover":  "png/games/fnf.webp",
+        "url":  "/gamefile/fnf.html"
+    },
+    {
+        "name":  "Friday Night Funkin Bop City",
+        "cover":  "png/games/bopcity.webp",
+        "url":  "/gamefile/bopcity.html"
+    },
+    {
+        "name":  "Football Bros",
+        "cover":  "png/games/footbros.webp",
+        "url":  "/games/footballbros/index.html"
+    },
+    {
+        "name":  "Fruit Ninja",
+        "cover":  "/png/games/ninja.webp",
+        "url":  "/games/fruitninja/index.html"
+    },
+    {
+        "name":  "Fused240",
+        "cover":  "png/games/fused240.webp",
+        "url":  "/games/fused240/index.html"
+    },
+    {
+        "name":  "Gabriel\u0027s Awesome Schoolhouse, Webport",
+        "cover":  "/png/games/gabriel.webp",
+        "url":  "/gamefile/gash.html"
+    },
+    {
+        "name":  "Gacha Life",
+        "cover":  "/png/games/gachalife.webp",
+        "url":  "/gamefile/life.html"
+    },
+    {
+        "name":  "Gacha Verse",
+        "cover":  "/png/games/gachaverse.webp",
+        "url":  "/gamefile/verse.html"
+    },
+    {
+        "name":  "Getaway Shootout",
+        "cover":  "/png/games/getaway.webp",
+        "url":  "/games/getaway-shootout/index.html"
+    },
+    {
+        "name":  "Getting Over It, Webport",
+        "cover":  "/png/games/gettin.webp",
+        "url":  "/gamefile/goi.html"
+    },
+    {
+        "name":  "Gladihoppers",
+        "cover":  "/png/games/glad.webp",
+        "url":  "/gamefile/Gladihoppers.html"
+    },
+    {
+        "name":  "Go to bed, Webport",
+        "cover":  "/png/games/gotobed.webp",
+        "url":  "/games/GTB/index.html"
+    },
+    {
+        "name":  "Google Baseball",
+        "cover":  "/png/games/google.webp",
+        "url":  "/gamefile/gbase.html"
+    },
+    {
+        "name":  "Gorilla Tag, Webport",
+        "cover":  "/png/games/gtag.webp",
+        "url":  "/games/gtag/index.html"
+    },
+    {
+        "name":  "Granny",
+        "cover":  "/png/games/granny.webp",
+        "url":  "/games/Granny/index.html"
+    },
+    {
+        "name":  "Granny 2",
+        "cover":  "/png/games/gran2.webp",
+        "url":  "/gamefile/Granny 2.html"
+    },
+    {
+        "name":  "Granny 3",
+        "cover":  "/png/games/gran3.webp",
+        "url":  "/gamefile/Granny 3.html"
+    },
+    {
+        "name":  "Gravity run",
+        "cover":  "/png/games/gravity.webp",
+        "url":  "/games/gravity-run/index.html"
+    },
+    {
+        "name":  "Greybox",
+        "cover":  "/png/games/grey.webp",
+        "url":  "/games/graybox/index.html"
+    },
+    {
+        "name":  "GTA I",
+        "cover":  "/png/games/gta.webp",
+        "url":  "/games/gta/index.html"
+    },
+    {
+        "name":  "GTA II",
+        "cover":  "/png/games/gta2.webp",
+        "url":  "/games/gta2/index.html"
+    },
+    {
+        "name":  "GTA III",
+        "cover":  "/png/games/gta3.webp",
+        "url":  "/games/gta3/index.html"
+    },
+    {
+        "name":  "GTA San Andreas",
+        "cover":  "/png/games/gtasan.webp",
+        "url":  "/games/gtasan/index.html"
+    },
+    {
+        "name":  "GTA Vice City, Webport",
+        "cover":  "/png/games/vice.webp",
+        "url":  "/games/vicecity/index.html"
+    },
+    {
+        "name":  "Gun Mayhem",
+        "cover":  "/png/games/gun.webp",
+        "url":  "/games/funmayhem/index.html"
+    },
+    {
+        "name":  "Gun Mayhem 2",
+        "cover":  "png/games/gun2.webp",
+        "url":  "/games/funmayhem2/index.html"
+    },
+    {
+        "name":  "Gun Mayhem Redux",
+        "cover":  "/png/games/gun3.webp",
+        "url":  "/games/funmayhemredux/index.html"
+    },
+    {
+        "name":  "Gunspin",
+        "cover":  "/png/games/guns.webp",
+        "url":  "/games/gunspin/index.html"
+    },
+    {
+        "name":  "Half life",
+        "cover":  "/png/games/halflife.webp",
+        "url":  "/games/hl-main/index.html"
+    },
+    {
+        "name":  "Half life: Opposing Force",
+        "cover":  "/png/games/hlof.webp",
+        "url":  "/gamefile/hlof.html"
+    },
+    {
+        "name":  "Happy Wheels",
+        "cover":  "/png/games/happy.webp",
+        "url":  "/games/happywheels/index.html"
+    },
+    {
+        "name":  "Hollow Knight, Webport",
+        "cover":  "png/games/hollow.webp",
+        "url":  "/games/hollowknight/index.html"
+    },
+    {
+        "name":  "Hotline Miami, Webport",
+        "cover":  "png/games/hot.webp",
+        "url":  "/games/whores/index.html"
+    },
+    {
+        "name":  "House Of Hazards",
+        "cover":  "/png/games/house.webp",
+        "url":  "/games/houseofhazards/index.html"
+    },
+    {
+        "name":  "HUMAN EXPENDITURE PROGRAM, Webport",
+        "cover":  "png/games/human.webp",
+        "url":  "/gamefile/human.html"
+    },
+    {
+        "name":  "Ice Baby Quest 2",
+        "cover":  "png/games/icebaby2.webp",
+        "url":  "/games/icebaby2/index.html"
+    },
+    {
+        "name":  "Idle Breakout",
+        "cover":  "png/games/idle.webp",
+        "url":  "/games/idle-breakout/index.html"
+    },
+    {
+        "name":  "Iron Lung, Webport",
+        "cover":  "png/games/iroonlung.webp",
+        "url":  "/games/ironlung/index.html"
+    },
+    {
+        "name":  "Jeffrey Epstein Basics In Education And Kidnapping, Webport",
+        "cover":  "/png/games/jeb.webp",
+        "url":  "/gamefile/jeb.html"
+    },
+    {
+        "name":  "Jeffys Basics, Webport",
+        "cover":  "/png/games/jeffys.webp",
+        "url":  "/games/JeffysBasicsBog/index.html"
+    },
+    {
+        "name":  "Jelly Drift",
+        "cover":  "/png/games/jelly.webp",
+        "url":  "/gamefile/jelly.html"
+    },
+    {
+        "name":  "Jetpack Joyride",
+        "cover":  "/png/games/jet.webp",
+        "url":  "/games/jetpackjoyride/index.html"
+    },
+    {
+        "name":  "Jumbo Mario",
+        "cover":  "/png/games/jumbo.webp",
+        "url":  "/games/JumboMario/index.html"
+    },
+    {
+        "name":  "Karlson, Webport",
+        "cover":  "/png/games/karlson.webp",
+        "url":  "/gamefile/Karlson.html"
+    },
+    {
+        "name":  "Karlson2D, Webport",
+        "cover":  "/png/games/karlson2d.webp",
+        "url":  "/games/karlson2d/truffledkarlson2d/index.html"
+    },
+    {
+        "name":  "Kindergarten 1, Webport",
+        "cover":  "/png/games/kind1.webp",
+        "url":  "/games/kindergarten/1/index.html"
+    },
+    {
+        "name":  "Kindergarten 2, Webport",
+        "cover":  "/png/games/kind2.webp",
+        "url":  "/games/kindergarten/2/index.html"
+    },
+    {
+        "name":  "Kindergarten 3, Webport",
+        "cover":  "/png/games/kind3.webp",
+        "url":  "/games/Kindergarten3/index.html"
+    },
+    {
+        "name":  "Kirby Soft And Wet, Webport",
+        "cover":  "/png/games/kirbysoftandwet.webp",
+        "url":  "/gamefile/kirbysoftandwet.html"
+    },
+    {
+        "name":  "Klifur",
+        "cover":  "/png/games/kil.webp",
+        "url":  "/games/kilfur/index.html"
+    },
+    {
+        "name":  "Lacey\u0027s Flash Games, Webport",
+        "cover":  "png/games/lacey.webp",
+        "url":  "/gamefile/lacy.html"
+    },
+    {
+        "name":  "Learn To Fly",
+        "cover":  "png/games/learn1.webp",
+        "url":  "/games/learntofly/index.html"
+    },
+    {
+        "name":  "Learn To Fly 2",
+        "cover":  "/png/games/learn2.webp",
+        "url":  "/games/learntofly2/index.html"
+    },
+    {
+        "name":  "Learn To Fly 3",
+        "cover":  "/png/games/learn3.webp",
+        "url":  "/games/ltf3/index.html"
+    },
+    {
+        "name":  "Learn To Fly Idle",
+        "cover":  "/png/games/learni.webp",
+        "url":  "/games/learntoflyidle/index.html"
+    },
+    {
+        "name":  "Lego Star Wars",
+        "cover":  "/png/games/legostarwars.webp",
+        "url":  "/gamefile/legostarwars.html"
+    },
+    {
+        "name":  "Level Devil",
+        "cover":  "/png/games/level.webp",
+        "url":  "/games/lvldevil/index.html"
+    },
+    {
+        "name":  "Line Rider",
+        "cover":  "/png/games/line.webp",
+        "url":  "/games/linerider/index.html"
+    },
+    {
+        "name":  "Little Alchemy",
+        "cover":  "/png/games/lil.webp",
+        "url":  "/games/littlealchemy/index.html"
+    },
+    {
+        "name":  "Little Alchemy 2",
+        "cover":  "/png/games/little2.webp",
+        "url":  "/gamefile/little2.html"
+    },
+    {
+        "name":  "Little Big Planet",
+        "cover":  "/png/games/lbp.webp",
+        "url":  "/games/lbp/index.html"
+    },
+    {
+        "name":  "Madness Melee",
+        "cover":  "/png/games/madness.webp",
+        "url":  "/games/bogtruffled/index.html"
+    },
+    {
+        "name":  "Mario party 1",
+        "cover":  "/png/games/marioparty1.webp",
+        "url":  "/gamefile/marioparty.html"
+    },
+    {
+        "name":  "Mario party 2",
+        "cover":  "/png/games/marioparty2.webp",
+        "url":  "/gamefile/marioparty2.html"
+    },
+    {
+        "name":  "Mario party 3",
+        "cover":  "/png/games/marioparty3.webp",
+        "url":  "/gamefile/marioparty3.html"
+    },
+    {
+        "name":  "Megaman",
+        "cover":  "/png/games/megaman.webp",
+        "url":  "/gamefile/megaman.html"
+    },
+    {
+        "name":  "Melon Playground",
+        "cover":  "/png/games/melon.webp",
+        "url":  "/games/melon-playground/index.html"
+    },
+    {
+        "name":  "Merge Rot",
+        "cover":  "/png/games/rot.webp",
+        "url":  "/games/mergerot/index.html"
+    },
+    {
+        "name":  "Milkman karlson, Webport",
+        "cover":  "png/games/milk.webp",
+        "url":  "/games/milk/index.html"
+    },
+    {
+        "name":  "Minecraft 1.12.2",
+        "cover":  "/games/eglar/1.12.webp",
+        "url":  "/games/eglar/1dot12dot2/index.html"
+    },
+    {
+        "name":  "Minecraft 1.8.8",
+        "cover":  "/games/eglar/1.8.webp",
+        "url":  "/games/eglar/EaglercraftX_1dot8_Web/index.html"
+    },
+    {
+        "name":  "Minecraft Pocket Edition, Webport",
+        "cover":  "/png/games/mcpe.webp",
+        "url":  "/games/mcpe/index.html"
+    },
+    {
+        "name":  "Minecraft Wurst",
+        "cover":  "/games/eglar/wurst.webp",
+        "url":  "/games/eglar/clwurst.html"
+    },
+    {
+        "name":  "Minesweeper Mania",
+        "cover":  "/png/games/minese.webp",
+        "url":  "/gamefile/minesweepermania.html"
+    },
+    {
+        "name":  "Minesweeper Plus, Webport",
+        "cover":  "/png/games/mineseplu.webp",
+        "url":  "/gamefile/mineplus.html"
+    },
+    {
+        "name":  "Monkey Mart",
+        "cover":  "png/games/monkey.webp",
+        "url":  "/games/MonkeyMart/index.html"
+    },
+    {
+        "name":  "Moto X3M",
+        "cover":  "/png/games/moto.webp",
+        "url":  "/games/motox3m/index.html"
+    },
+    {
+        "name":  "My teardrop, daniel",
+        "cover":  "/png/games/mytear.webp",
+        "url":  "/gamefile/mytear.html"
+    },
+    {
+        "name":  "n-gon",
+        "cover":  "/png/games/ngon.webp",
+        "url":  "/games/n-gon/index.html"
+    },
+    {
+        "name":  "Nazi Zombies: Portable",
+        "cover":  "png/games/nazi.webp",
+        "url":  "/gamefile/nzp.html"
+    },
+    {
+        "name":  "Needy Streamer Overload, Webport",
+        "cover":  "/png/games/nso.webp",
+        "url":  "/games/nso/index.html"
+    },
+    {
+        "name":  "New Super Mario Bros",
+        "cover":  "/png/games/nsmb.webp",
+        "url":  "/games/nsmb/index.html"
+    },
+    {
+        "name":  "Node Buster, Webport",
+        "cover":  "/png/games/nodebuster.webp",
+        "url":  "/games/nodebuster/index.html"
+    },
+    {
+        "name":  "Nubbys Number Factory, Webport",
+        "cover":  "/png/games/nubby.webp",
+        "url":  "/gamefile/nubby.html"
+    },
+    {
+        "name":  "Om Nom Run",
+        "cover":  "png/games/omnomrun.webp",
+        "url":  "/gamefile/omnomrun.html"
+    },
+    {
+        "name":  "OMORI, Webport",
+        "cover":  "png/games/omori.webp",
+        "url":  "/gamefile/OMORI.html"
+    },
+    {
+        "name":  "Oneshot, Webport",
+        "cover":  "png/games/oneshot.webp",
+        "url":  "/gamefile/oneshot.html"
+    },
+    {
+        "name":  "Orange Roulette",
+        "cover":  "/png/games/orange.webp",
+        "url":  "/gamefile/orange.html"
+    },
+    {
+        "name":  "Oshi Oshi Punch",
+        "cover":  "/png/games/oshi.webp",
+        "url":  "/gamefile/onshi.html"
+    },
+    {
+        "name":  "Osu!",
+        "cover":  "/png/games/osu.webp",
+        "url":  "/games/osu!/index.html"
+    },
+    {
+        "name":  "Overburden, Webport",
+        "cover":  "/png/games/overburden.webp",
+        "url":  "/gamefile/overburden.html"
+    },
+    {
+        "name":  "OvO",
+        "cover":  "png/games/ovo.webp",
+        "url":  "/games/ovo/index.html"
+    },
+    {
+        "name":  "OvO 2",
+        "cover":  "/png/games/ovo2.webp",
+        "url":  "/games/OvO2/index.html"
+    },
+    {
+        "name":  "OvO Dimensions",
+        "cover":  "/png/games/ovodi.webp",
+        "url":  "/games/OvoDimensions/index.html"
+    },
+    {
+        "name":  "Pacman",
+        "cover":  "/png/games/pacman.webp",
+        "url":  "/games/pacman/index.html"
+    },
+    {
+        "name":  "Pacman World",
+        "cover":  "/png/games/pacmanworld.webp",
+        "url":  "/gamefile/pacmanw.html"
+    },
+    {
+        "name":  "Pacman World 2",
+        "cover":  "/png/games/pacmanworld2.webp",
+        "url":  "/gamefile/pacmanw2.html"
+    },
+    {
+        "name":  "Paint Gal Adventures",
+        "cover":  "/png/games/paintgal.webp",
+        "url":  "/games/paintbog/Paint Gal Adventures.html"
+    },
+    {
+        "name":  "Papas Bakeria",
+        "cover":  "/png/games/bake.webp",
+        "url":  "/games/papasbakeria/index.html"
+    },
+    {
+        "name":  "Papas Burgeria",
+        "cover":  "/png/games/burger.webp",
+        "url":  "/games/papasburgeria/index.html"
+    },
+    {
+        "name":  "Papas Cheeseria",
+        "cover":  "/png/games/cheese.webp",
+        "url":  "/games/papascheeseria/index.html"
+    },
+    {
+        "name":  "Papas Donuteria",
+        "cover":  "/png/games/donut.webp",
+        "url":  "/games/papasdonuteria/index.html"
+    },
+    {
+        "name":  "Papas Freezeria",
+        "cover":  "/png/games/freeze.webp",
+        "url":  "/games/papasfreezeria/index.html"
+    },
+    {
+        "name":  "Papas Pizzaeria",
+        "cover":  "/png/games/pizza.webp",
+        "url":  "/games/papaspizza/index.html"
+    },
+    {
+        "name":  "Paper Mario",
+        "cover":  "/png/games/papermario.webp",
+        "url":  "/gamefile/papermario.html"
+    },
+    {
+        "name":  "Paperio 2",
+        "cover":  "/png/games/paperio2.webp",
+        "url":  "/games/paperio2/index.html"
+    },
+    {
+        "name":  "Papers, Please",
+        "cover":  "/png/games/papers.webp",
+        "url":  "/gamefile/papers.html"
+    },
+    {
+        "name":  "Parappa The Rapper",
+        "cover":  "/png/games/rapper.webp",
+        "url":  "/games/paps/index.html"
+    },
+    {
+        "name":  "Parappa The Rapper 2",
+        "cover":  "/png/games/parappa2.webp",
+        "url":  "/games/parappa2/index.html"
+    },
+    {
+        "name":  "Peaks of Yore, Webport",
+        "cover":  "png/games/peaksofyore.webp",
+        "url":  "/gamefile/peaksofyore.html"
+    },
+    {
+        "name":  "Peggle",
+        "cover":  "png/games/peggle.webp",
+        "url":  "/gamefile/Peggle.html"
+    },
+    {
+        "name":  "People Playground, Webport",
+        "cover":  "png/games/peoplepg.webp",
+        "url":  "/games/PPG/index.html"
+    },
+    {
+        "name":  "Pixel Gun 3D",
+        "cover":  "/png/games/pixelgun.webp",
+        "url":  "/games/pixl/index.html"
+    },
+    {
+        "name":  "Pizza Tower, Webport",
+        "cover":  "/png/games/pizzatower.webp",
+        "url":  "/gamefile/Pizza Tower.html"
+    },
+    {
+        "name":  "Pizza Tower: Scoutdigo",
+        "cover":  "/png/games/pts.webp",
+        "url":  "/gamefile/pts.html"
+    },
+    {
+        "name":  "Plants VS Zombies",
+        "cover":  "/png/games/pvz.webp",
+        "url":  "/gamefile/pvs.html"
+    },
+    {
+        "name":  "Plants VS Zombies Garden Endless",
+        "cover":  "/png/games/pvz2.webp",
+        "url":  "/games/pvzge/index.html"
+    },
+    {
+        "name":  "Pokemon Academy Life Forever",
+        "cover":  "/png/games/pokemonacademy.webp",
+        "url":  "/gamefile/pokemonacademy.html"
+    },
+    {
+        "name":  "Pokemon Blue",
+        "cover":  "/png/games/blue.webp",
+        "url":  "/gamefile/blue.html"
+    },
+    {
+        "name":  "Pokemon Crystal",
+        "cover":  "/png/games/crystal.webp",
+        "url":  "/gamefile/blob.html"
+    },
+    {
+        "name":  "Pokemon Emerald",
+        "cover":  "/png/games/em.webp",
+        "url":  "/gamefile/em.html"
+    },
+    {
+        "name":  "Pokemon Gold",
+        "cover":  "/png/games/gold.webp",
+        "url":  "/gamefile/red.html"
+    },
+    {
+        "name":  "Pokemon Red",
+        "cover":  "/png/games/pokemonfirered.webp",
+        "url":  "/gamefile/red.html"
+    },
+    {
+        "name":  "Polytrack",
+        "cover":  "png/games/poly.webp",
+        "url":  "/games/polytrack/index.html"
+    },
+    {
+        "name":  "Portal",
+        "cover":  "png/games/portal.webp",
+        "url":  "/games/portal/index.html"
+    },
+    {
+        "name":  "Postal, Webport",
+        "cover":  "/png/games/postal.webp",
+        "url":  "/gamefile/postal.html"
+    },
+    {
+        "name":  "Pretend its not there, Webport",
+        "cover":  "/png/games/pre.webp",
+        "url":  "/games/pretenditsnotthere/index.html"
+    },
+    {
+        "name":  "Quake",
+        "cover":  "png/games/quake.webp",
+        "url":  "/games/quake/index.html"
+    },
+    {
+        "name":  "Quake II",
+        "cover":  "png/games/quakeii.webp",
+        "url":  "/games/quakeii/index.html"
+    },
+    {
+        "name":  "Quake III",
+        "cover":  "png/games/quakeiii.webp",
+        "url":  "/games/quakeiii/Quake3.htm"
+    },
+    {
+        "name":  "Raft Wars",
+        "cover":  "/png/games/raft1.webp",
+        "url":  "/games/raft-wars/index.html"
+    },
+    {
+        "name":  "Raft Wars 2",
+        "cover":  "/png/games/raft2.webp",
+        "url":  "/games/raft-wars-2/index.html"
+    },
+    {
+        "name":  "RAFT, Webport",
+        "cover":  "/png/games/raft.webp",
+        "url":  "/games/raft/index.html"
+    },
+    {
+        "name":  "Ragdoll Archers",
+        "cover":  "/png/games/archer.webp",
+        "url":  "/games/ragdoll-archers/index.html"
+    },
+    {
+        "name":  "Ragdoll Hit",
+        "cover":  "/png/games/hit.webp",
+        "url":  "/games/ragdoll/index.html"
+    },
+    {
+        "name":  "Raldi\u0027s Crack House",
+        "cover":  "/png/games/raldi.webp",
+        "url":  "/games/raldi/index.html"
+    },
+    {
+        "name":  "Rayman",
+        "cover":  "/png/games/rayman.webp",
+        "url":  "/gamefile/rayman.html"
+    },
+    {
+        "name":  "RE:RUN, Webport",
+        "cover":  "png/games/rerun.webp",
+        "url":  "/games/rerun/index.html"
+    },
+    {
+        "name":  "REPO, Webport",
+        "cover":  "/png/games/repo.webp",
+        "url":  "/games/repo/index.html"
+    },
+    {
+        "name":  "Resident Evil 1",
+        "cover":  "png/games/res1.webp",
+        "url":  "/gamefile/res1.html"
+    },
+    {
+        "name":  "Resident Evil 2",
+        "cover":  "png/games/res2.webp",
+        "url":  "/gamefile/res2.html"
+    },
+    {
+        "name":  "Retro Bowl",
+        "cover":  "png/games/retro.webp",
+        "url":  "/games/retro-bowl/index.html"
+    },
+    {
+        "name":  "Retro Bowl College",
+        "cover":  "png/games/retroc.webp",
+        "url":  "/games/rbcollege/index.html"
+    },
+    {
+        "name":  "Riddle School",
+        "cover":  "png/games/riddle1.webp",
+        "url":  "/games/riddleschool/index.html"
+    },
+    {
+        "name":  "Riddle School 2",
+        "cover":  "/png/games/riddle2.webp",
+        "url":  "/games/sriddleschool2/index.html"
+    },
+    {
+        "name":  "Riddle School 3",
+        "cover":  "/png/games/riddle3.webp",
+        "url":  "/games/riddleschool3/index.html"
+    },
+    {
+        "name":  "Riddle School 4",
+        "cover":  "/png/games/riddle4.webp",
+        "url":  "/games/riddleschool4/index.html"
+    },
+    {
+        "name":  "Riddle School 5",
+        "cover":  "/png/games/riddle5.webp",
+        "url":  "/games/riddleschool5/index.html"
+    },
+    {
+        "name":  "Riddle School Transfer",
+        "cover":  "/png/games/riddletr.webp",
+        "url":  "/games/riddleschooltransfer/index.html"
+    },
+    {
+        "name":  "Riddle School Transfer 2",
+        "cover":  "/png/games/riddletr2.webp",
+        "url":  "/games/riddleschooltransfer2/index.html"
+    },
+    {
+        "name":  "Rooftop Snipers",
+        "cover":  "/png/games/roof2.webp",
+        "url":  "/games/rooftop-snipers/index.html"
+    },
+    {
+        "name":  "Rooftop Snipers 2",
+        "cover":  "/png/games/roof1.webp",
+        "url":  "/games/rooftop-snipers-2/index.html"
+    },
+    {
+        "name":  "Run",
+        "cover":  "png/games/run1.webp",
+        "url":  "/gamefile/run.html"
+    },
+    {
+        "name":  "Run 2",
+        "cover":  "png/games/run2.webp",
+        "url":  "/gamefile/run2.html"
+    },
+    {
+        "name":  "Run 3",
+        "cover":  "png/games/run3.webp",
+        "url":  "/gamefile/run3.html"
+    },
+    {
+        "name":  "Running Fred, Webport",
+        "cover":  "png/games/fred.webp",
+        "url":  "/games/fred/index.html"
+    },
+    {
+        "name":  "Saihate Station, Webport",
+        "cover":  "png/games/saihatestation.webp",
+        "url":  "/gamefile/saihatestation.html"
+    },
+    {
+        "name":  "Sandboxels",
+        "cover":  "png/games/sand.webp",
+        "url":  "/gamefile/Sandboxels.html"
+    },
+    {
+        "name":  "Sanic Ball, Webport",
+        "cover":  "png/games/sanicball.webp",
+        "url":  "/games/ball/index.html"
+    },
+    {
+        "name":  "Scary Path",
+        "cover":  "png/games/path.webp",
+        "url":  "/games/scary-path/index.html"
+    },
+    {
+        "name":  "Schoolboy Runaway, Webport",
+        "cover":  "/png/games/runaway.webp",
+        "url":  "/gamefile/runaway.html"
+    },
+    {
+        "name":  "Shift At Midnight, Webport",
+        "cover":  "/png/games/shift.webp",
+        "url":  "/gamefile/shift.html"
+    },
+    {
+        "name":  "Silksong, Webport",
+        "cover":  "png/games/silk.webp",
+        "url":  "/games/silk/index.html"
+    },
+    {
+        "name":  "Skibidi Shooter",
+        "cover":  "/png/games/ski.webp",
+        "url":  "/games/skibidi-shooter/index.html"
+    },
+    {
+        "name":  "Slender: The 8 Pages, Webport",
+        "cover":  "/png/games/slender.webp",
+        "url":  "/games/slender/index.html"
+    },
+    {
+        "name":  "Slendytubbies, Webport",
+        "cover":  "/png/games/slendy.webp",
+        "url":  "/games/slendy/index.html"
+    },
+    {
+        "name":  "Slient Hill",
+        "cover":  "/png/games/slienthill.webp",
+        "url":  "/gamefile/slienthill.html"
+    },
+    {
+        "name":  "Slime Ranchers, Webport",
+        "cover":  "png/games/slime.webp",
+        "url":  "/gamefile/Slimerancher.html"
+    },
+    {
+        "name":  "Slither.io, Webport",
+        "cover":  "png/games/sli.webp",
+        "url":  "/gamefile/sfge.html"
+    },
+    {
+        "name":  "Slope",
+        "cover":  "png/games/slope.webp",
+        "url":  "/games/slope/index.html"
+    },
+    {
+        "name":  "Slowroads",
+        "cover":  "/png/games/slow.webp",
+        "url":  "/games/slowroads/index.html"
+    },
+    {
+        "name":  "SM64, Super Mario 64",
+        "cover":  "png/games/sm64.webp",
+        "url":  "/games/sm64/index.html"
+    },
+    {
+        "name":  "Stardew Valley, Webport",
+        "cover":  "png/games/stardew.webp",
+        "url":  "/games/stardew/index.html"
+    },
+    {
+        "name":  "Super Mario Bros",
+        "cover":  "png/games/smb.webp",
+        "url":  "/gamefile/smb.html"
+    },
+    {
+        "name":  "Super Mario Galaxy DS",
+        "cover":  "png/games/smgds.webp",
+        "url":  "/gamefile/smgds.html"
+    },
+    {
+        "name":  "Super Oliver World",
+        "cover":  "png/games/superoliverworld.webp",
+        "url":  "/gamefile/superoliverworld.html"
+    },
+    {
+        "name":  "Super Smash Bros",
+        "cover":  "png/games/ssm.webp",
+        "url":  "/gamefile/ssm.html"
+    },
+    {
+        "name":  "Smash Karts",
+        "cover":  "png/games/smashkarts.webp",
+        "url":  "/games/smashkarts/index.html"
+    },
+    {
+        "name":  "Snow Rider 3D",
+        "cover":  "png/games/snow.webp",
+        "url":  "/games/snowrider3D-main/index.html"
+    },
+    {
+        "name":  "Snow Battle",
+        "cover":  "png/games/snowio.webp",
+        "url":  "/gamefile/snow.html"
+    },
+    {
+        "name":  "Soccer Bros",
+        "cover":  "png/games/soccer.webp",
+        "url":  "/games/soccerbros/index.html"
+    },
+    {
+        "name":  "Soccer Random",
+        "cover":  "png/games/soccerra.webp",
+        "url":  "/games/soccer-random/index.html"
+    },
+    {
+        "name":  "Solar Smash",
+        "cover":  "/png/games/solar.webp",
+        "url":  "/gamefile/solar.html"
+    },
+    {
+        "name":  "Solitaire",
+        "cover":  "/png/games/soli.webp",
+        "url":  "/games/solitaire/index.html"
+    },
+    {
+        "name":  "Sonic 1",
+        "cover":  "png/games/sonic1.webp",
+        "url":  "/games/sonic/index.html"
+    },
+    {
+        "name":  "Sonic 2",
+        "cover":  "png/games/sonic2.webp",
+        "url":  "/games/sonic2/index.html"
+    },
+    {
+        "name":  "Sonic 3",
+        "cover":  "png/games/sonic3.webp",
+        "url":  "/games/sonic3/sonic3.html"
+    },
+    {
+        "name":  "Sonic 4",
+        "cover":  "png/games/sonic4.webp",
+        "url":  "/games/sonic4/index.html"
+    },
+    {
+        "name":  "Sonic 3D Blast",
+        "cover":  "png/games/sonic3dblast.webp",
+        "url":  "/gamefile/sonic3dblast.html"
+    },
+    {
+        "name":  "Sonic CD",
+        "cover":  "png/games/soniccd.webp",
+        "url":  "/games/soniccd/soniccd.html"
+    },
+    {
+        "name":  "Sonic EXE",
+        "cover":  "png/games/sonicexe.webp",
+        "url":  "/gamefile/sonicexe.html"
+    },
+    {
+        "name":  "Sonic Jam",
+        "cover":  "png/games/sonicjam.webp",
+        "url":  "/gamefile/sonicjam.html"
+    },
+    {
+        "name":  "Sonic Mania, Webport",
+        "cover":  "png/games/mania.webp",
+        "url":  "/gamefile/sonic.html"
+    },
+    {
+        "name":  "Sonic R",
+        "cover":  "png/games/sonicr.webp",
+        "url":  "/gamefile/sonicr.html"
+    },
+    {
+        "name":  "Sonic Robo Blast 2",
+        "cover":  "/png/games/robo.webp",
+        "url":  "/games/srb2/index.html"
+    },
+    {
+        "name":  "Sonic Robo Blast 2 KART",
+        "cover":  "/png/games/kart.webp",
+        "url":  "/games/kart/index.html"
+    },
+    {
+        "name":  "Sonic World Next",
+        "cover":  "/png/games/swn.webp",
+        "url":  "/games/swn/index.html"
+    },
+    {
+        "name":  "Space waves",
+        "cover":  "png/games/space.webp",
+        "url":  "/gamefile/spacewaves.html"
+    },
+    {
+        "name":  "Spank the monkey, bogs favorites",
+        "cover":  "/png/games/monk.webp",
+        "url":  "/gamefile/monkey.html"
+    },
+    {
+        "name":  "Speed Stars",
+        "cover":  "png/games/speed.webp",
+        "url":  "/games/speed-stars/index.html"
+    },
+    {
+        "name":  "Spelunky Classic HD",
+        "cover":  "png/games/spelunkyclassic.webp",
+        "url":  "/gamefile/spelunky.html"
+    },
+    {
+        "name":  "Starbound, Webport",
+        "cover":  "png/games/starbound.webp",
+        "url":  "/games/Starbound/index.html"
+    },
+    {
+        "name":  "Stick War: Legacy",
+        "cover":  "png/games/stickwar.webp",
+        "url":  "/gamefile/stickwar.html"
+    },
+    {
+        "name":  "Stick With It, Webport",
+        "cover":  "png/games/stick.webp",
+        "url":  "/games/stick/index.html"
+    },
+    {
+        "name":  "Stickman Hook",
+        "cover":  "png/games/stickman.webp",
+        "url":  "/games/stickman-hook/index.html"
+    },
+    {
+        "name":  "Subway Surfers",
+        "cover":  "png/games/sub.webp",
+        "url":  "/games/subway-surfers/index.html"
+    },
+    {
+        "name":  "Super Hot",
+        "cover":  "/png/games/superhot.webp",
+        "url":  "/games/superhot/index.html"
+    },
+    {
+        "name":  "Super Meat Boy",
+        "cover":  "/png/games/meat.webp",
+        "url":  "/games/meatboy/index.html"
+    },
+    {
+        "name":  "Super Monkey Ball 1 \u0026 2",
+        "cover":  "/png/games/monkb.webp",
+        "url":  "/gamefile/monk.html"
+    },
+    {
+        "name":  "Super Monkey Ball JR",
+        "cover":  "/png/games/supermonkey.webp",
+        "url":  "/gamefile/supermonkey.html"
+    },
+    {
+        "name":  "Super Smash Flash",
+        "cover":  "/png/games/supersmash.webp",
+        "url":  "/gamefile/ssf.html"
+    },
+    {
+        "name":  "Super Smash Flash 2",
+        "cover":  "/png/games/ssf2.webp",
+        "url":  "/gamefile/ssf2.html"
+    },
+    {
+        "name":  "Survivor.io, Webport",
+        "cover":  "/png/games/survivorio.webp",
+        "url":  "/gamefile/survivor.html"
+    },
+    {
+        "name":  "Taiko No Tatsujini",
+        "cover":  "/png/games/taiko.webp",
+        "url":  "/games/psp/tja/index.html"
+    },
+    {
+        "name":  "Tanuki Sunset",
+        "cover":  "/png/games/tanukisunset.webp",
+        "url":  "/games/tanukisunset/index.html"
+    },
+    {
+        "name":  "Tattle Tail, Webport",
+        "cover":  "/png/games/tat.webp",
+        "url":  "/games/tattletail/index.html"
+    },
+    {
+        "name":  "Ten Basket",
+        "cover":  "/png/games/ten.webp",
+        "url":  "/games/ten-basket/index.html"
+    },
+    {
+        "name":  "Terraria, Webport",
+        "cover":  "/png/games/ter.webp",
+        "url":  "/games/terraria/terraria-wrapper.html"
+    },
+    {
+        "name":  "Tetris",
+        "cover":  "/png/games/tet.webp",
+        "url":  "/games/tetris/index.html"
+    },
+    {
+        "name":  "Tetrisweeper",
+        "cover":  "/png/games/tetriss.webp",
+        "url":  "/games/tetrisweeper/"
+    },
+    {
+        "name":  "The Binding Of Issac",
+        "cover":  "/png/games/tboi.webp",
+        "url":  "/games/binding-of-isaac/index.html"
+    },
+    {
+        "name":  "The Binding Of Isaac Wrath Of The Lamb",
+        "cover":  "/png/games/tboiw.webp",
+        "url":  "/gamefile/tboiw.html"
+    },
+    {
+        "name":  "The Binding Of Isaac Wrath Of The Lamb: Eternal",
+        "cover":  "/png/games/boilambeternal.webp",
+        "url":  "/gamefile/boilambeternal.html"
+    },
+    {
+        "name":  "The Binding Of Issac: Rebirth, Webport",
+        "cover":  "/png/games/tboir.webp",
+        "url":  "/games/psp/tboir/index.html"
+    },
+    {
+        "name":  "The Impossible Quiz",
+        "cover":  "/png/games/quiz.webp",
+        "url":  "/games/theimpossiblequiz/index.html"
+    },
+    {
+        "name":  "The Legend of Zelda Ocarina of Time",
+        "cover":  "/png/games/tloz.webp",
+        "url":  "/gamefile/tloz.html"
+    },
+    {
+        "name":  "Thats Not My Neighbor, Webport",
+        "cover":  "/png/games/thatsnot.webp",
+        "url":  "/gamefile/thatsnot.html"
+    },
+    {
+        "name":  "There Is No Game",
+        "cover":  "/png/games/ting.webp",
+        "url":  "/games/there-is-no-game/index.html"
+    },
+    {
+        "name":  "Time Shooter 1",
+        "cover":  "/png/games/tim1.webp",
+        "url":  "/gamefile/time1.html"
+    },
+    {
+        "name":  "Time Shooter 2",
+        "cover":  "/png/games/tim2.webp",
+        "url":  "/games/timeshooter2/index.html"
+    },
+    {
+        "name":  "Time Shooter 3",
+        "cover":  "/png/games/tim3.webp",
+        "url":  "/games/timeshoot3/index.html"
+    },
+    {
+        "name":  "Tiny Fishing",
+        "cover":  "png/games/tiny.webp",
+        "url":  "/games/tiny-fishing/index.html"
+    },
+    {
+        "name":  "To The Core, Webport",
+        "cover":  "/png/games/to.webp",
+        "url":  "/games/tothecore/index.html"
+    },
+    {
+        "name":  "Tomb Of The Mask",
+        "cover":  "/png/games/tomb.webp",
+        "url":  "/games/tombofthemask/index.html"
+    },
+    {
+        "name":  "Tomodachi Collection",
+        "cover":  "/png/games/tomo.webp",
+        "url":  "/gamefile/tomo.html"
+    },
+    {
+        "name":  "Touhou Mother, Webport",
+        "cover":  "/png/games/touhou.webp",
+        "url":  "/games/touhoumother/index.html"
+    },
+    {
+        "name":  "Tube Jumpers",
+        "cover":  "/png/games/tube.webp",
+        "url":  "/gamefile/tube.html"
+    },
+    {
+        "name":  "Tung Tung Horror",
+        "cover":  "/png/games/tung.webp",
+        "url":  "/gamefile/tung.html"
+    },
+    {
+        "name":  "Ultrakill, Webport",
+        "cover":  "png/games/ultra.webp",
+        "url":  "/games/ultrakill/ultrakill/index.html"
+    },
+    {
+        "name":  "Ultrapool, Webport",
+        "cover":  "png/games/ultrapool.webp",
+        "url":  "/gamefile/ultrapool.html"
+    },
+    {
+        "name":  "Um Jammer Lammy",
+        "cover":  "/png/games/jammer.webp",
+        "url":  "/gamefile/jemmer.html"
+    },
+    {
+        "name":  "Undertale, Webport",
+        "cover":  "png/games/uertale.webp",
+        "url":  "/gamefile/undertale.html"
+    },
+    {
+        "name":  "Undertale Yellow, Webport",
+        "cover":  "/png/games/udy.webp",
+        "url":  "/games/uty/play.html"
+    },
+    {
+        "name":  "Untitled Goose Game, Webport",
+        "cover":  "/png/games/untitled.webp",
+        "url":  "/games/UntitledGooseGameBog/index.html"
+    },
+    {
+        "name":  "Vampire Survivors, Webport",
+        "cover":  "/png/games/vampire.webp",
+        "url":  "/games/vampire/index.html"
+    },
+    {
+        "name":  "Vex",
+        "cover":  "/png/games/vex.webp",
+        "url":  "/games/vex/index.html"
+    },
+    {
+        "name":  "Vex 2",
+        "cover":  "/png/games/vex2.webp",
+        "url":  "/gamefile/vex2.html"
+    },
+    {
+        "name":  "Vex 3",
+        "cover":  "/png/games/vex3.webp",
+        "url":  "/games/vex3/index.html"
+    },
+    {
+        "name":  "Vex 4",
+        "cover":  "/png/games/vex4.webp",
+        "url":  "/games/vex4/index.html"
+    },
+    {
+        "name":  "Vex 5",
+        "cover":  "/png/games/vex5.webp",
+        "url":  "/games/vex5/index.html"
+    },
+    {
+        "name":  "Vex 6",
+        "cover":  "/png/games/vex6.webp",
+        "url":  "/gamefile/vex6.html"
+    },
+    {
+        "name":  "Vex 7",
+        "cover":  "/png/games/vex7.webp",
+        "url":  "/gamefile/vex7.html"
+    },
+    {
+        "name":  "Vex 8",
+        "cover":  "/png/games/vex8.webp",
+        "url":  "/gamefile/vex8.html"
+    },
+    {
+        "name":  "Volley Random",
+        "cover":  "/games/volley-random/splash.png",
+        "url":  "/games/volley-random/index.html"
+    },
+    {
+        "name":  "Warioware D.I.Y",
+        "cover":  "png/games/wariowarediy.webp",
+        "url":  "/gamefile/wariowarediy.html"
+    },
+    {
+        "name":  "We Become What We behold",
+        "cover":  "png/games/wbwwb.webp",
+        "url":  "/gamefile/wbwwb.html"
+    },
+    {
+        "name":  "Webfishing, Webport",
+        "cover":  "/png/games/web.webp",
+        "url":  "/games/webfishing/"
+    },
+    {
+        "name":  "Witch\u0027s Heart, Webport",
+        "cover":  "png/games/witches.webp",
+        "url":  "/gamefile/witches.html"
+    },
+    {
+        "name":  "Wordle",
+        "cover":  "/png/games/world.webp",
+        "url":  "/games/wordle-unlimited/index.html"
+    },
+    {
+        "name":  "Worlds Hardest Game",
+        "cover":  "png/games/wrdd.webp",
+        "url":  "/gamefile/twhg.html"
+    },
+    {
+        "name":  "Worlds Hardest Game 2",
+        "cover":  "/games/worlds-hardest-game-2/the-worlds-hardest-game-2.jpg",
+        "url":  "/games/worlds-hardest-game-2/index.html"
+    },
+    {
+        "name":  "Worlds Hardest Game 3",
+        "cover":  "/png/games/3.webp",
+        "url":  "/games/worlds-hardest-game-3/index.html"
+    },
+    {
+        "name":  "Yandere Simulator, Webport",
+        "cover":  "/png/games/yandere.webp",
+        "url":  "/gamefile/yandere.html"
+    },
+    {
+        "name":  "Yoked",
+        "cover":  "/png/games/yoked.webp",
+        "url":  "/gamefile/yoked.html"
+    },
+    {
+        "name":  "Your Only Move Is HUSTLE, YOMI Hustle, Webport",
+        "cover":  "/png/games/YOMI.webp",
+        "url":  "/games/YOMIHustle/index.html"
+    },
+    {
+        "name":  "Yume Nikki, Webport",
+        "cover":  "/png/games/yumi.webp",
+        "url":  "/gamefile/yume.html"
+    }
 ]

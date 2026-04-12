@@ -255,9 +255,9 @@ const ThemedApp = memo(() => {
         color: var(--ghost-muted-text-color);
       }
 
-      img[src="/ghost.png"],
-      img[src$="/ghost.png"],
-      img[src*="/ghost.png?"] {
+      img[src="/ghost.png"]:not(.ghost-ai-logo),
+      img[src$="/ghost.png"]:not(.ghost-ai-logo),
+      img[src*="/ghost.png?"]:not(.ghost-ai-logo) {
         filter: var(--ghost-public-logo-filter) !important;
       }
 

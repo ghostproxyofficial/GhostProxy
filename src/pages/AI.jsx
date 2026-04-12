@@ -44,9 +44,8 @@ class ErrorBoundary extends React.Component {
   }
 }
 
-import Input from '/src/components/settings/components/Input';
 import { useOptions } from '/src/utils/optionsContext';
-import { showConfirm } from '/src/utils/uiDialog';
+import Input from '/src/components/settings/components/Input';
 
 const STORAGE_KEY = 'ghostAiConversations';
 const ACTIVE_CHAT_KEY = 'ghostAiActiveChatId';
@@ -55,7 +54,20 @@ const SEND_COOLDOWN_MS = 5000;
 
 const createId = () => `chat-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
-const GHOST_AI_ENDPOINT = 'https://api.undoanarchy.rocks/';
+const PROVIDER_LINKS = {
+  duckai: 'https://duck.ai',
+  chatgpt: 'https://chat.openai.com',
+  gemini: 'https://gemini.google.com',
+  claude: 'https://claude.ai',
+  perplexity: 'https://www.perplexity.ai',
+  copilot: 'https://copilot.microsoft.com',
+  deepseek: 'https://chat.deepseek.com',
+  mistral: 'https://chat.mistral.ai',
+  grok: 'https://grok.x.ai',
+  you: 'https://you.com',
+  poe: 'https://poe.com',
+  huggingchat: 'https://huggingface.co/chat',
+};
 
 const SYSTEM_MESSAGE = { role: 'system', content: 'You are Ghost AI, a concise and helpful assistant.' };
 
@@ -115,14 +127,13 @@ const requestAiReply = async (chatMessages) => {
   ];
   // raw was already read above for customPersonality.
 
-  // If user selected a custom API, call it directly and NEVER fallback to default.
-  if (raw.apiChoice === 'another') {
-    const key = String(raw.apiKey || '').trim();
-    const provider = String(raw.provider || 'openai').trim().toLowerCase();
-    const model = String(raw.model || '').trim();
-    if (!key) throw new Error('No API key configured for the selected provider.');
+  // Ghost AI now always uses user-provided provider credentials.
+  const key = String(raw.apiKey || '').trim();
+  const provider = String(raw.provider || 'openai').trim().toLowerCase();
+  const model = String(raw.model || '').trim();
+  if (!key) throw new Error('No API key configured for the selected provider.');
 
-    if (provider === 'openai') {
+  if (provider === 'openai') {
       const res = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${key}` },
@@ -136,7 +147,7 @@ const requestAiReply = async (chatMessages) => {
       return stripThinkingBlock(String(reply));
     }
 
-    if (provider === 'anthropic') {
+  if (provider === 'anthropic') {
       // Anthropic completion endpoint (best-effort). Uses x-api-key header.
       const prompt = apiMessages.map((m) => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n');
       const res = await fetch('https://api.anthropic.com/v1/complete', {
@@ -152,7 +163,7 @@ const requestAiReply = async (chatMessages) => {
       return stripThinkingBlock(String(reply));
     }
 
-    if (provider === 'gemini') {
+  if (provider === 'gemini') {
       const contents = apiMessages.filter(m => m.role !== 'system').map(m => ({
         role: m.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: m.content }]
@@ -179,29 +190,8 @@ const requestAiReply = async (chatMessages) => {
       return stripThinkingBlock(String(reply));
     }
 
-    // Unsupported provider selected.
-    throw new Error('Selected AI provider is not supported.');
-  }
-
-  // Default: use internal GHOST_AI_ENDPOINT (legacy / fallback). This runs when apiChoice !== 'another'.
-  const res = await fetch(GHOST_AI_ENDPOINT, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ messages: apiMessages }),
-    mode: 'cors',
-  });
-
-  if (res.status === 429) {
-    throw new Error('You are sending messages too fast.');
-  }
-  if (!res.ok) {
-    throw new Error('AI is temporarily unavailable.');
-  }
-
-  const data = await res.json();
-  const reply = typeof data?.reply === 'string' ? stripThinkingBlock(data.reply).trim() : '';
-  if (!reply) throw new Error('AI returned an empty response.');
-  return reply;
+  // Unsupported provider selected.
+  throw new Error('Selected AI provider is not supported.');
 };
 
 
@@ -219,6 +209,7 @@ export default function AIPage() {
   const [feedbackByMessage, setFeedbackByMessage] = useState({});
   const [copiedMessageId, setCopiedMessageId] = useState('');
   const [reloadingMessageId, setReloadingMessageId] = useState('');
+  const [pendingDeleteChatId, setPendingDeleteChatId] = useState('');
   const copyTimerRef = useRef(null);
   const endRef = useRef(null);
   const [aiSettingsMounted, setAiSettingsMounted] = useState(false);
@@ -234,10 +225,73 @@ export default function AIPage() {
     }
   });
   const aiSettingsRef = useRef(null);
-  const { options } = useOptions();
-  const [aiProviderPopupOpen, setAiProviderPopupOpen] = useState(() => {
-    try { return localStorage.getItem('ghostAiProviderPopupDismissed') !== 'true'; } catch { return true; }
+  const { options, updateOption } = useOptions();
+  const [rememberProviderChoice, setRememberProviderChoice] = useState(() => {
+    try {
+      return localStorage.getItem('ghostAiProviderChooserRemember') !== 'false';
+    } catch {
+      return true;
+    }
   });
+  const [selectedProvider, setSelectedProvider] = useState('duckai');
+  const [aiProviderPopupOpen, setAiProviderPopupOpen] = useState(() => {
+    try {
+      if (String(options.defaultAiProvider || '') === '') return true;
+      return localStorage.getItem('ghostAiProviderChooserDismissed') !== 'true';
+    } catch {
+      return true;
+    }
+  });
+
+  useEffect(() => {
+    if (String(options.defaultAiProvider || '') === '') {
+      setAiProviderPopupOpen(true);
+    }
+  }, [options.defaultAiProvider]);
+
+  const applySelectedProvider = () => {
+    const nextProvider = String(selectedProvider || '').trim();
+    if (!nextProvider) return;
+
+    if (rememberProviderChoice) {
+      updateOption({ defaultAiProvider: nextProvider });
+      try {
+        localStorage.setItem('ghostAiProviderChooserRemember', 'true');
+      } catch { }
+    } else {
+      try {
+        localStorage.setItem('ghostAiProviderChooserRemember', 'false');
+      } catch { }
+    }
+
+    if (nextProvider === 'ghostai') {
+      setAiProviderPopupOpen(false);
+      return;
+    }
+
+    const link = PROVIDER_LINKS[nextProvider];
+    if (link) {
+      let handledByGhostBrowser = false;
+      try {
+        const topWindow = window.top && window.top !== window ? window.top : window;
+        const getActiveTabId = topWindow.__ghostGetActiveTabId;
+        const updateBrowserTab = topWindow.__ghostUpdateBrowserTabUrl;
+        const activeTabId = typeof getActiveTabId === 'function' ? getActiveTabId() : null;
+        if (activeTabId && typeof updateBrowserTab === 'function') {
+          updateBrowserTab(activeTabId, link, { skipProxy: false });
+          handledByGhostBrowser = true;
+        }
+      } catch {
+      }
+
+      if (!handledByGhostBrowser) {
+        window.location.assign(link);
+      }
+      return;
+    }
+
+    setAiProviderPopupOpen(false);
+  };
 
   useEffect(() => {
     if (!aiSettingsMounted) return;
@@ -326,6 +380,7 @@ export default function AIPage() {
   );
 
   const messages = activeChat?.messages || [];
+  const hasApiKeyConfigured = String(aiProfile?.apiKey || '').trim().length > 0;
 
   const updateActiveChat = (updater) => {
     if (!activeChat) return;
@@ -339,8 +394,8 @@ export default function AIPage() {
   const cooldownRemaining = Math.max(0, SEND_COOLDOWN_MS - (tick - lastSentAt));
   const cooldownLabel = (cooldownRemaining / 1000).toFixed(1);
   const canSend = useMemo(
-    () => input.trim().length > 0 && !loading && cooldownRemaining === 0,
-    [input, loading, cooldownRemaining],
+    () => input.trim().length > 0 && !loading && cooldownRemaining === 0 && hasApiKeyConfigured,
+    [input, loading, cooldownRemaining, hasApiKeyConfigured],
   );
 
   const isLight = theme === 'light';
@@ -366,6 +421,13 @@ export default function AIPage() {
       bubbleAssistant: 'bg-[#07090d] text-white border-white/10',
     };
 
+  const aiSettingsSurface = isLight ? '#ffffff' : options.settingsContainerColor || '#2f363b';
+  const aiSettingsBorder = isLight ? 'rgba(15, 23, 42, 0.14)' : 'rgba(255,255,255,0.14)';
+  const aiSettingsInputClass = isLight
+    ? 'border-black/15 bg-black/5 text-[#0f172a] placeholder:text-[#475569] focus:border-black/25'
+    : 'border-white/15 bg-white/5 text-white placeholder:text-white/40 focus:border-white/30';
+  const aiSettingsFieldBg = isLight ? '#f8fafc' : options.settingsDropdownColor || '#162337';
+
   const createChat = () => {
     const next = createNewChat();
     setChats((prev) => [next, ...prev]);
@@ -374,19 +436,19 @@ export default function AIPage() {
     setInput('');
   };
 
-  const deleteChat = async (id) => {
-    const confirmed = await showConfirm('Delete this chat? This action cannot be undone.', 'Delete chat');
-    if (!confirmed) return;
-
+  const confirmDeleteChat = (id) => {
+    if (!id) return;
     const remaining = chats.filter((chat) => chat.id !== id);
     if (remaining.length === 0) {
       const fresh = createNewChat();
       setChats([fresh]);
       setActiveChatId(fresh.id);
+      setPendingDeleteChatId('');
       return;
     }
     setChats(remaining);
     if (activeChatId === id) setActiveChatId(remaining[0].id);
+    setPendingDeleteChatId('');
     setOpenMenuId(null);
   };
 
@@ -449,6 +511,7 @@ export default function AIPage() {
   const send = async () => {
     const prompt = input.trim();
     if (!prompt || loading) return;
+    if (!hasApiKeyConfigured) return;
 
     if (Date.now() - lastSentAt < SEND_COOLDOWN_MS) {
       const waitMsg = { id: createId(), role: 'system', content: 'You are sending messages too fast.' };
@@ -507,7 +570,12 @@ export default function AIPage() {
           <div className="h-full w-[260px] flex flex-col">
             <div className="px-3 pt-5 pb-0">
               <div className="flex items-center gap-2.5 pl-1.5 mb-3">
-                <img src="/ghost.png" alt="Ghost AI" className={`h-7 w-7 ${isLight ? '' : 'invert'}`} />
+                <img
+                  src="/ghost.png"
+                  alt="Ghost AI"
+                  className="h-7 w-7 ghost-ai-logo"
+                  style={{ filter: isLight ? 'none' : 'invert(1)' }}
+                />
                 <span className="font-semibold text-[1.35rem] leading-none">Ghost AI</span>
               </div>
             </div>
@@ -558,17 +626,11 @@ export default function AIPage() {
                           <div className={`absolute right-0 top-8 w-36 rounded-xl border z-20 p-1.5 shadow-xl ${ui.card}`}>
                             <button
                               type="button"
-                              className="w-full h-8 rounded-lg px-2.5 text-left text-[0.92rem] opacity-50 cursor-not-allowed"
-                              disabled
-                            >
-                              Archive
-                            </button>
-                            <button
-                              type="button"
                               className="w-full h-8 rounded-lg px-2.5 text-left text-[0.92rem] text-red-400 hover:bg-red-500/10"
-                              onClick={async (event) => {
+                              onClick={(event) => {
                                 event.stopPropagation();
-                                await deleteChat(chat.id);
+                                setPendingDeleteChatId(chat.id);
+                                setOpenMenuId(null);
                               }}
                             >
                               Delete
@@ -612,13 +674,13 @@ export default function AIPage() {
                 {aiSettingsMounted && (
                   <div
                     ref={aiSettingsRef}
-                    className={`absolute right-0 top-9 w-80 rounded-xl border z-30 p-3 shadow-2xl ${ui.card} ${aiSettingsVisible ? 'ghost-anim-card' : 'ghost-anim-leave'
-                      } ai-settings-no-outline text-white`}
-                    style={{ minWidth: '18rem', backgroundColor: options.settingsContainerColor || '#2f363b' }}
+                    className={`absolute right-0 top-9 w-[22rem] rounded-xl border z-30 p-4 shadow-2xl ${aiSettingsVisible ? 'ghost-anim-card' : 'ghost-anim-leave'
+                      } ai-settings-no-outline`}
+                    style={{ minWidth: '20rem', backgroundColor: aiSettingsSurface, borderColor: aiSettingsBorder, color: isLight ? '#0f172a' : '#ffffff' }}
                   >
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <div className="text-lg font-semibold">AI Settings</div>
-                      <button type="button" onClick={() => closeAiSettings()} className="p-1 rounded-md hover:bg-white/6">
+                      <button type="button" onClick={() => closeAiSettings()} className={`p-1 rounded-md ${isLight ? 'hover:bg-black/6' : 'hover:bg-white/6'}`}>
                         <X size={14} />
                       </button>
                     </div>
@@ -629,49 +691,44 @@ export default function AIPage() {
                         config={[{ option: 'Dark', value: 'dark' }, { option: 'Light', value: 'light' }]}
                         selectedValue={aiProfile.defaultTheme || 'dark'}
                         action={(v) => setAiProfile((s) => ({ ...(s || {}), defaultTheme: v }))}
+                        mode={isLight ? 'light' : 'dark'}
+                        backgroundColor={aiSettingsFieldBg}
                       />
                     </div>
 
                     <div className="mb-3">
-                      <div className="text-[0.85rem] mb-1">API Choice</div>
+                      <div className="text-[0.85rem] mb-1">AI Provider</div>
                       <ComboBox
-                        config={[{ option: 'Default API', value: 'default' }, { option: 'Another API', value: 'another' }]}
-                        selectedValue={aiProfile.apiChoice || 'default'}
-                        action={(v) => setAiProfile((s) => ({ ...(s || {}), apiChoice: v }))}
+                        config={[{ option: 'OpenAI', value: 'openai' }, { option: 'Gemini', value: 'gemini' }]}
+                        selectedValue={aiProfile.provider || 'openai'}
+                        action={(v) => setAiProfile((s) => ({ ...(s || {}), provider: v }))}
+                        mode={isLight ? 'light' : 'dark'}
+                        backgroundColor={aiSettingsFieldBg}
                       />
                     </div>
 
-                    {aiProfile.apiChoice === 'another' && (
-                      <>
-                        <div className="mb-3">
-                          <div className="text-[0.85rem] mb-1">AI Provider</div>
-                          <ComboBox
-                            config={[{ option: 'OpenAI', value: 'openai' }, { option: 'Gemini', value: 'gemini' }]}
-                            selectedValue={aiProfile.provider || 'openai'}
-                            action={(v) => setAiProfile((s) => ({ ...(s || {}), provider: v }))}
-                          />
-                        </div>
+                    <div className="mb-3">
+                      <div className="text-[0.85rem] mb-1">Model</div>
+                      <Input
+                        defValue={aiProfile.model || ''}
+                        onChange={(v) => setAiProfile((s) => ({ ...(s || {}), model: v }))}
+                        placeholder="e.g. gpt-4o-mini"
+                        mode={isLight ? 'light' : 'dark'}
+                        backgroundColor={aiSettingsFieldBg}
+                      />
+                    </div>
 
-                        <div className="mb-3">
-                          <div className="text-[0.85rem] mb-1">Model</div>
-                          <Input
-                            defValue={aiProfile.model || ''}
-                            onChange={(v) => setAiProfile((s) => ({ ...(s || {}), model: v }))}
-                            placeholder="e.g. gpt-4o-mini"
-                          />
-                        </div>
-
-                        <div className="mb-3">
-                          <div className="text-[0.85rem] mb-1">API Key</div>
-                          <Input
-                            defValue={aiProfile.apiKey || ''}
-                            onChange={(v) => setAiProfile((s) => ({ ...(s || {}), apiKey: v }))}
-                            placeholder="Paste your API key"
-                            inputType="password"
-                          />
-                        </div>
-                      </>
-                    )}
+                    <div className="mb-3">
+                      <div className="text-[0.85rem] mb-1">API Key</div>
+                      <Input
+                        defValue={aiProfile.apiKey || ''}
+                        onChange={(v) => setAiProfile((s) => ({ ...(s || {}), apiKey: v }))}
+                        placeholder="Paste your API key"
+                        inputType="password"
+                        mode={isLight ? 'light' : 'dark'}
+                        backgroundColor={aiSettingsFieldBg}
+                      />
+                    </div>
 
                     <div className="mb-3">
                       <div className="text-[0.85rem] mb-1">Custom Personality</div>
@@ -680,7 +737,7 @@ export default function AIPage() {
                         onChange={(e) => setAiProfile((s) => ({ ...(s || {}), customPersonality: e.target.value }))}
                         placeholder="e.g. You are a pirate, speak in pirate talk"
                         rows={3}
-                        className="w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2 text-[0.85rem] text-white placeholder:text-white/40 outline-none resize-none focus:border-white/30 transition-colors"
+                        className={`w-full rounded-lg border px-3 py-2 text-[0.85rem] outline-none resize-none transition-colors ${aiSettingsInputClass}`}
                       />
                     </div>
 
@@ -691,14 +748,14 @@ export default function AIPage() {
                           if (aiProfile?.defaultTheme) setTheme(aiProfile.defaultTheme);
                           closeAiSettings();
                         }}
-                        className="px-3 py-1 rounded-md border text-sm"
+                        className={`px-3 py-1 rounded-md border text-sm ${isLight ? 'border-black/20 hover:bg-black/5' : 'border-white/20 hover:bg-white/10'}`}
                       >
                         Save
                       </button>
                       <button
                         type="button"
                         onClick={() => closeAiSettings()}
-                        className="px-3 py-1 rounded-md text-sm opacity-70"
+                        className={`px-3 py-1 rounded-md text-sm ${isLight ? 'text-[#334155] hover:bg-black/5' : 'opacity-70 hover:bg-white/8'}`}
                       >
                         Close
                       </button>
@@ -734,7 +791,8 @@ export default function AIPage() {
                   <button
                     type="button"
                     onClick={() => setInput('How do you find the vertex of a parabola')}
-                    className={`h-16 rounded-2xl border px-4 text-left transition-all duration-200 hover:translate-y-[-1px] ${ui.card}`}
+                    disabled={!hasApiKeyConfigured}
+                    className={`h-16 rounded-2xl border px-4 text-left transition-all duration-200 ${hasApiKeyConfigured ? 'hover:translate-y-[-1px]' : 'opacity-55 cursor-not-allowed'} ${ui.card}`}
                   >
                     <p className="text-[0.95rem] font-semibold">How do you find</p>
                     <p className={`text-[0.9rem] ${ui.muted}`}>the vertex of a parabola</p>
@@ -742,7 +800,8 @@ export default function AIPage() {
                   <button
                     type="button"
                     onClick={() => setInput('Explain React hooks like useState and useEffect')}
-                    className={`h-16 rounded-2xl border px-4 text-left transition-all duration-200 hover:translate-y-[-1px] ${ui.card}`}
+                    disabled={!hasApiKeyConfigured}
+                    className={`h-16 rounded-2xl border px-4 text-left transition-all duration-200 ${hasApiKeyConfigured ? 'hover:translate-y-[-1px]' : 'opacity-55 cursor-not-allowed'} ${ui.card}`}
                   >
                     <p className="text-[0.95rem] font-semibold">Explain React hooks</p>
                     <p className={`text-[0.9rem] ${ui.muted}`}>like useState and useEffect</p>
@@ -892,13 +951,20 @@ export default function AIPage() {
                 <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
+                  disabled={!hasApiKeyConfigured}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
                       e.preventDefault();
                       send();
                     }
                   }}
-                  placeholder={loading ? 'Waiting for response...' : 'Send a message...'}
+                  placeholder={
+                    !hasApiKeyConfigured
+                      ? 'Please add your API key to Ghost AI.'
+                      : loading
+                        ? 'Waiting for response...'
+                        : 'Send a message...'
+                  }
                   className={`w-full h-10 bg-transparent outline-none text-[0.95rem] ${isLight ? 'placeholder:text-[#111827]' : 'placeholder:text-white/60'
                     }`}
                 />
@@ -926,6 +992,19 @@ export default function AIPage() {
                 </div>
               </div>
 
+              {!hasApiKeyConfigured && (
+                <div className="mt-2 flex items-center justify-between gap-3">
+                  <p className={`text-[0.9rem] ${ui.muted}`}>Please add your API key to Ghost AI.</p>
+                  <button
+                    type="button"
+                    onClick={() => openAiSettings()}
+                    className={`px-3 py-1.5 rounded-md border text-sm transition-colors ${isLight ? 'border-black/20 hover:bg-black/6 text-[#0f172a]' : 'border-white/20 hover:bg-white/10 text-white'}`}
+                  >
+                    Open Popup
+                  </button>
+                </div>
+              )}
+
               {cooldownRemaining > 0 && !loading && (
                 <p className={`text-[0.9rem] mt-2 ${ui.muted}`}>Rate limit active: wait {cooldownLabel}s</p>
               )}
@@ -934,34 +1013,135 @@ export default function AIPage() {
         </main>
       </div>
 
-      {/* "Another AI Provider?" popup */}
+      {/* AI Provider chooser popup */}
       {aiProviderPopupOpen && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-          <div className="w-[370px] min-h-[148px] rounded-[24px] border border-white/10 bg-[#0f141d] p-4 shadow-2xl flex flex-col justify-between">
-            <div className="pr-3">
-              <h2 className="text-lg font-semibold text-white">Another AI Provider?</h2>
-              <p className="text-sm text-white/60 mt-1 leading-5">
-                Choose your default provider in Settings.
-              </p>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/55 backdrop-blur-sm p-4">
+          <div className="w-full max-w-3xl rounded-[28px] border border-white/10 bg-[#0f141d] p-6 shadow-2xl">
+            <div className="pr-3 mb-5">
+              <h2 className="text-2xl font-semibold text-white">AI Provider</h2>
+              <p className="text-base text-white/70 mt-2 leading-6">Choose what AI provider you want to use.</p>
+              <p className="text-sm text-white/55 mt-1">You can change this anytime in settings.</p>
             </div>
-            <div className="flex items-center justify-end gap-2 mt-4">
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
               <button
                 type="button"
-                onClick={() => {
-                  localStorage.setItem('ghostAiProviderPopupDismissed', 'true');
-                  setAiProviderPopupOpen(false);
-                }}
-                className="px-3 py-1.5 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/8 transition-colors"
+                onClick={() => setSelectedProvider('duckai')}
+                className={`text-left rounded-2xl border bg-white/5 p-4 transition-colors ${selectedProvider === 'duckai' ? 'border-white/45 bg-white/10' : 'border-white/20 hover:bg-white/10'}`}
               >
-                Don't Show Again
+                <div className="text-lg font-semibold text-white">Duck.ai</div>
+                <div className="text-sm text-white/70 mt-1">Free unlimited AI, saves locally.</div>
               </button>
               <button
                 type="button"
-                onClick={() => setAiProviderPopupOpen(false)}
-                className="px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/18 border border-white/15 text-sm text-white/90 transition-colors"
+                onClick={() => setSelectedProvider('ghostai')}
+                className={`text-left rounded-2xl border bg-white/5 p-4 transition-colors ${selectedProvider === 'ghostai' ? 'border-white/45 bg-white/10' : 'border-white/20 hover:bg-white/10'}`}
               >
-                Close
+                <div className="text-lg font-semibold text-white">Ghost AI</div>
+                <div className="text-sm text-white/70 mt-1">Bring your own API/Endpoint.</div>
               </button>
+            </div>
+
+            <div className="mb-5">
+              <p className="text-xs uppercase tracking-wide text-white/45 mb-2">Other providers</p>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  ['chatgpt', 'ChatGPT'],
+                  ['gemini', 'Gemini'],
+                  ['claude', 'Claude'],
+                  ['perplexity', 'Perplexity'],
+                  ['copilot', 'Copilot'],
+                  ['deepseek', 'DeepSeek'],
+                  ['mistral', 'Mistral'],
+                  ['grok', 'Grok'],
+                  ['you', 'You.com'],
+                  ['poe', 'Poe'],
+                  ['huggingchat', 'HuggingChat'],
+                ].map(([id, label]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => setSelectedProvider(id)}
+                    className={`h-9 px-3 rounded-lg border text-xs text-white/85 ${selectedProvider === id ? 'border-white/40 bg-white/14' : 'border-white/15 bg-white/5 hover:bg-white/10'}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+
+                {pendingDeleteChatId && (
+                  <div className="fixed inset-0 z-[10020] flex items-center justify-center p-4">
+                    <button
+                      type="button"
+                      aria-label="Close delete dialog"
+                      className="absolute inset-0 bg-black/45"
+                      onClick={() => setPendingDeleteChatId('')}
+                    />
+                    <div
+                      className="relative w-full max-w-sm rounded-2xl border p-4 shadow-2xl"
+                      style={{
+                        backgroundColor: isLight ? '#ffffff' : '#111827',
+                        borderColor: isLight ? 'rgba(15,23,42,0.12)' : 'rgba(255,255,255,0.12)',
+                        color: isLight ? '#0f172a' : '#ffffff',
+                      }}
+                    >
+                      <h3 className="text-base font-semibold">Delete chat</h3>
+                      <p className={`mt-2 text-sm ${isLight ? 'text-[#334155]' : 'text-white/70'}`}>
+                        Delete this chat? This action cannot be undone.
+                      </p>
+                      <div className="mt-4 flex items-center justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setPendingDeleteChatId('')}
+                          className={`px-3 py-1.5 rounded-md border text-sm ${isLight ? 'border-black/15 hover:bg-black/6' : 'border-white/20 hover:bg-white/10'}`}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => confirmDeleteChat(pendingDeleteChatId)}
+                          className="px-3 py-1.5 rounded-md border border-red-400/40 text-red-400 text-sm hover:bg-red-500/10"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
+              <label className="inline-flex items-center gap-2 text-sm text-white/80">
+                <input
+                  type="checkbox"
+                  checked={rememberProviderChoice}
+                  onChange={(e) => setRememberProviderChoice(e.target.checked)}
+                />
+                Remember my option
+              </label>
+              <div className="flex items-center gap-2">
+                {rememberProviderChoice && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      try {
+                        localStorage.setItem('ghostAiProviderChooserDismissed', 'true');
+                      } catch { }
+                      setAiProviderPopupOpen(false);
+                    }}
+                    className="px-3 py-1.5 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/8 transition-colors"
+                  >
+                    Don&apos;t show this again
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={applySelectedProvider}
+                  className="px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/18 border border-white/15 text-sm text-white/90 transition-colors"
+                >
+                  Select
+                </button>
+              </div>
             </div>
           </div>
         </div>

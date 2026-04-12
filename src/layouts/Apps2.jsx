@@ -171,7 +171,7 @@ const GAME_SOURCE_CONFIG = [
     label: 'Intersteller',
     type: 'jsd',
     data: interstellerCatalog,
-    base: 'https://gointerstellar.app',
+    base: 'https://intersteller.studyeurope.edu.eu.org',
   },
   {
     key: '55gms',
@@ -248,15 +248,6 @@ const buildLoadingDoc = (name, loadedBytes = 0, totalBytes = 0) => {
   return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Loading ${name}</title><style>html,body{height:100%;margin:0;background:#000;color:#fff;font-family:Inter,system-ui,sans-serif}.wrap{height:100%;display:flex;align-items:center;justify-content:center}.card{text-align:center}.logo{width:86px;height:86px;object-fit:contain;filter:invert(1) brightness(2);opacity:.95}.title{margin-top:14px;font-size:1.05rem;font-weight:600}.sub{margin-top:8px;font-size:.85rem;opacity:.78}</style></head><body><div class="wrap"><div class="card"><img class="logo" src="/ghost.png" alt="Ghost"/><div class="title">Loading...</div><div class="sub">${formatMB(loadedBytes)}/${remainingLabel} left</div><div class="sub" style="opacity:.55">Total: ${totalLabel}</div></div></div></body></html>`;
 };
 
-const isRawHtmlUrl = (url) => {
-  try {
-    const parsed = new URL(url, location.origin);
-    return /\.html?$/i.test(parsed.pathname || '');
-  } catch {
-    return /\.html?($|\?)/i.test(String(url || ''));
-  }
-};
-
 const toAbsolute = (raw, base = ALASKA_BASE) => {
   if (!raw) return '';
   if (/^https?:\/\//i.test(raw)) return raw;
@@ -270,6 +261,7 @@ const normalizeSourceGames = (source) => {
 
   return data.map((item) => {
     const sourceBase = source?.base || ALASKA_BASE;
+    const isSeleniteSource = source.key === 'selenite';
     const name = item.name || item.label || item.appName || 'Untitled Game';
     const cover = item.cover || item.icon || item.image || item.imageUrl || item.img || '';
     const rawUrl = item.url || item.link || '';
@@ -277,13 +269,15 @@ const normalizeSourceGames = (source) => {
       ? rawUrl.replaceAll('{IP_BEGINNING}', 'nowgg')
       : toAbsolute(rawUrl, sourceBase);
 
+    const resolvedIcon = isSeleniteSource ? '' : toAbsolute(cover, sourceBase);
+
     return {
       appName: name,
       desc: item.desc || item.description || source.label,
-      icon: toAbsolute(cover, sourceBase),
+      icon: resolvedIcon,
       url,
       disabled: !url,
-      noIcon: !cover,
+      noIcon: isSeleniteSource || !cover,
       sourceType: source.type,
       sourceKey: source.key,
     };
@@ -515,6 +509,22 @@ const Games = memo(() => {
     async (game) => {
       if (!game?.url) return;
 
+      const opensInViewer = new Set(['gnmath', 'gnports']);
+      if (opensInViewer.has(String(game.sourceKey || '').toLowerCase())) {
+        nav('/discover/r/', {
+          state: {
+            app: {
+              appName: game.appName,
+              desc: game.desc,
+              icon: game.icon,
+              url: game.url,
+              renderAsHtml: true,
+            },
+          },
+        });
+        return;
+      }
+
       const topWin = (() => {
         try {
           return window.top && window.top !== window ? window.top : window;
@@ -537,24 +547,6 @@ const Games = memo(() => {
       };
 
       const isNowGG = game.sourceKey === 'nowgg';
-
-      const hostedPathSources = new Set(['55gms', 'petezah', 'intersteller', 'space', 'truffled', 'selenite', 'velara']);
-      const useRawHtmlLoader = isRawHtmlUrl(game.url) && !hostedPathSources.has(game.sourceKey);
-
-      if (useRawHtmlLoader) {
-        nav('/discover/r/', {
-          state: {
-            app: {
-              appName: game.appName,
-              desc: game.desc,
-              icon: game.icon,
-              url: game.url,
-              renderAsHtml: true,
-            },
-          },
-        });
-        return;
-      }
 
       const tabId = typeof opener === 'function'
         ? opener(game.url, {
@@ -604,13 +596,27 @@ const Games = memo(() => {
           <div className="relative">
             <button
               onClick={() => {
+                if (showAllGames) {
+                  setShowAllGames(false);
+                  setSourceKey('gnmath');
+                  setCategory(null);
+                  setShowDl(false);
+                  setQ('');
+                  setPage(1);
+                  setSourceOpen(false);
+                  setSortOpen(false);
+                  return;
+                }
                 setSourceOpen((prev) => !prev);
                 setSortOpen(false);
               }}
-              className="h-11 min-w-[180px] rounded-[10px] px-3 bg-[#141418] border border-white/10 text-sm flex items-center justify-between gap-3 hover:bg-[#1b1b21] transition-colors"
+              className={clsx(
+                'h-11 min-w-[180px] rounded-[10px] px-3 bg-[#141418] border border-white/10 text-sm transition-colors',
+                showAllGames ? 'flex items-center justify-center text-center hover:bg-[#1f2731]' : 'flex items-center justify-between gap-3 hover:bg-[#1b1b21]',
+              )}
             >
-              <span>{showAllGames ? 'All' : selectedSource.label}</span>
-              <ChevronDown size={16} className={clsx('transition-transform', sourceOpen && 'rotate-180')} />
+              <span className={clsx(showAllGames && 'w-full text-center')}>{showAllGames ? 'Press to go back' : selectedSource.label}</span>
+              {!showAllGames && <ChevronDown size={16} className={clsx('transition-transform', sourceOpen && 'rotate-180')} />}
             </button>
 
             {sourcePopup.rendered && (
@@ -883,7 +889,7 @@ const TV_APPS = [
     appName: 'General Movies/TV',
     desc: 'Browse movies and TV shows',
     icon: RED_PLAY_ICON,
-    url: 'https://www.cineby.gd',
+    url: 'https://www.cineby.sc',
   },
   {
     appName: 'YouTube',
@@ -906,7 +912,7 @@ const TV_APPS = [
 ];
 
 const GHOST_MUSIC_APPS = [
-  { appName: 'Monochrome', desc: 'Monochrome music player', icon: WHITE_MUSIC_ICON, url: 'https://monochrome.tf', playerKey: 'monochrome', isMusicProvider: true },
+  { appName: 'Monochrome', desc: 'Monochrome music player', icon: WHITE_MUSIC_ICON, url: 'https://monochrome.samidy.com', playerKey: 'monochrome', isMusicProvider: true },
 ];
 
 const THIRD_PARTY_MUSIC_APPS = [

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
-import { process, toGhostDisplayUrl } from './utils';
+import { process } from './utils';
 import { createId } from '/src/utils/id';
 
 const BROWSER_HISTORY_KEY = 'ghostBrowserHistory';
@@ -112,7 +112,12 @@ const normalizeTabUrl = (url) => {
     return raw;
   }
 
-  return toGhostDisplayUrl(raw) || raw;
+  let opts = {};
+  try {
+    opts = JSON.parse(localStorage.getItem('options') || '{}');
+  } catch { }
+
+  return process(raw, false, opts.prType || 'auto', opts.engine || null);
 };
 
 const store = create(

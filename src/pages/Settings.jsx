@@ -91,15 +91,30 @@ const Settings = () => {
   const [loaded, setLoaded] = useState(false);
   const [windowHeight, setWindowHeight] = useState('100vh');
 
+  const consumePendingSection = useCallback(() => {
+    try {
+      const topWindow = window.top && window.top !== window ? window.top : window;
+      const pending = typeof topWindow.__ghostNextSettingsSection === 'string'
+        ? topWindow.__ghostNextSettingsSection
+        : '';
+      if (pending) {
+        delete topWindow.__ghostNextSettingsSection;
+      }
+      return pending;
+    } catch {
+      return '';
+    }
+  }, []);
+
   useEffect(() => {
-    const section = new URLSearchParams(location.search).get('section');
+    const section = new URLSearchParams(location.search).get('section') || consumePendingSection();
     if (!section) return;
 
     const matched = baseConfigs.find((config) => config.name.toLowerCase() === section.toLowerCase());
     if (matched) {
       setContent(matched.name);
     }
-  }, [location.search]);
+  }, [location.search, consumePendingSection]);
 
   useEffect(() => {
     let m = true;

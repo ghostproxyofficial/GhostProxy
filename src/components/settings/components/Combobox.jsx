@@ -18,8 +18,11 @@ const ComboBox = ({
   compact = false,
   dropdownDirection = 'down',
   disabled = false,
+  mode = null,
+  backgroundColor,
 }) => {
   const { options } = useOptions();
+  const isLightMode = mode ? mode === 'light' : options?.type === 'light';
 
   const unwrap = (val) => (val && typeof val === 'object' && 'value' in val ? val.value : val);
 
@@ -48,9 +51,9 @@ const ComboBox = ({
 
   const scroll = clsx(
     'scrollbar scrollbar-track-transparent scrollbar-thin',
-    options?.type === 'dark' || !options?.type
-      ? 'scrollbar-thumb-gray-600'
-      : 'scrollbar-thumb-gray-500',
+    isLightMode
+      ? 'scrollbar-thumb-gray-400'
+      : 'scrollbar-thumb-gray-600',
   );
 
   return (
@@ -64,11 +67,15 @@ const ComboBox = ({
         className={clsx(
           'group/combo relative w-full rounded-xl border transition-all duration-200',
           disabled
-            ? 'border-white/10 opacity-75'
-            : 'border-white/10 hover:border-white/30 focus-within:border-white/35 focus-within:shadow-[0_0_0_1px_rgba(255,255,255,0.12)] has-[[data-open]]:border-white/35 has-[[data-open]]:shadow-[0_0_0_1px_rgba(255,255,255,0.12)]',
+            ? isLightMode
+              ? 'border-black/10 opacity-75 text-[#0f172a]'
+              : 'border-white/10 opacity-75'
+            : isLightMode
+              ? 'border-black/15 text-[#0f172a] hover:border-black/30 focus-within:border-black/35 focus-within:shadow-[0_0_0_1px_rgba(15,23,42,0.12)] has-[[data-open]]:border-black/35 has-[[data-open]]:shadow-[0_0_0_1px_rgba(15,23,42,0.12)]'
+              : 'border-white/10 hover:border-white/30 focus-within:border-white/35 focus-within:shadow-[0_0_0_1px_rgba(255,255,255,0.12)] has-[[data-open]]:border-white/35 has-[[data-open]]:shadow-[0_0_0_1px_rgba(255,255,255,0.12)]',
         )}
         style={{
-          backgroundColor: options.settingsDropdownColor || '#162337',
+          backgroundColor: backgroundColor || options.settingsDropdownColor || '#162337',
           width: `${dynamicWidthCh}ch`,
           maxWidth: `min(${maxW}rem, 92vw)`,
         }}
@@ -106,7 +113,8 @@ const ComboBox = ({
                 value={cfg.value}
                 key={getOptionId(cfg.value)}
                 className={clsx(
-                  'group/option flex items-center cursor-pointer outline-none hover:bg-[#ffffff17] data-[focus]:bg-[#ffffff17] px-2 rounded-md transition-colors duration-150',
+                  'group/option flex items-center cursor-pointer outline-none px-2 rounded-md transition-colors duration-150',
+                  isLightMode ? 'hover:bg-black/10 data-[focus]:bg-black/10' : 'hover:bg-[#ffffff17] data-[focus]:bg-[#ffffff17]',
                   compact ? 'py-1.5' : 'py-2',
                 )}
               >

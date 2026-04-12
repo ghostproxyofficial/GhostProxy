@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useOptions } from '../utils/optionsContext';
 import loaderStore from '../utils/hooks/loader/useLoaderStore';
-import { process } from '../utils/hooks/loader/utils';
+import { process, isInternalGhostTabUrl } from '../utils/hooks/loader/utils';
 import { createId } from '../utils/id';
 
 const Bookmarks = ({ isOpen, onClose, inLoader = false }) => {
@@ -56,10 +56,12 @@ const Bookmarks = ({ isOpen, onClose, inLoader = false }) => {
   const add = () => {
     if (!url.trim()) return;
     const regex = u => (/^(https?:)?\/\//.test(u) ? u : `https://${u}`);
+    const bookmarkUrl = regex(url.trim());
+    if (isInternalGhostTabUrl(bookmarkUrl)) return;
     save([...bms, {
       id: createId(),
       name: uniq(nm.trim() || 'New Bookmark'),
-      url: regex(url.trim()),
+      url: bookmarkUrl,
       icon: ico.trim() ? regex(ico.trim()) : null,
     }]);
     reset();
@@ -68,6 +70,8 @@ const Bookmarks = ({ isOpen, onClose, inLoader = false }) => {
   const update = () => {
     if (!url.trim() || !editId) return;
     const regex = u => (/^(https?:)?\/\//.test(u) ? u : `https://${u}`);
+    const bookmarkUrl = regex(url.trim());
+    if (isInternalGhostTabUrl(bookmarkUrl)) return;
     const oldBm = bms.find(b => b.id === editId);
     const newIcon = ico.trim() ? regex(ico.trim()) : null;
 
@@ -89,7 +93,7 @@ const Bookmarks = ({ isOpen, onClose, inLoader = false }) => {
         ? {
           ...b,
           name: uniq(nm.trim() || 'New Bookmark', editId),
-          url: regex(url.trim()),
+          url: bookmarkUrl,
           icon: newIcon,
         }
         : b

@@ -212,6 +212,17 @@
         "url": "https://cdn.jsdelivr.net/gh/rewz099/js-lib-cdn/bbo-js.zip",
         "disabled": false,
         "local": true
+      },
+      {
+        "appName": "Five Nights at Epstein's",
+        "desc": "All-Time favorites",
+        "icon": "/assets/img/fnae.webp",
+        "url": [
+          "https://cdn.jsdelivr.net/gh/ashxmed/symmetrical-adventure@5e255a186ac0dd4793109dfbe68b946e5cc8dce5/v1-fn.zip",
+          "https://cdn.jsdelivr.net/gh/ashxmed/symmetrical-adventure@5e255a186ac0dd4793109dfbe68b946e5cc8dce5/v2-fn.zip"
+        ],
+        "disabled": false,
+        "local": true
       }
     ],
     "Action": [
@@ -770,6 +781,22 @@
         "local": false
       },
       {
+        "appName": "Baseball Bros",
+        "desc": "Sport apps",
+        "icon": "/assets/img/basebros.webp",
+        "url": "https://baseballbros.io/",
+        "disabled": false,
+        "local": false
+      },
+      {
+        "appName": "Football Bros",
+        "desc": "Sport apps",
+        "icon": "/assets/img/fb-broz.webp",
+        "url": "https://footballbros.io/",
+        "disabled": false,
+        "local": false
+      },
+      {
         "appName": "Cannon Basketball 4",
         "desc": "Sport apps",
         "icon": "/assets-fb/cannon-basketball-4/img/splash.png",
@@ -1010,6 +1037,14 @@
         "url": "https://raw.githack.com/Skoolgq/Polaris-Assets/main/circlo/index.html",
         "disabled": false,
         "local": false
+      },
+      {
+        "appName": "Super Monkey Ball",
+        "desc": "Ball/Platformer apps",
+        "icon": "/assets/img/smb.webp",
+        "url": "https://cdn.jsdelivr.net/gh/ashxmed/symmetrical-adventure@c0499269bb26b580162503f1ce371eee657f093e/monkeyball.zip",
+        "disabled": true,
+        "local": true
       },
       {
         "appName": "Cubeform",

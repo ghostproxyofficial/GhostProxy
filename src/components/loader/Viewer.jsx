@@ -389,6 +389,30 @@ const Viewer = ({ zoom }) => {
     return process(value, false, options.prType || 'auto', options.engine || null);
   };
 
+  const getFrameSandbox = (rawUrl) => {
+    const policy = getSitePolicyForTab(rawUrl);
+    const flags = [
+      'allow-scripts',
+      'allow-same-origin',
+      'allow-forms',
+      'allow-pointer-lock',
+      'allow-orientation-lock',
+      'allow-presentation',
+      'allow-top-navigation-by-user-activation',
+    ];
+
+    if (!policy.popupBlock) {
+      flags.push('allow-popups');
+      flags.push('allow-popups-to-escape-sandbox');
+    }
+
+    if (!policy.downloadBlock) {
+      flags.push('allow-downloads');
+    }
+
+    return flags.join(' ');
+  };
+
   const getInternalPageOffset = (rawUrl) => {
     return 0;
   };
@@ -642,6 +666,7 @@ const Viewer = ({ zoom }) => {
               <iframe
                 ref={(el) => (frameRefs.current[id] = el)}
                 src={getFrameUrl(url)}
+                sandbox={getFrameSandbox(url)}
                 style={iframeSizing}
                 className="absolute inset-0 w-full h-full transition-opacity duration-200"
                 onPointerDown={() => {
@@ -662,6 +687,7 @@ const Viewer = ({ zoom }) => {
                 <iframe
                   ref={(el) => (frameRefs.current[id] = el)}
                   src={getFrameUrl(url)}
+                  sandbox={getFrameSandbox(url)}
                   style={iframeSizing}
                   className="absolute inset-0 w-full h-full transition-opacity duration-200"
                   onPointerDown={() => {

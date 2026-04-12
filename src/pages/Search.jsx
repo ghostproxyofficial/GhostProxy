@@ -608,6 +608,8 @@ export default function Loader({ url, ui = true, zoom }) {
     // Intercept ghost://ai — redirect to external provider if one is set
     if (String(rawUrl).toLowerCase() === 'ghost://ai' && options.defaultAiProvider) {
       const providerUrls = {
+        duckai: 'https://duck.ai',
+        ghostai: null,
         chatgpt: 'https://chat.openai.com',
         gemini: 'https://gemini.google.com',
         claude: 'https://claude.ai',
@@ -988,8 +990,24 @@ export default function Loader({ url, ui = true, zoom }) {
   useEffect(() => {
     let canceled = false;
 
+    if (options.hideLocation === true) {
+      setIpMeta((prev) => ({ ...prev, city: '', latitude: null, longitude: null }));
+      return () => {
+        canceled = true;
+      };
+    }
+
     const parseProviderMeta = (payload, source) => {
       if (!payload || typeof payload !== 'object') return null;
+
+      if (source === 'proxy') {
+        return {
+          timezone: String(payload.timezone || ''),
+          latitude: Number(payload.latitude),
+          longitude: Number(payload.longitude),
+          city: String(payload.city || ''),
+        };
+      }
 
       if (source === 'ipapi') {
         return {
@@ -1039,9 +1057,7 @@ export default function Loader({ url, ui = true, zoom }) {
     const fetchIpMeta = async () => {
 
       const providers = [
-        { url: 'https://ipapi.co/json/', source: 'ipapi' },
-        { url: 'https://ipwho.is/', source: 'ipwho' },
-        { url: 'https://ipinfo.io/json', source: 'ipinfo' },
+        { url: '/api/ip/meta', source: 'proxy' },
       ];
 
       for (const provider of providers) {
@@ -1086,10 +1102,17 @@ export default function Loader({ url, ui = true, zoom }) {
     return () => {
       canceled = true;
     };
-  }, []);
+  }, [options.hideLocation]);
 
   useEffect(() => {
     let canceled = false;
+
+    if (options.hideLocation === true) {
+      setMenuWeather({ temp: null, weatherCode: null, isDay: true });
+      return () => {
+        canceled = true;
+      };
+    }
 
     const loadWeather = async () => {
       try {
@@ -1156,7 +1179,7 @@ export default function Loader({ url, ui = true, zoom }) {
       canceled = true;
       clearInterval(poll);
     };
-  }, [ipMeta.latitude, ipMeta.longitude, options.weatherUnit, options.weatherUseIpLocation, options.weatherCoordsOverride]);
+  }, [ipMeta.latitude, ipMeta.longitude, options.weatherUnit, options.weatherUseIpLocation, options.weatherCoordsOverride, options.hideLocation]);
 
   useEffect(() => {
     if (historyPopupOpen) {
@@ -1533,6 +1556,8 @@ export default function Loader({ url, ui = true, zoom }) {
       const bookmarkCurrentPage = () => {
         const currentTab = getActiveTab();
         if (!currentTab?.url || currentTab.url === 'tabs://new') return;
+        const currentFrameUrl = store.iframeUrls?.[currentTab.id] || '';
+        if (isInternalGhostTabUrl(currentTab.url, currentFrameUrl)) return;
         const decoded = process(currentTab.url, true, options.prType || 'auto', options.engine || null);
         const currentBookmarks = options.bookmarks || [];
         const next = [
@@ -1682,13 +1707,13 @@ export default function Loader({ url, ui = true, zoom }) {
                     </span>
                   </div>
                   <div className="mt-1 flex items-center justify-between text-[11px] text-white/80">
-                    <span className="truncate max-w-[7.2rem]">{ipMeta.city || 'Your Location'}</span>
+                    <span className="truncate max-w-[7.2rem]">{options.hideLocation === true ? 'Location Hidden' : (ipMeta.city || 'Your Location')}</span>
                     <span className="inline-flex items-center gap-1">
                       {(() => {
                         const WxIcon = weatherIcon;
                         return <WxIcon size={12} />;
                       })()}
-                      {Number.isFinite(menuWeather.temp)
+                      {options.hideLocation !== true && Number.isFinite(menuWeather.temp)
                         ? `${Math.round(menuWeather.temp)}°${weatherUnitLabel}`
                         : '--'}
                     </span>

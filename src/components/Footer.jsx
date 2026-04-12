@@ -5,6 +5,7 @@ import { RotateCw } from 'lucide-react';
 import { useOptions } from '/src/utils/optionsContext';
 
 const Footer = memo(() => {
+  const defaultWispEndpoint = 'wss://dogekeepthisasecret.undoanarchy.rocks/wisp/';
   const { options } = useOptions();
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,9 +20,22 @@ const Footer = memo(() => {
       if (!value) return '';
       const raw = String(value).trim();
       if (!raw) return '';
-      if (raw.startsWith('http://')) return `ws://${raw.replace(/^http:\/\//, '')}`;
-      if (raw.startsWith('https://')) return `wss://${raw.replace(/^https:\/\//, '')}`;
-      return raw;
+      if (raw === 'undefined' || raw === 'null') return '';
+
+      try {
+        const normalized = raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('ws://') || raw.startsWith('wss://')
+          ? raw
+          : `${location.protocol === 'https:' ? 'https://' : 'http://'}${raw.replace(/^\/+/, '')}`;
+        const parsed = new URL(normalized);
+        const host = String(parsed.hostname || '').trim().toLowerCase();
+        if (!host || host === 'undefined' || host === 'null') return '';
+        const protocol = parsed.protocol === 'https:' || parsed.protocol === 'wss:' ? 'wss:' : 'ws:';
+        const pathname = parsed.pathname && parsed.pathname !== '/' ? parsed.pathname : '/wisp/';
+        const trailingSlashPath = pathname.endsWith('/') ? pathname : `${pathname}/`;
+        return `${protocol}//${parsed.host}${trailingSlashPath}`;
+      } catch {
+        return '';
+      }
     };
 
     if (typeof window !== 'undefined' && typeof window.__ghostActiveWisp === 'string' && window.__ghostActiveWisp && window.__ghostActiveWisp !== 'undefined') {
@@ -32,24 +46,18 @@ const Footer = memo(() => {
       return normalizeWisp(options.wServer);
     }
 
-    if ((options.proxyRouting || 'direct') === 'remote' && options.remoteProxyServer) {
-      try {
-        const normalized = String(options.remoteProxyServer || '').trim();
-        const base = normalized.startsWith('http://') || normalized.startsWith('https://')
-          ? normalized
-          : `https://${normalized}`;
-        const remoteOrigin = new URL(base).origin;
-        return `${remoteOrigin.startsWith('https://') ? 'wss://' : 'ws://'}${remoteOrigin.replace(/^https?:\/\//, '')}/wisp/`;
-      } catch {
-        return `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/wisp/`;
-      }
-    }
-
-    return `${location.protocol === 'https:' ? 'wss:' : 'ws:'}//${location.host}/wisp/`;
-  }, [location.host, location.protocol, options.proxyRouting, options.remoteProxyServer, options.wServer]);
+    return normalizeWisp(defaultWispEndpoint);
+  }, [defaultWispEndpoint, options.wServer]);
 
   const pollLatency = useCallback(async () => {
     const endpoint = resolveWispEndpoint();
+    if (!endpoint) return;
+    if (/\/\/(undefined|null)(?::|\/|$)/i.test(endpoint)) {
+      if (typeof window !== 'undefined') {
+        window.__ghostActiveWisp = null;
+      }
+      return;
+    }
     const started = performance.now();
     let ok = false;
 
@@ -157,12 +165,26 @@ const Footer = memo(() => {
   }, [inGhostBrowserMode, openInGhostTab]);
 
   const openInfo = useCallback(() => {
-    if (inGhostBrowserMode) {
-      openInGhostTab('ghost://settings', { title: 'Ghost Settings' });
-      return;
+    try {
+      const topWindow = window.top && window.top !== window ? window.top : window;
+      topWindow.__ghostNextSettingsSection = 'Info';
+      const getActiveTabId = topWindow.__ghostGetActiveTabId;
+      const updateBrowserTab = topWindow.__ghostUpdateBrowserTabUrl;
+      const activeTabId = typeof getActiveTabId === 'function' ? getActiveTabId() : null;
+      if (activeTabId && typeof updateBrowserTab === 'function') {
+        updateBrowserTab(activeTabId, 'ghost://settings', { skipProxy: true });
+        return;
+      }
+      const openBrowserTab = topWindow.__ghostOpenBrowserTab;
+      if (typeof openBrowserTab === 'function') {
+        openBrowserTab('ghost://settings', {
+          title: 'Ghost Settings',
+          skipProxy: true,
+        });
+      }
+    } catch {
     }
-    navigate('/settings?section=Info');
-  }, [inGhostBrowserMode, navigate, openInGhostTab]);
+  }, []);
 
   const openChangelog = useCallback(() => {
     if (inGhostBrowserMode) {

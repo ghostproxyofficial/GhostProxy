@@ -49,7 +49,7 @@ const Omnibox = () => {
   const [Icon, setIcon] = useState(Info);
   const activeTab = loaderStore((state) => state.tabs.find((tab) => tab.active));
   const activeTabId = activeTab?.id;
-  const { updateUrl, refreshTab, goBack, goForward, toggleMenu, showUI, addTab, setActive } = loaderStore();
+  const { updateUrl, refreshTab, goBack, goForward, toggleMenu, showUI, setIframeUrl } = loaderStore();
   const inputRef = useRef(null);
   const suggestPanelRef = useRef(null);
   const quickPanelRef = useRef(null);
@@ -293,6 +293,7 @@ const Omnibox = () => {
   }, [options.searchRecommendationsTop]);
 
   const addCurrentToBookmarks = () => {
+    if (popupBlockedForInternalPage) return;
     const decoded = getActiveDecodedUrl();
     if (!decoded) return;
     const currentBookmarks = Array.isArray(options.bookmarks) ? options.bookmarks : [];
@@ -398,10 +399,15 @@ const Omnibox = () => {
                 debounceRef.current = null;
               }
               if (/^ghost:\/\//i.test(typed)) {
-                if (loaderStore.getState().tabs.length >= 20) return;
-                const id = createId();
-                addTab({ title: 'New Tab', id, url: processed });
-                setActive(id);
+                updateUrl(activeTab.id, processed);
+                const normalizedTyped = typed.toLowerCase();
+                if (
+                  normalizedTyped === 'ghost://home' ||
+                  normalizedTyped === 'ghost://new-tab' ||
+                  normalizedTyped === 'ghost://newtab'
+                ) {
+                  setIframeUrl(activeTab.id, 'ghost://home');
+                }
               } else {
                 updateUrl(activeTab.id, processed);
               }
@@ -418,12 +424,12 @@ const Omnibox = () => {
           )}
           title={isCurrentBookmarked ? 'Remove bookmark' : 'Bookmark current page'}
           onClick={addCurrentToBookmarks}
-          disabled={!activeTab?.url || activeTab.url === 'tabs://new'}
+          disabled={!activeTab?.url || activeTab.url === 'tabs://new' || popupBlockedForInternalPage}
         >
           <Bookmark
             size={15}
             className={clsx(
-              !activeTab?.url || activeTab.url === 'tabs://new' ? 'opacity-50' : '',
+              !activeTab?.url || activeTab.url === 'tabs://new' || popupBlockedForInternalPage ? 'opacity-50' : '',
               isCurrentBookmarked ? 'text-yellow-400' : '',
             )}
             fill={isCurrentBookmarked ? 'currentColor' : 'none'}
@@ -504,8 +510,8 @@ const Omnibox = () => {
                   <span className="text-xs opacity-70 mb-1 block">Wisp Server</span>
                   <TextInput
                     defValue={options.wServer || ''}
-                    onChange={(val) => updateOption({ wServer: val || null })}
-                    placeholder={`${location.protocol === 'https:' ? 'wss' : 'ws'}://${location.host}/wisp/`}
+                    onChange={(val) => updateOption({ wServer: val || null, proxyRouting: 'direct' })}
+                    placeholder={'wss://dogekeepthisasecret.undoanarchy.rocks/wisp/'}
                     maxW={58}
                     compact
                     live

@@ -110,6 +110,71 @@ export default defineConfig(({ command }) => {
         name: 'search',
         apply: 'serve',
         configureServer(s) {
+          s.middlewares.use('/api/ip/meta', async (req, res, next) => {
+            if (req.method !== 'GET') return next();
+
+            const json = (payload, status = 200) => {
+              res.statusCode = status;
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify(payload));
+            };
+
+            const neutralMeta = {
+              timezone: 'UTC',
+              latitude: 0,
+              longitude: 0,
+              city: '',
+            };
+
+            try {
+              const providers = [
+                {
+                  url: 'https://ipapi.co/json/',
+                  parse: (payload) => ({
+                    timezone: String(payload?.timezone || ''),
+                    latitude: Number(payload?.latitude),
+                    longitude: Number(payload?.longitude),
+                    city: String(payload?.city || ''),
+                  }),
+                },
+                {
+                  url: 'https://ipwho.is/',
+                  parse: (payload) => ({
+                    timezone: String(typeof payload?.timezone === 'string' ? payload.timezone : payload?.timezone?.id || ''),
+                    latitude: Number(payload?.latitude),
+                    longitude: Number(payload?.longitude),
+                    city: String(payload?.city || ''),
+                  }),
+                },
+              ];
+
+              const isValid = (meta) =>
+                !!meta &&
+                Number.isFinite(meta.latitude) &&
+                Number.isFinite(meta.longitude) &&
+                meta.latitude >= -90 &&
+                meta.latitude <= 90 &&
+                meta.longitude >= -180 &&
+                meta.longitude <= 180;
+
+              for (const provider of providers) {
+                try {
+                  const response = await fetch(provider.url, { headers: { 'user-agent': 'GhostProxy/1.0' } });
+                  if (!response.ok) continue;
+                  const data = await response.json();
+                  const parsed = provider.parse(data);
+                  if (!isValid(parsed)) continue;
+                  return json(parsed);
+                } catch {
+                }
+              }
+
+              return json(neutralMeta);
+            } catch {
+              return json(neutralMeta);
+            }
+          });
+
           s.middlewares.use('/return', async (req, res) => {
             const q = new URL(req.url, 'http://x').searchParams.get('q');
             try {

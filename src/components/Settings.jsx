@@ -17,10 +17,8 @@ import {
   Heart,
   Library,
   MessagesSquare,
-  Moon,
   Scale,
   ShieldAlert,
-  Sun,
   Users,
   X,
 } from 'lucide-react';
@@ -176,6 +174,28 @@ const InfoPanel = () => {
           <li>- If you are forking our project, you MUST agree and follow the terms of our license (AGPL-3.0 license), and you MAY NOT fork our project for bad intent.</li>
           <li>- We do not store any data on our servers. All data is local and can easily be deleted through settings.</li>
         </ul>
+        <div className="rounded-lg border border-white/10 bg-black/20 p-3">
+          <p className="font-semibold mb-2">DMCA</p>
+          <p>
+            This website respects intellectual property rights and follows the DMCA and other copyright laws.
+            Media and game assets available through this project are sourced from public third-party platforms.
+          </p>
+          <p className="mt-2">
+            If you found content that should be removed, email ghostproxyofficial@gmail.com and include the following details:
+          </p>
+          <ul className="space-y-1 mt-2">
+            <li>- Whether you own the content.</li>
+            <li>- Whether the content is copyrighted or licensed.</li>
+            <li>- The exact name of the content.</li>
+            <li>- Where the content appears (direct URLs).</li>
+            <li>- Whether you are authorized to act for the rights holder.</li>
+            <li>- Contact details such as email and/or phone number.</li>
+          </ul>
+          <p className="mt-2">
+            DMCA requests are reviewed seriously, and we make a strong effort to respond and resolve disputes quickly.
+            Fraudulent or joke takedown requests may be ignored and blocked.
+          </p>
+        </div>
       </div>
     ),
     'Code and Contact': (
@@ -1185,6 +1205,7 @@ const Setting = ({ setting }) => {
                   </span>
                 </div>
                 <p className="text-sm mt-0.5" style={{ color: popupMutedColor }}>Create a theme from a single color.</p>
+                <p className="text-xs mt-1" style={{ color: popupMutedColor }}>Light mode isn&apos;t avaliable.</p>
               </div>
               <button
                 type="button"
@@ -1254,41 +1275,11 @@ const Setting = ({ setting }) => {
                 </code>
               </div>
 
-              {/* Dark / Light toggle */}
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => handlePickerMode('dark')}
-                  className={clsx(
-                    'h-10 rounded-xl border text-sm font-medium flex items-center justify-center gap-1.5 transition-colors',
-                    pickerMode === 'dark'
-                      ? (isUiLight ? 'bg-black/10 border-black/25' : 'bg-white/12 border-white/25')
-                      : (isUiLight ? 'bg-transparent border-black/10 hover:bg-black/5' : 'bg-transparent border-white/8 hover:bg-white/6'),
-                  )}
-                  style={{ color: pickerMode === 'dark' ? popupTextColor : popupMutedColor }}
-                >
-                  <Moon size={15} /> Dark
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handlePickerMode('light')}
-                  className={clsx(
-                    'h-10 rounded-xl border text-sm font-medium flex items-center justify-center gap-1.5 transition-colors',
-                    pickerMode === 'light'
-                      ? (isUiLight ? 'bg-black/10 border-black/25' : 'bg-white/12 border-white/25')
-                      : (isUiLight ? 'bg-transparent border-black/10 hover:bg-black/5' : 'bg-transparent border-white/8 hover:bg-white/6'),
-                  )}
-                  style={{ color: pickerMode === 'light' ? popupTextColor : popupMutedColor }}
-                >
-                  <Sun size={15} /> Light
-                </button>
-              </div>
-
               {/* Apply */}
               <button
                 type="button"
                 onClick={() => {
-                  const resolvedMode = getForcedPickerMode(pickerMode);
+                  const resolvedMode = 'dark';
                   if (resolvedMode !== pickerMode) {
                     setPickerMode(resolvedMode);
                   }
