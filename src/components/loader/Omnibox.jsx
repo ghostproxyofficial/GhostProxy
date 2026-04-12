@@ -276,10 +276,19 @@ const Omnibox = () => {
 
     latestQuery.current = searchQuery;
     try {
-      const response = await fetch('/return?q=' + encodeURIComponent(searchQuery));
-      if (!response.ok) return setResults([]);
+      let data = null;
 
-      const data = await response.json();
+      const localResponse = await fetch('/return?q=' + encodeURIComponent(searchQuery));
+      if (localResponse.ok) {
+        data = await localResponse.json();
+      } else {
+        const fallbackResponse = await fetch(
+          'https://duckduckgo.com/ac/?q=' + encodeURIComponent(searchQuery) + '&type=list',
+        );
+        if (!fallbackResponse.ok) return setResults([]);
+        data = await fallbackResponse.json();
+      }
+
       if (latestQuery.current !== searchQuery) return;
       const list = Array.isArray(data) ? data.filter((i) => i.phrase).slice(0, 6) : [];
       setResults(list);

@@ -281,6 +281,8 @@ const NewTab = ({ id, updateFn }) => {
     const fetchIpMeta = async () => {
       const providers = [
         { url: '/api/ip/meta', source: 'proxy' },
+        { url: 'https://ipwho.is/', source: 'ipwho' },
+        { url: 'https://ipapi.co/json/', source: 'ipapi' },
       ];
 
       for (const provider of providers) {
