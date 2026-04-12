@@ -127,10 +127,41 @@ export default function useReg() {
           ? 'epoxy'
           : 'libcurl';
 
+      const resolveRemoteProxyUrl = () => {
+        if (String(options.proxyRouting || 'direct').toLowerCase() !== 'remote') return null;
+        const raw = String(options.remoteProxyServer || '').trim();
+        if (!raw || raw === 'undefined' || raw === 'null') return null;
+
+        const selectedType = String(options.remoteProxyType || 'http').toLowerCase();
+        const scheme = ['http', 'socks4', 'socks5'].includes(selectedType) ? selectedType : 'http';
+
+        try {
+          const hasScheme = /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(raw);
+          const normalized = hasScheme ? raw : `${scheme}://${raw}`;
+          const parsed = new URL(normalized);
+          const host = String(parsed.hostname || '').trim().toLowerCase();
+          if (!host || host === 'undefined' || host === 'null') return null;
+          const auth = parsed.username
+            ? `${parsed.username}${parsed.password ? `:${parsed.password}` : ''}@`
+            : '';
+          const port = parsed.port ? `:${parsed.port}` : '';
+          return `${parsed.protocol}//${auth}${parsed.hostname}${port}`;
+        } catch {
+          return null;
+        }
+      };
+
+      const remoteProxyUrl = resolveRemoteProxyUrl();
+
       const setTransportByName = async (name, endpoint) => {
         const modulePath = name === 'epoxy' ? '/epoxy/index.mjs' : '/libcurl/index.mjs';
-        await connection.setTransport(modulePath, [{ wisp: endpoint }]);
+        const transportConfig = { wisp: endpoint };
+        if (remoteProxyUrl) {
+          transportConfig.proxy = remoteProxyUrl;
+        }
+        await connection.setTransport(modulePath, [transportConfig]);
         window.__ghostActiveTransport = name;
+        window.__ghostActiveRemoteProxy = remoteProxyUrl;
       };
 
       const fallbackTransport = preferredTransport === 'epoxy' ? 'libcurl' : 'epoxy';
@@ -165,14 +196,16 @@ export default function useReg() {
 
       window.__ghostActiveTransport = null;
       window.__ghostActiveWisp = null;
+      window.__ghostActiveRemoteProxy = remoteProxyUrl;
       setWispStatus(false);
       console.error('[proxy] Failed to initialize transport.', {
         primaryError,
         fallbackError,
         wispUrl,
+        remoteProxyUrl,
       });
     };
 
     init();
-  }, [options.wServer, options.transport]);
+  }, [options.wServer, options.transport, options.proxyRouting, options.remoteProxyServer, options.remoteProxyType]);
 }

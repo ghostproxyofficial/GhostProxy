@@ -912,7 +912,7 @@ const TV_APPS = [
 ];
 
 const GHOST_MUSIC_APPS = [
-  { appName: 'Monochrome', desc: 'Monochrome music player', icon: WHITE_MUSIC_ICON, url: 'https://monochrome.samidy.com', playerKey: 'monochrome', isMusicProvider: true },
+  { appName: 'Monochrome', desc: 'Monochrome music player', icon: WHITE_MUSIC_ICON, url: 'https://tidal.squid.wtf', playerKey: 'monochrome', isMusicProvider: true },
 ];
 
 const THIRD_PARTY_MUSIC_APPS = [

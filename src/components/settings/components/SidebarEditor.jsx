@@ -61,7 +61,7 @@ export default function SidebarEditor({ open, onClose }) {
         { id: 'showChangelog', label: 'Changelog', default: true },
         { id: 'showDocs', label: 'Docs', default: true },
         { id: 'showDiscord', label: 'Discord', default: true },
-        { id: 'showChat', label: 'Chat', default: false },
+        { id: 'showChat', label: 'Chat', default: true },
     ];
 
     const isToggled = (id) => {

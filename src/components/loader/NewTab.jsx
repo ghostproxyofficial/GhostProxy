@@ -179,12 +179,6 @@ const NewTab = ({ id, updateFn }) => {
   useEffect(() => {
     let cancelled = false;
 
-    if (options.hideLocation === true) {
-      setIpMeta((prev) => ({ ...prev, city: '', latitude: null, longitude: null }));
-      return () => {
-        cancelled = true;
-      };
-    }
     const loadBattery = async () => {
       try {
         const battery = await navigator.getBattery?.();
@@ -208,18 +202,10 @@ const NewTab = ({ id, updateFn }) => {
     return () => {
       cancelled = true;
     };
-  }, [options.hideLocation]);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
-
-    if (options.hideLocation === true) {
-      setMenuWeather({ temp: null, weatherCode: null, isDay: true });
-      setForecastDays([]);
-      return () => {
-        cancelled = true;
-      };
-    }
 
     const parseProviderMeta = (payload, source) => {
       if (!payload || typeof payload !== 'object') return null;
@@ -450,7 +436,7 @@ const NewTab = ({ id, updateFn }) => {
       cancelled = true;
       clearInterval(timer);
     };
-  }, [options.weatherUseIpLocation, options.weatherCoordsOverride, options.weatherUnit, ipMeta.latitude, ipMeta.longitude, options.hideLocation]);
+  }, [options.weatherUseIpLocation, options.weatherCoordsOverride, options.weatherUnit, ipMeta.latitude, ipMeta.longitude]);
 
   const navigating = {
     id: id,
@@ -519,7 +505,7 @@ const NewTab = ({ id, updateFn }) => {
                 const WxIcon = weatherIcon;
                 return <WxIcon size={13} />;
               })()}
-              {options.hideLocation !== true && Number.isFinite(menuWeather.temp) ? `${Math.round(menuWeather.temp)}°${weatherUnitLabel}` : '--'}
+              {Number.isFinite(menuWeather.temp) ? `${Math.round(menuWeather.temp)}°${weatherUnitLabel}` : '--'}
             </span>
           </div>
 

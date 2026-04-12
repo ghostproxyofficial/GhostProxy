@@ -990,13 +990,6 @@ export default function Loader({ url, ui = true, zoom }) {
   useEffect(() => {
     let canceled = false;
 
-    if (options.hideLocation === true) {
-      setIpMeta((prev) => ({ ...prev, city: '', latitude: null, longitude: null }));
-      return () => {
-        canceled = true;
-      };
-    }
-
     const parseProviderMeta = (payload, source) => {
       if (!payload || typeof payload !== 'object') return null;
 
@@ -1104,17 +1097,10 @@ export default function Loader({ url, ui = true, zoom }) {
     return () => {
       canceled = true;
     };
-  }, [options.hideLocation]);
+  }, []);
 
   useEffect(() => {
     let canceled = false;
-
-    if (options.hideLocation === true) {
-      setMenuWeather({ temp: null, weatherCode: null, isDay: true });
-      return () => {
-        canceled = true;
-      };
-    }
 
     const loadWeather = async () => {
       try {
@@ -1181,7 +1167,7 @@ export default function Loader({ url, ui = true, zoom }) {
       canceled = true;
       clearInterval(poll);
     };
-  }, [ipMeta.latitude, ipMeta.longitude, options.weatherUnit, options.weatherUseIpLocation, options.weatherCoordsOverride, options.hideLocation]);
+  }, [ipMeta.latitude, ipMeta.longitude, options.weatherUnit, options.weatherUseIpLocation, options.weatherCoordsOverride]);
 
   useEffect(() => {
     if (historyPopupOpen) {
@@ -1709,13 +1695,13 @@ export default function Loader({ url, ui = true, zoom }) {
                     </span>
                   </div>
                   <div className="mt-1 flex items-center justify-between text-[11px] text-white/80">
-                    <span className="truncate max-w-[7.2rem]">{options.hideLocation === true ? 'Location Hidden' : (ipMeta.city || 'Your Location')}</span>
+                    <span className="truncate max-w-[7.2rem]">{options.hideLocation === true ? 'Location Hidden' : (ipMeta.city || effectiveTimezone || '--')}</span>
                     <span className="inline-flex items-center gap-1">
                       {(() => {
                         const WxIcon = weatherIcon;
                         return <WxIcon size={12} />;
                       })()}
-                      {options.hideLocation !== true && Number.isFinite(menuWeather.temp)
+                      {Number.isFinite(menuWeather.temp)
                         ? `${Math.round(menuWeather.temp)}°${weatherUnitLabel}`
                         : '--'}
                     </span>
@@ -1728,6 +1714,7 @@ export default function Loader({ url, ui = true, zoom }) {
                   { label: 'Games', action: () => navigateActiveTab('ghost://games') },
                   { label: 'TV', action: () => navigateActiveTab('ghost://tv') },
                   { label: 'Music', action: () => navigateActiveTab('ghost://music') },
+                  { label: 'Chat', action: () => navigateActiveTab('https://app.revolt.chat/login') },
                   { label: 'Remote Access', action: () => navigateActiveTab('ghost://remote') },
                   { label: 'Artificial Intelligence', action: () => navigateActiveTab('ghost://ai') },
                   { label: 'Code Runner', action: () => navigateActiveTab('ghost://code') },
@@ -1775,10 +1762,10 @@ export default function Loader({ url, ui = true, zoom }) {
                 <Music size={16} />
               </SidebarButton>
             )}
-            {options?.sidebarToggles?.showChat === true && (
+            {options?.sidebarToggles?.showChat !== false && (
               <SidebarButton
                 label="Chat"
-                onClick={() => navigateActiveTab('https://discord.com/app')}
+                onClick={() => navigateActiveTab('https://app.revolt.chat/login')}
               >
                 <LucideIcons.MessageSquare size={16} />
               </SidebarButton>

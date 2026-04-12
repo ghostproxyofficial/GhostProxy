@@ -25,6 +25,7 @@ const DEFAULT_OPTIONS = {
   shortcuts: buildDefaultShortcutsMap(),
   transport: 'libcurl',
   proxyRouting: 'direct',
+  remoteProxyType: 'http',
   remoteProxyServer: '',
   globalFont: 'Inter',
   performanceMode: false,
@@ -64,13 +65,8 @@ const normalizeLegacyOptions = (stored) => {
     if (!raw || raw === 'undefined' || raw === 'null') return fallback;
 
     try {
-      const withScheme =
-        raw.startsWith('http://') ||
-        raw.startsWith('https://') ||
-        raw.startsWith('ws://') ||
-        raw.startsWith('wss://')
-          ? raw
-          : `https://${raw}`;
+      const hasScheme = /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(raw);
+      const withScheme = hasScheme ? raw : `https://${raw}`;
       const parsed = new URL(withScheme);
       const host = String(parsed.hostname || '').trim().toLowerCase();
       if (!host || host === 'undefined' || host === 'null') return fallback;
@@ -88,6 +84,13 @@ const normalizeLegacyOptions = (stored) => {
     out.proxyRouting = 'direct';
   }
 
+  const proxyType = String(out.remoteProxyType || '').toLowerCase();
+  if (!['http', 'socks4', 'socks5'].includes(proxyType)) {
+    out.remoteProxyType = 'http';
+  } else {
+    out.remoteProxyType = proxyType;
+  }
+
   const toBool = (value, fallback = false) => {
     if (typeof value === 'boolean') return value;
     if (typeof value === 'string') {
@@ -102,6 +105,13 @@ const normalizeLegacyOptions = (stored) => {
   out.antiClose = toBool(out.antiClose, false);
   out.popupBlockDefault = toBool(out.popupBlockDefault, false);
   out.downloadBlockDefault = toBool(out.downloadBlockDefault, false);
+
+  const sidebarToggles =
+    out.sidebarToggles && typeof out.sidebarToggles === 'object'
+      ? { ...out.sidebarToggles }
+      : {};
+  sidebarToggles.showChat = true;
+  out.sidebarToggles = sidebarToggles;
 
   const validAiProviders = new Set([
     '',

@@ -7,6 +7,11 @@ const Breadcrumb = ({ theme, name }) => {
   const nav = useNavigate();
   const gamesGhostRoute = 'ghost://games';
   const openGames = () => {
+    if (window.history.length > 1) {
+      nav(-1);
+      return;
+    }
+
     try {
       const topWin = window.top && window.top !== window ? window.top : window;
       const getTabId = topWin.__ghostGetActiveTabId;

@@ -37,6 +37,12 @@ const proxyRoutingConfig = [
   { option: 'Remote Proxy Server', value: { proxyRouting: 'remote' } },
 ];
 
+const remoteProxyTypeConfig = [
+  { option: 'HTTP', value: { remoteProxyType: 'http' } },
+  { option: 'SOCKS4', value: { remoteProxyType: 'socks4' } },
+  { option: 'SOCKS5', value: { remoteProxyType: 'socks5' } },
+];
+
 const weatherUnitConfig = [
   { option: 'Fahrenheit (°F)', value: { weatherUnit: 'fahrenheit' } },
   { option: 'Celsius (°C)', value: { weatherUnit: 'celsius' } },
@@ -403,11 +409,15 @@ export const advancedConfig = ({ options, updateOption }) => ({
     name: 'Wisp Config',
     desc: 'Configure the websocket server location.',
     // Empty custom value falls back to the fixed default endpoint.
-    value: options.wServer
-      ? options.wServer
-      : 'wss://dogekeepthisasecret.undoanarchy.rocks/wisp/',
+    value: options.wServer || '',
     type: 'input',
-    action: (b) => updateOption({ wServer: b || null, proxyRouting: 'direct' }),
+    action: (b) => {
+      const raw = String(b || '').trim();
+      updateOption({
+        wServer: raw || null,
+        proxyRouting: 'direct',
+      });
+    },
   },
   3: {
     name: 'Transport',
@@ -430,14 +440,27 @@ export const advancedConfig = ({ options, updateOption }) => ({
     action: (a) => updateOption(a),
   },
   5: {
+    name: 'Remote Proxy Type',
+    desc: 'Choose the protocol for your remote proxy server.',
+    config: remoteProxyTypeConfig,
+    value: find(
+      remoteProxyTypeConfig,
+      (c) => c.value?.remoteProxyType === (options.remoteProxyType || 'http'),
+      0,
+    ),
+    type: 'select',
+    action: (a) => updateOption(a),
+    hidden: (options.proxyRouting || 'direct') !== 'remote',
+  },
+  6: {
     name: 'Remote Proxy Server',
-    desc: 'Used when Proxy Routing is set to Remote Proxy Server.',
+    desc: 'Remote proxy host/IP (no scheme needed; selected protocol above is applied).',
     value: options.remoteProxyServer || '',
     type: 'input',
     action: (v) => updateOption({ remoteProxyServer: (v || '').trim() }),
     hidden: (options.proxyRouting || 'direct') !== 'remote',
   },
-  6: {
+  7: {
     name: 'Cloud Save',
     desc: 'Read the Docs to learn about Cloud Save',
     value: !!options.cloudSaveEnabled,
@@ -445,7 +468,7 @@ export const advancedConfig = ({ options, updateOption }) => ({
     action: (b) => updateOption({ cloudSaveEnabled: b }),
     disabled: true,
   },
-  7: {
+  8: {
     name: 'Cloud Save Value',
     desc: 'Cloud Save endpoint or value.',
     value: options.cloudSave || '',
@@ -455,7 +478,7 @@ export const advancedConfig = ({ options, updateOption }) => ({
     disabled: !options.cloudSaveEnabled,
     hidden: !options.cloudSaveEnabled,
   },
-  8: {
+  9: {
     name: 'Cloud Save Username',
     desc: 'Username for Cloud Save access.',
     value: options.cloudSaveUsername || '',
@@ -465,7 +488,7 @@ export const advancedConfig = ({ options, updateOption }) => ({
     disabled: !options.cloudSaveEnabled,
     hidden: !options.cloudSaveEnabled,
   },
-  9: {
+  10: {
     name: 'Cloud Save Password',
     desc: 'Password for Cloud Save access.',
     value: options.cloudSavePassword || '',
@@ -476,14 +499,14 @@ export const advancedConfig = ({ options, updateOption }) => ({
     disabled: !options.cloudSaveEnabled,
     hidden: !options.cloudSaveEnabled,
   },
-  10: {
+  11: {
     name: 'Reset Instance',
     desc: 'Clear your site data if you are having issues.',
     type: 'button',
     value: 'Reset Data',
     action: () => import('/src/utils/utils.js').then(({ resetInstance }) => resetInstance()),
   },
-  11: {
+  12: {
     name: 'Debug Mode Overlay',
     desc: 'Shows a draggable live debugging overlay.',
     value: !!options.debugMode,
@@ -550,6 +573,16 @@ export const infoConfig = () => ({
   4: {
     name: 'Code and Contact',
     desc: 'Links for source code and support contact.',
+    type: 'info',
+  },
+  5: {
+    name: 'Frequently Asked Questions',
+    desc: 'Common answers about links, compatibility, and reporting bugs.',
+    type: 'info',
+  },
+  6: {
+    name: 'Build',
+    desc: 'Current Ghost build details.',
     type: 'info',
   },
 });

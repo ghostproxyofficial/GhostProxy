@@ -108,6 +108,7 @@ const Viewer = ({ zoom }) => {
     return (
       value === 'tabs://new' ||
       value === 'ghost://home' ||
+      value === 'ghost://search' ||
       value === 'ghost://new-tab' ||
       value === 'ghost://newtab'
     );

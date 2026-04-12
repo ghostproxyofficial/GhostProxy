@@ -12,8 +12,10 @@ import ImportDialog from './settings/components/ImportDialog';
 import {
   ChevronDown,
   ChevronUp,
+  CircleHelp,
   Code2,
   Github,
+  Hammer,
   Heart,
   Library,
   MessagesSquare,
@@ -29,6 +31,8 @@ import pkg from '../../package.json';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const BUG_REPORT_FORM_URL = 'https://forms.gle/94VwArsXReWqyWWr9';
+const DISCORD_SERVER_URL = 'https://discord.gg/UZzYt4uE6D';
+const GITHUB_REPO_URL = 'https://github.com/ghostproxyofficial/GhostProxy';
 const LIGHT_MODE_AVAILABLE = false;
 const selectableThemePresets = siteThemeConfig.filter((entry) => entry.option !== 'Light');
 
@@ -214,6 +218,144 @@ const InfoPanel = () => {
         </div>
       </div>
     ),
+    'Frequently Asked Questions': (
+      <div className="space-y-4 text-sm opacity-90">
+        <div>
+          <p className="font-semibold mb-1">Where can I find links?</p>
+          <ul className="space-y-1">
+            <li>
+              - You can find links in the{' '}
+              <a
+                href={DISCORD_SERVER_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:opacity-80"
+              >
+                Discord Server
+              </a>
+              , just verify and go to the different channels.
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <p className="font-semibold mb-1">Why do some sites not load or work?</p>
+          <ul className="space-y-1">
+            <li>
+              - You may be using an outdated version, or your internet/browser has blocked the website. Downtime is reported in the{' '}
+              <a
+                href={DISCORD_SERVER_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:opacity-80"
+              >
+                Discord Server
+              </a>
+              .
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <p className="font-semibold mb-1">How can I make links? (BYOD)</p>
+          <ul className="space-y-1">
+            <li>
+              - Use the{' '}
+              <a
+                href={GITHUB_REPO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:opacity-80"
+              >
+                GitHub repo
+              </a>
+              {' '}to fork the proxy, make any changes, and then deploy via GitHub Pages/Cloudflare Pages or whatever you want to use.
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <p className="font-semibold mb-1">I found a bug, what now?</p>
+          <ul className="space-y-1">
+            <li>- Please let us know! You can:</li>
+            <li>- A. Press the Report Bug above</li>
+            <li>
+              - B. Report the bug in the{' '}
+              <a
+                href={DISCORD_SERVER_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:opacity-80"
+              >
+                Discord Server
+              </a>
+            </li>
+            <li>
+              - C. Fix the bug via{' '}
+              <a
+                href={GITHUB_REPO_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline underline-offset-2 hover:opacity-80"
+              >
+                GitHub
+              </a>
+              {' '}(if you want to of course)
+            </li>
+          </ul>
+        </div>
+      </div>
+    ),
+    Build: (
+      <div
+        className="rounded-xl border p-4"
+        style={{
+          borderColor: options.settingsBorderColor || 'rgba(255,255,255,0.15)',
+          backgroundColor: options.settingsContainerColor || options.quickModalBgColor || options.menuColor || '#1a252f',
+        }}
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <img src="/ghost.png" alt="Ghost" className="w-10 h-10 object-contain" draggable={false} />
+          <div>
+            <p className="text-xl font-semibold leading-tight">Ghost</p>
+            <p className="text-sm opacity-70">A web-based browser experience</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div
+            className="rounded-lg border p-3"
+            style={{
+              borderColor: options.settingsBorderColor || 'rgba(255,255,255,0.10)',
+              backgroundColor: options.settingsDropdownColor || 'rgba(0,0,0,0.20)',
+            }}
+          >
+            <p className="text-xs uppercase tracking-wide opacity-70">Version</p>
+            <p className="text-base font-semibold mt-1">{pkg.version}</p>
+          </div>
+          <div
+            className="rounded-lg border p-3"
+            style={{
+              borderColor: options.settingsBorderColor || 'rgba(255,255,255,0.10)',
+              backgroundColor: options.settingsDropdownColor || 'rgba(0,0,0,0.20)',
+            }}
+          >
+            <p className="text-xs uppercase tracking-wide opacity-70">Stack</p>
+            <p className="text-base font-semibold mt-1">React + Vite + TailwindCSS + JavaScript</p>
+          </div>
+          <div
+            className="rounded-lg border p-3 sm:col-span-2"
+            style={{
+              borderColor: options.settingsBorderColor || 'rgba(255,255,255,0.10)',
+              backgroundColor: options.settingsDropdownColor || 'rgba(0,0,0,0.20)',
+            }}
+          >
+            <p className="text-xs uppercase tracking-wide opacity-70">Made by</p>
+            <p className="text-base font-semibold mt-1">ghostproxyofficial</p>
+          </div>
+        </div>
+      </div>
+    ),
   };
 
   const iconMap = {
@@ -221,6 +363,8 @@ const InfoPanel = () => {
     'Open Source Licenses': Library,
     Legal: Scale,
     'Code and Contact': Code2,
+    'Frequently Asked Questions': CircleHelp,
+    Build: Hammer,
   };
 
   return (

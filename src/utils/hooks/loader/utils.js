@@ -68,7 +68,6 @@ const isInternalGhostCandidate = (value) => {
   if (!raw) return false;
   if (raw === 'tabs://new') return true;
   if (raw.startsWith('ghost://') || raw.startsWith('tabs://')) return true;
-  if (raw.includes('ghost=1')) return true;
 
   try {
     const parsed = new URL(raw, location.origin);
@@ -96,7 +95,13 @@ export const isInternalGhostTabUrl = (urlValue, iframeUrlValue = '') => {
   const raw = String(urlValue || '').trim();
   const iframe = String(iframeUrlValue || '').trim();
   if (!raw && !iframe) return true;
-  return isInternalGhostCandidate(raw) || isInternalGhostCandidate(iframe);
+
+  // The tab URL is the source of truth. Iframe URLs can be stale during transitions.
+  if (raw) {
+    return isInternalGhostCandidate(raw);
+  }
+
+  return isInternalGhostCandidate(iframe);
 };
 
 const check = (inp, engine) => {
@@ -348,14 +353,19 @@ export const process = (input, decode = false, prType, engine = "https://duckduc
       const opts = JSON.parse(localStorage.getItem('options') || '{}');
       if (opts.proxyRouting === 'remote' && opts.remoteProxyServer) {
         const rawRemote = String(opts.remoteProxyServer || '').trim();
-        const normalized = rawRemote.startsWith('http://') || rawRemote.startsWith('https://')
+        const remoteType = String(opts.remoteProxyType || 'http').toLowerCase();
+        const hasScheme = /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(rawRemote);
+        const normalized = hasScheme
           ? rawRemote
-          : rawRemote.startsWith('ws://')
-            ? `http://${rawRemote.slice(5)}`
-            : rawRemote.startsWith('wss://')
-              ? `https://${rawRemote.slice(6)}`
-              : `https://${rawRemote}`;
-        base = new URL(normalized).origin;
+          : remoteType === 'http'
+            ? `https://${rawRemote}`
+            : `${remoteType}://${rawRemote}`;
+
+        const parsed = new URL(normalized);
+        const protocol = String(parsed.protocol || '').toLowerCase();
+        if (protocol === 'http:' || protocol === 'https:' || protocol === 'ws:' || protocol === 'wss:') {
+          base = parsed.origin;
+        }
       }
     } catch { }
 

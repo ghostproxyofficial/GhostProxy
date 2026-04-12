@@ -78,8 +78,29 @@ const Omnibox = () => {
     if (tabUrl === 'tabs://new') return tabUrl;
     const ghostDisplay = toGhostDisplayUrl(tabUrl);
     if (ghostDisplay) return tabUrl;
-    return String(frameUrl || '').trim() || tabUrl;
-  }, []);
+
+    const frame = String(frameUrl || '').trim();
+    if (!frame) return tabUrl;
+    const tabProxied = isProcied(tabUrl);
+    const frameProxied = isProcied(frame);
+    if (!tabProxied || !frameProxied) return tabUrl;
+
+    const normalizeDecoded = (value) =>
+      String(value || '')
+        .trim()
+        .replace(/^https?:\/\//i, '')
+        .replace(/\/$/, '')
+        .toLowerCase();
+
+    const decodedTab = normalizeDecoded(process(tabUrl, true, options.prType || 'auto', options.engine || undefined));
+    const decodedFrame = normalizeDecoded(process(frame, true, options.prType || 'auto', options.engine || undefined));
+
+    if (!decodedTab || !decodedFrame) return tabUrl;
+    if (decodedTab === decodedFrame) return frame;
+    if (decodedFrame.startsWith(`${decodedTab}/`) || decodedTab.startsWith(`${decodedFrame}/`)) return frame;
+
+    return tabUrl;
+  }, [options.prType, options.engine]);
 
   const isProcied = (url) => url?.includes('/uv/service/') || url?.includes('/scramjet/');
   const isNewTab = (url) => !url || url === 'tabs://new' || url.endsWith('/new');
@@ -252,21 +273,6 @@ const Omnibox = () => {
     return () => debounceRef.current && clearTimeout(debounceRef.current);
   }, []);
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const store = loaderStore.getState();
-      const current = store.tabs.find((tab) => tab.active);
-      if (!current) return;
-      const raw = getPreferredRawUrl(current, store.iframeUrls[current.id]);
-      const next = getDisplayUrl(raw);
-      if (!isEditingRef.current) {
-        setInput((prev) => (prev === next ? prev : next));
-      }
-      updateIcon(raw);
-    }, 350);
-    return () => clearInterval(interval);
-  }, [options.prType, options.engine, getPreferredRawUrl]);
-
   const fetchResults = useCallback(async (searchQuery) => {
     if (!searchQuery.trim() || options.searchRecommendationsTop === false || suppressSuggestionsRef.current) {
       setResults([]);
@@ -373,7 +379,6 @@ const Omnibox = () => {
           onBlur={() => {
             isEditingRef.current = false;
             const raw = activeTab ? getPreferredRawUrl(activeTab, activeFrameUrl) : '';
-            setInput(getDisplayUrl(raw));
             updateIcon(raw);
           }}
           onFocus={() => {
@@ -519,8 +524,14 @@ const Omnibox = () => {
                   <span className="text-xs opacity-70 mb-1 block">Wisp Server</span>
                   <TextInput
                     defValue={options.wServer || ''}
-                    onChange={(val) => updateOption({ wServer: val || null, proxyRouting: 'direct' })}
-                    placeholder={'wss://dogekeepthisasecret.undoanarchy.rocks/wisp/'}
+                    onChange={(val) => {
+                      const raw = String(val || '').trim();
+                      updateOption({
+                        wServer: raw || null,
+                        proxyRouting: 'direct',
+                      });
+                    }}
+                    placeholder={'Enter text'}
                     maxW={58}
                     compact
                     live
@@ -545,17 +556,38 @@ const Omnibox = () => {
                 </label>
 
                 {(options.proxyRouting || 'direct') === 'remote' && (
-                  <label className="block">
-                    <span className="text-xs opacity-70 mb-1 block">Remote Proxy Server</span>
-                    <TextInput
-                      defValue={options.remoteProxyServer || ''}
-                      onChange={(val) => updateOption({ remoteProxyServer: (val || '').trim() })}
-                      placeholder="https://your-proxy-domain"
-                      maxW={58}
-                      compact
-                      live
-                    />
-                  </label>
+                  <>
+                    <label className="block">
+                      <span className="text-xs opacity-70 mb-1 block">Remote Proxy Type</span>
+                      <ComboBox
+                        config={[
+                          { option: 'HTTP', value: 'http' },
+                          { option: 'SOCKS4', value: 'socks4' },
+                          { option: 'SOCKS5', value: 'socks5' },
+                        ]}
+                        selectedValue={[
+                          { option: 'HTTP', value: 'http' },
+                          { option: 'SOCKS4', value: 'socks4' },
+                          { option: 'SOCKS5', value: 'socks5' },
+                        ].find((x) => x.value === (options.remoteProxyType || 'http'))}
+                        action={(item) => updateOption({ remoteProxyType: item || 'http' })}
+                        maxW={58}
+                        compact
+                      />
+                    </label>
+
+                    <label className="block">
+                      <span className="text-xs opacity-70 mb-1 block">Remote Proxy Server</span>
+                      <TextInput
+                        defValue={options.remoteProxyServer || ''}
+                        onChange={(val) => updateOption({ remoteProxyServer: (val || '').trim() })}
+                        placeholder="proxy.example.com:8080"
+                        maxW={58}
+                        compact
+                        live
+                      />
+                    </label>
+                  </>
                 )}
 
                 <label className="block">
