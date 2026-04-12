@@ -6,7 +6,7 @@
   
   <br />
   <br />
-  <img width="1278" height="628" alt="preview" src="preview.png" />
+  <img width="1278" height="628" alt="preview" src="https://raw.githubusercontent.com/ghostproxyofficial/GhostProxy/refs/heads/main/public/preview.png" />
 </div>
 
 ## Overview
