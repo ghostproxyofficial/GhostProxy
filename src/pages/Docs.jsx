@@ -312,7 +312,6 @@ const Docs = memo(() => {
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search docs"
                 className="w-full bg-transparent outline-none text-sm"
-                disabled
               />
               <span className="text-[11px] px-1.5 py-0.5 rounded border border-white/20 opacity-70">{shortcutLabel}</span>
             </div>
@@ -338,79 +337,99 @@ const Docs = memo(() => {
           </div>
         </div>
 
-        {/* Content grid with dark overlay */}
-        <div className="relative">
-          <div className="pointer-events-none select-none" style={{ filter: 'brightness(0.35)' }}>
-            <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {filteredSections.map((section) => (
-                <div key={section.id} className="rounded-xl border border-white/10 p-4" style={{ backgroundColor: panelBg }}>
-                  <h2 className="text-xl font-semibold mb-3">{section.title}</h2>
-                  <ul className="space-y-2.5 text-sm opacity-90">
-                    {(section.topics || []).map((item, index) => (
-                      <li key={`${section.id}-${item.id}`} className="flex items-start gap-2">
-                        <span className="mt-[2px] inline-flex w-5 h-5 items-center justify-center rounded-full bg-white/8 text-[11px]">{index + 1}</span>
-                        <span className="text-left">{item.title}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
+        <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {filteredSections.map((section) => (
+            <div key={section.id} className="rounded-xl border border-white/10 p-4" style={{ backgroundColor: panelBg }}>
+              <h2 className="text-xl font-semibold mb-3">{section.title}</h2>
+              <ul className="space-y-2.5 text-sm opacity-90">
+                {(section.topics || []).map((item, index) => (
+                  <li key={`${section.id}-${item.id}`}>
+                    <button
+                      type="button"
+                      onClick={() => openTopic(section.id, item.id)}
+                      className="w-full text-left flex items-start gap-2 rounded-md px-1 py-1 hover:bg-white/8"
+                    >
+                      <span className="mt-[2px] inline-flex w-5 h-5 items-center justify-center rounded-full bg-white/8 text-[11px]">{index + 1}</span>
+                      <span>{item.title}</span>
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
+          ))}
+        </div>
 
-            <div className="mt-5 rounded-xl border border-white/10 p-5 flex items-center justify-between gap-4" style={{ backgroundColor: panelBg }}>
-              <div>
-                <h3 className="text-xl font-semibold">Dictionary</h3>
-                <p className="text-sm opacity-80 mt-1">Learn what terms for Ghost and Proxying in general mean</p>
-              </div>
-              <div className="h-10 px-4 rounded-md bg-white/10 text-sm flex items-center">View</div>
-            </div>
+        <div className="mt-5 rounded-xl border border-white/10 p-5 flex items-center justify-between gap-4" style={{ backgroundColor: panelBg }}>
+          <div>
+            <h3 className="text-xl font-semibold">Dictionary</h3>
+            <p className="text-sm opacity-80 mt-1">Learn what terms for Ghost and proxying mean</p>
           </div>
+          <button
+            type="button"
+            onClick={() => setDictionaryOpen(true)}
+            className="h-10 px-4 rounded-md bg-white/10 hover:bg-white/18 text-sm flex items-center"
+          >
+            View
+          </button>
+        </div>
 
-          {/* Coming Soon popup */}
-          <div className="absolute inset-0 flex items-center justify-center z-20">
+        {dictionaryRender && (
+          <div
+            className={
+              'fixed inset-0 z-[120] flex items-center justify-center p-4 ghost-doc-popup-backdrop transition-opacity duration-200 ' +
+              (dictionaryAnim ? 'opacity-100' : 'opacity-0 pointer-events-none')
+            }
+          >
+            <button
+              type="button"
+              aria-label="Close dictionary"
+              className="absolute inset-0 bg-black/55"
+              onClick={() => setDictionaryOpen(false)}
+            />
             <div
-              className="rounded-2xl border border-white/15 backdrop-blur-lg px-10 py-8 flex flex-col items-center gap-4 shadow-[0_24px_48px_rgba(0,0,0,0.5)]"
+              className={
+                'relative w-full max-w-2xl rounded-2xl border border-white/15 p-5 shadow-[0_24px_48px_rgba(0,0,0,0.5)] ghost-doc-popup-panel transition-all duration-200 ' +
+                (dictionaryAnim ? 'opacity-100 scale-100' : 'opacity-0 scale-95')
+              }
               style={{ backgroundColor: panelBg }}
             >
-              <img
-                src="/ghost.png"
-                alt="Ghost"
-                className="w-14 h-14 object-contain"
-                style={{ filter: 'invert(1) brightness(1.8)' }}
-              />
-              <h2 className="text-2xl font-bold tracking-tight">Coming Soon</h2>
-              <p className="text-sm text-center max-w-xs" style={{ color: mutedText }}>
-                Ghost Docs is under construction. Check back soon for full documentation.
-              </p>
-              <button
-                type="button"
-                onClick={() => {
-                  if (inGhostBrowserMode) {
-                    try {
-                      const topWin = window.top && window.top !== window ? window.top : window;
-                      const getTabId = topWin.__ghostGetActiveTabId;
-                      const updater = topWin.__ghostUpdateBrowserTabUrl;
-                      const tabId = typeof getTabId === 'function' ? getTabId() : null;
-                      if (tabId && typeof updater === 'function') {
-                        updater(tabId, 'ghost://home', { skipProxy: true });
-                      } else {
-                        navigate('/');
-                      }
-                    } catch {
-                      navigate('/');
-                    }
-                  } else {
-                    navigate('/');
-                  }
-                }}
-                className="mt-1 h-9 px-5 rounded-lg bg-white/10 hover:bg-white/18 hover:brightness-110 hover:shadow-[0_0_0_1px_rgba(255,255,255,0.18)] border border-white/15 text-sm transition-all"
-                style={{ color: popupPrimaryText, backgroundColor: popupPrimaryBg, borderColor: 'transparent' }}
-              >
-                Return Home
-              </button>
+              <div className="flex items-center justify-between gap-3 mb-3">
+                <h2 className="text-xl font-semibold">Ghost Dictionary</h2>
+                <button
+                  type="button"
+                  className="h-8 px-3 rounded-md bg-white/10 hover:bg-white/18 text-sm"
+                  onClick={() => setDictionaryOpen(false)}
+                >
+                  Close
+                </button>
+              </div>
+
+              <div className="h-10 rounded-md border border-white/12 px-3 flex items-center gap-2 mb-3" style={{ backgroundColor: inputBg }}>
+                <Search size={14} className="opacity-70" />
+                <input
+                  value={dictionaryQuery}
+                  onChange={(e) => setDictionaryQuery(e.target.value)}
+                  placeholder="Search terms"
+                  className="w-full bg-transparent outline-none text-sm"
+                />
+              </div>
+
+              <div className="max-h-[52vh] overflow-y-auto rounded-lg border border-white/10 divide-y divide-white/10">
+                {filteredDictionaryEntries.map((entry) => (
+                  <div key={entry.word} className="px-3 py-2.5">
+                    <p className="text-sm font-semibold">{entry.word}</p>
+                    <p className="text-sm mt-1" style={{ color: mutedText }}>{entry.definition}</p>
+                  </div>
+                ))}
+                {filteredDictionaryEntries.length === 0 && (
+                  <div className="px-3 py-4 text-sm" style={{ color: mutedText }}>
+                    No terms matched your search.
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       <style>{`

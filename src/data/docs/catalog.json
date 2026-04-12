@@ -86,19 +86,19 @@
         "file": "/docs/development/1.md"
       },
       {
-        "id": "3",
+        "id": "2",
         "title": "How to setup Remote Proxy Server",
+        "file": "/docs/development/2.md"
+      },
+      {
+        "id": "3",
+        "title": "How to host a cloud saving server",
         "file": "/docs/development/3.md"
       },
       {
         "id": "4",
-        "title": "How to host a cloud saving server",
-        "file": "/docs/development/4.md"
-      },
-      {
-        "id": "5",
         "title": "How to set up Remote Access on your PC",
-        "file": "/docs/development/5.md"
+        "file": "/docs/development/4.md"
       }
     ]
   }

@@ -4,11 +4,179 @@
     "definition": "A service that routes your web requests through another server."
   },
   {
+    "word": "Forward Proxy",
+    "definition": "A proxy that sits between a client and the internet, forwarding client requests to destination websites."
+  },
+  {
+    "word": "Reverse Proxy",
+    "definition": "A proxy that sits in front of origin servers and receives external traffic on their behalf."
+  },
+  {
+    "word": "Upstream Proxy",
+    "definition": "An additional proxy layer used by another proxy system to forward traffic further upstream."
+  },
+  {
     "word": "Wisp",
     "definition": "Ghost's websocket tunnel endpoint used by transports for proxied requests."
   },
   {
+    "word": "Wisp Server",
+    "definition": "The backend endpoint that accepts proxied tunnel traffic for Ghost transports."
+  },
+  {
     "word": "Transport",
-    "definition": "The request backend implementation (for example LibCurl) used by the proxy engine."
+    "definition": "The request backend implementation (for example LibCurl or Epoxy) used by the proxy engine."
+  },
+  {
+    "word": "Libcurl",
+    "definition": "A transport backend that uses curl-style networking behavior for HTTP/HTTPS requests through Ghost."
+  },
+  {
+    "word": "Epoxy",
+    "definition": "A Ghost transport backend used to relay proxied traffic through the configured Wisp path."
+  },
+  {
+    "word": "SOCKS4",
+    "definition": "A legacy socket proxy protocol that forwards TCP traffic without modern authentication features."
+  },
+  {
+    "word": "SOCKS5",
+    "definition": "An advanced socket proxy protocol supporting authentication and broader proxying capabilities than SOCKS4."
+  },
+  {
+    "word": "HTTP Proxy",
+    "definition": "A proxy endpoint that accepts HTTP-style proxy requests and forwards them to destination hosts."
+  },
+  {
+    "word": "Proxy Routing",
+    "definition": "The mode that decides whether Ghost uses direct routing or an additional remote proxy endpoint."
+  },
+  {
+    "word": "Direct Connection",
+    "definition": "Routing mode where Ghost sends traffic through its normal configured backend path without a user-specified remote proxy endpoint."
+  },
+  {
+    "word": "Remote Proxy Server",
+    "definition": "A user-provided proxy endpoint (HTTP, SOCKS4, or SOCKS5) used as an extra routing layer for Ghost traffic."
+  },
+  {
+    "word": "Backend",
+    "definition": "The internal engine path Ghost uses to process requests, such as Ultraviolet or Scramjet flows."
+  },
+  {
+    "word": "Ultraviolet (UV)",
+    "definition": "A proxy backend path used by Ghost for encoded request forwarding through service worker routing."
+  },
+  {
+    "word": "Scramjet",
+    "definition": "A proxy backend/runtime used by Ghost that rewrites and relays web traffic through worker-based handling."
+  },
+  {
+    "word": "BareMux",
+    "definition": "The connection layer used to configure and switch Ghost transport handlers for proxied traffic."
+  },
+  {
+    "word": "Bare Client",
+    "definition": "A worker/client channel used by the proxy stack to perform outbound network requests."
+  },
+  {
+    "word": "Service Worker",
+    "definition": "A browser worker that intercepts and handles network requests, often used by proxy frameworks in Ghost."
+  },
+  {
+    "word": "Tunnel",
+    "definition": "A persistent communication path used to encapsulate and relay traffic between endpoints."
+  },
+  {
+    "word": "WebSocket",
+    "definition": "A full-duplex protocol for persistent client-server communication, used by Wisp transport channels."
+  },
+  {
+    "word": "TLS",
+    "definition": "Transport Layer Security, the protocol used to encrypt HTTPS and secure WebSocket (WSS) traffic."
+  },
+  {
+    "word": "SSL Connect Error",
+    "definition": "A connection failure raised when TLS/SSL handshake or certificate validation cannot be completed for a request."
+  },
+  {
+    "word": "Certificate",
+    "definition": "A signed cryptographic document used to verify domain identity for secure HTTPS/TLS connections."
+  },
+  {
+    "word": "DNS",
+    "definition": "Domain Name System, which resolves human-readable domains into IP addresses."
+  },
+  {
+    "word": "Hostname",
+    "definition": "The domain label portion of a URL that identifies the destination server."
+  },
+  {
+    "word": "Endpoint",
+    "definition": "A concrete network address (URL/host/port path) that a client connects to for a service."
+  },
+  {
+    "word": "Origin",
+    "definition": "The combination of scheme, host, and port that defines a security boundary in browsers."
+  },
+  {
+    "word": "Same-Origin Policy",
+    "definition": "A browser security model restricting interactions between documents/resources from different origins."
+  },
+  {
+    "word": "CORS",
+    "definition": "Cross-Origin Resource Sharing, an HTTP policy mechanism that allows or blocks cross-origin requests."
+  },
+  {
+    "word": "User Agent",
+    "definition": "The client identifier string sent with requests, often describing browser and platform."
+  },
+  {
+    "word": "Request Header",
+    "definition": "Metadata sent with an HTTP request, such as authorization, user agent, or content preferences."
+  },
+  {
+    "word": "Response Header",
+    "definition": "Metadata returned by a server with the response, including caching, security, and content details."
+  },
+  {
+    "word": "Latency",
+    "definition": "The delay between sending a request and receiving a response, typically measured in milliseconds."
+  },
+  {
+    "word": "Timeout",
+    "definition": "A configured maximum wait duration after which a network request is aborted as failed."
+  },
+  {
+    "word": "Retry",
+    "definition": "A repeated request attempt after a failure, often used for transient network issues."
+  },
+  {
+    "word": "Fallback",
+    "definition": "An alternate transport/backend path used when the preferred path fails."
+  },
+  {
+    "word": "Ad Block",
+    "definition": "A filter mechanism that removes or suppresses known ad resources and ad-related page elements."
+  },
+  {
+    "word": "Popup Block",
+    "definition": "A control that prevents websites from opening new popup windows/tabs without user intent."
+  },
+  {
+    "word": "Download Block",
+    "definition": "A control that prevents download-triggering actions and file-like navigation targets."
+  },
+  {
+    "word": "Ghost Route",
+    "definition": "An internal route using the `ghost://` scheme to navigate built-in Ghost pages and tools."
+  },
+  {
+    "word": "tabs://new",
+    "definition": "Ghost's internal placeholder URL used for New Tab state before external page navigation."
+  },
+  {
+    "word": "Omnibox",
+    "definition": "The combined address/search input bar used to navigate URLs and submit search queries."
   }
 ]
