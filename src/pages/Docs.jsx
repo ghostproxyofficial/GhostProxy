@@ -135,8 +135,6 @@ const Docs = memo(() => {
     options.type === 'light' ||
     options.theme === 'light' ||
     options.themeName === 'light';
-  const popupPrimaryBg = isLightTheme ? '#3d4654' : '#3a3f48';
-  const popupPrimaryText = '#f6f8fc';
 
   const categories = useMemo(() => (Array.isArray(docsCatalog) ? docsCatalog : []), []);
 

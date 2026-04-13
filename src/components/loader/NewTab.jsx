@@ -33,6 +33,13 @@ const NewTab = ({ id, updateFn }) => {
   const WEATHER_COORDS_CACHE_KEY = 'ghostWeatherCoordsCache';
   const WEATHER_FALLBACK_COORDS = { lat: 40.7128, lon: -74.006 };
 
+  const normalizeTimezone = (value) => {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    if (/^(etc\/|gmt$|gmt[+-]|utc$)/i.test(raw)) return '';
+    return raw;
+  };
+
   const parseCoords = (value) => {
     const raw = String(value || '').trim();
     if (!raw) return null;
@@ -66,27 +73,6 @@ const NewTab = ({ id, updateFn }) => {
     } catch { }
   };
 
-  const getBrowserCoords = () =>
-    new Promise((resolve) => {
-      if (!navigator.geolocation) {
-        resolve(null);
-        return;
-      }
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = Number(position?.coords?.latitude);
-          const lon = Number(position?.coords?.longitude);
-          if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
-            resolve(null);
-            return;
-          }
-          resolve({ lat, lon });
-        },
-        () => resolve(null),
-        { enableHighAccuracy: false, maximumAge: 15 * 60 * 1000, timeout: 6000 },
-      );
-    });
-
   const weatherUnitLabel = (options.weatherUnit || 'fahrenheit') === 'celsius' ? 'C' : 'F';
 
   const resolveWeatherIcon = (rawCode) => {
@@ -106,7 +92,8 @@ const NewTab = ({ id, updateFn }) => {
   const effectiveTimezone = useMemo(() => {
     const override = String(options.timezoneOverride || '').trim();
     if (override) return override;
-    if (ipMeta.timezone) return ipMeta.timezone;
+    const ipTimezone = normalizeTimezone(ipMeta.timezone);
+    if (ipTimezone) return ipTimezone;
     return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
   }, [options.timezoneOverride, ipMeta.timezone]);
 
@@ -269,6 +256,7 @@ const NewTab = ({ id, updateFn }) => {
         { url: '/api/ip/meta', source: 'proxy' },
         { url: 'https://ipwho.is/', source: 'ipwho' },
         { url: 'https://ipapi.co/json/', source: 'ipapi' },
+        { url: 'https://ipinfo.io/json', source: 'ipinfo' },
       ];
 
       for (const provider of providers) {
@@ -285,14 +273,13 @@ const NewTab = ({ id, updateFn }) => {
         } catch { }
       }
 
-      const browserCoords = await getBrowserCoords();
-      if (!browserCoords || cancelled) return;
-      writeCachedCoords(browserCoords);
+      const cached = readCachedCoords();
+      if (!cached || cancelled) return;
       const fallbackTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
       setIpMeta((prev) => ({
         ...prev,
-        latitude: browserCoords.lat,
-        longitude: browserCoords.lon,
+        latitude: cached.lat,
+        longitude: cached.lon,
         timezone: prev.timezone || fallbackTimezone,
       }));
     };
@@ -308,43 +295,41 @@ const NewTab = ({ id, updateFn }) => {
 
     const fetchWeather = async () => {
       try {
+        if (options.hideLocation === true) {
+          if (!cancelled) {
+            setMenuWeather({ temp: null, weatherCode: null, isDay: true });
+            setForecastDays([]);
+          }
+          return;
+        }
+
         let coords = null;
+        let coordsSource = 'none';
         const useIpLocation = options.weatherUseIpLocation !== false;
 
         if (!useIpLocation) {
           coords = parseCoords(options.weatherCoordsOverride || '');
+          if (coords) coordsSource = 'manual';
         }
 
         if (!coords && Number.isFinite(ipMeta.latitude) && Number.isFinite(ipMeta.longitude)) {
           coords = { lat: ipMeta.latitude, lon: ipMeta.longitude };
+          coordsSource = 'ip-meta';
         }
 
         if (!coords && useIpLocation) {
           coords = readCachedCoords();
-        }
-
-        if (!coords && useIpLocation) {
-          const browserCoords = await getBrowserCoords();
-          if (browserCoords) {
-            coords = browserCoords;
-            writeCachedCoords(browserCoords);
-            if (!cancelled) {
-              const fallbackTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-              setIpMeta((prev) => ({
-                ...prev,
-                latitude: browserCoords.lat,
-                longitude: browserCoords.lon,
-                timezone: prev.timezone || fallbackTimezone,
-              }));
-            }
-          }
+          if (coords) coordsSource = 'cache';
         }
 
         if (!coords) {
-          coords = readCachedCoords() || WEATHER_FALLBACK_COORDS;
+          coords = WEATHER_FALLBACK_COORDS;
+          coordsSource = 'fallback';
         }
 
-        writeCachedCoords(coords);
+        if (coordsSource !== 'fallback') {
+          writeCachedCoords(coords);
+        }
 
         const unit = (options.weatherUnit || 'fahrenheit') === 'celsius' ? 'celsius' : 'fahrenheit';
         const query = new URLSearchParams({
@@ -381,6 +366,11 @@ const NewTab = ({ id, updateFn }) => {
 
         if (!data) return;
         if (cancelled) return;
+
+        const responseTimezone = normalizeTimezone(data?.timezone);
+        if (responseTimezone && coordsSource !== 'fallback') {
+          setIpMeta((prev) => (prev.timezone === responseTimezone ? prev : { ...prev, timezone: responseTimezone }));
+        }
 
         const current = data?.current || {};
         setMenuWeather({
@@ -436,7 +426,7 @@ const NewTab = ({ id, updateFn }) => {
       cancelled = true;
       clearInterval(timer);
     };
-  }, [options.weatherUseIpLocation, options.weatherCoordsOverride, options.weatherUnit, ipMeta.latitude, ipMeta.longitude]);
+  }, [options.hideLocation, options.weatherUseIpLocation, options.weatherCoordsOverride, options.weatherUnit, ipMeta.latitude, ipMeta.longitude]);
 
   const navigating = {
     id: id,
@@ -501,11 +491,17 @@ const NewTab = ({ id, updateFn }) => {
               {Number.isFinite(batteryInfo.level) ? `${batteryInfo.level}%` : '--'}
             </span>
             <span className="inline-flex items-center justify-center gap-1.5">
-              {(() => {
-                const WxIcon = weatherIcon;
-                return <WxIcon size={13} />;
-              })()}
-              {Number.isFinite(menuWeather.temp) ? `${Math.round(menuWeather.temp)}°${weatherUnitLabel}` : '--'}
+              {options.hideLocation === true ? (
+                <span>Location</span>
+              ) : (
+                <>
+                  {(() => {
+                    const WxIcon = weatherIcon;
+                    return <WxIcon size={13} />;
+                  })()}
+                  {Number.isFinite(menuWeather.temp) ? `${Math.round(menuWeather.temp)}°${weatherUnitLabel}` : '--'}
+                </>
+              )}
             </span>
           </div>
 
@@ -518,10 +514,11 @@ const NewTab = ({ id, updateFn }) => {
             <div className="overflow-hidden">
               <div className="flex items-center justify-between text-[11px] opacity-80 px-0.5">
                 <span>{menuDateLabel}</span>
-                <span className="truncate max-w-[10.5rem] text-right">{options.hideLocation === true ? 'Location Hidden' : effectiveTimezone}</span>
+                <span className="truncate max-w-[10.5rem] text-right">{options.hideLocation === true ? 'Location' : (ipMeta.city || effectiveTimezone)}</span>
               </div>
 
-              <div className="mt-2 grid grid-cols-3 gap-2">
+              {options.hideLocation !== true && (
+                <div className="mt-2 grid grid-cols-3 gap-2">
                 {(forecastDays.length > 0 ? forecastDays : [{}, {}, {}]).slice(0, 3).map((entry, index) => {
                   const ForecastIcon = resolveWeatherIcon(entry.weatherCode);
                   const dayLabel = entry.date
@@ -545,7 +542,8 @@ const NewTab = ({ id, updateFn }) => {
                     </div>
                   );
                 })}
-              </div>
+                </div>
+              )}
             </div>
           </div>
         </div>

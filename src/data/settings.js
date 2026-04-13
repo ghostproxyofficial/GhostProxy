@@ -7,7 +7,6 @@ import {
   prConfig,
   designConfig,
 } from '/src/utils/config';
-import { showAlert, showConfirm } from '/src/utils/uiDialog';
 
 const newTabPageConfig = [
   { option: 'Ghost Home', value: { newTabPage: 'ghost' } },

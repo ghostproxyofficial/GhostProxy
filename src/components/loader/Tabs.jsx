@@ -1,6 +1,6 @@
 import loaderStore from '/src/utils/hooks/loader/useLoaderStore';
 import { Globe, X, Plus, Loader, UsersRound, UserPlus, Check, Pencil, Trash2, Upload, Download } from 'lucide-react';
-import { showConfirm } from '/src/utils/uiDialog';
+import { showAlert, showConfirm } from '/src/utils/uiDialog';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useOptions } from '/src/utils/optionsContext'
 import clsx from 'clsx';
@@ -10,6 +10,24 @@ import { process } from '/src/utils/hooks/loader/utils';
 const PROFILE_STORE_KEY = 'ghostBrowserProfiles';
 const PROFILE_ACTIVE_KEY = 'ghostBrowserActiveProfileId';
 const SAVED_TABS_KEY = 'ghostSavedTabs';
+
+const isPlainObject = (value) => !!value && typeof value === 'object' && !Array.isArray(value);
+
+const isValidProfileImport = (parsed) => {
+  if (!isPlainObject(parsed)) return false;
+  if (!Object.prototype.hasOwnProperty.call(parsed, 'tabs')) return false;
+  if (!Object.prototype.hasOwnProperty.call(parsed, 'snapshot')) return false;
+  if (!Array.isArray(parsed.tabs)) return false;
+  if (!isPlainObject(parsed.snapshot)) return false;
+
+  return parsed.tabs.every((tab) => {
+    if (!isPlainObject(tab)) return false;
+    const id = String(tab.id || '').trim();
+    const title = String(tab.title || '').trim();
+    const url = String(tab.url || '').trim();
+    return !!id && !!title && !!url;
+  });
+};
 
 const getLiveTabsSnapshot = () => {
   try {
@@ -267,6 +285,9 @@ const TabBar = () => {
     reader.onload = () => {
       try {
         const parsed = JSON.parse(String(reader.result || '{}'));
+        if (!isValidProfileImport(parsed)) {
+          throw new Error('invalid-profile-structure');
+        }
         const imported = {
           id: createId(),
           name: String(parsed.name || `Imported ${profiles.length + 1}`).trim() || `Imported ${profiles.length + 1}`,
@@ -275,7 +296,9 @@ const TabBar = () => {
           updatedAt: Date.now(),
         };
         persistProfiles([...profiles, imported], activeProfileId);
-      } catch { }
+      } catch {
+        showAlert('Invalid file. This profile format is not supported or has changed.', 'Import Error');
+      }
     };
     reader.readAsText(file);
     event.target.value = '';

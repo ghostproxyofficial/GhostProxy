@@ -246,18 +246,6 @@ export default function Loader({ url, ui = true, zoom }) {
     rafId: 0,
   });
   const logRestoreRef = useRef(null);
-  const [timeState, setTimeState] = useState(Date.now());
-  const [windowHeight, setWindowHeight] = useState('100vh');
-
-  useEffect(() => {
-    const handleResize = () => {
-      const scale = Number(options?.uiScale || document.documentElement.style.getPropertyValue('--ui-scale') || 1);
-      setWindowHeight(`${window.innerHeight / scale}px`);
-    };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [options?.uiScale]);
 
   useEffect(() => {
     if (!ui) return;
@@ -303,27 +291,12 @@ export default function Loader({ url, ui = true, zoom }) {
     } catch { }
   };
 
-  const getBrowserCoords = () =>
-    new Promise((resolve) => {
-      if (!navigator.geolocation) {
-        resolve(null);
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = Number(position?.coords?.latitude);
-          const lon = Number(position?.coords?.longitude);
-          if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
-            resolve(null);
-            return;
-          }
-          resolve({ lat, lon });
-        },
-        () => resolve(null),
-        { enableHighAccuracy: false, maximumAge: 15 * 60 * 1000, timeout: 6000 },
-      );
-    });
+  const normalizeTimezone = (value) => {
+    const raw = String(value || '').trim();
+    if (!raw) return '';
+    if (/^(etc\/|gmt$|gmt[+-]|utc$)/i.test(raw)) return '';
+    return raw;
+  };
 
   const pushDebugLog = useCallback((level, args) => {
     setDebugLogs((prev) => {
@@ -350,7 +323,8 @@ export default function Loader({ url, ui = true, zoom }) {
   const effectiveTimezone = useMemo(() => {
     const override = String(options.timezoneOverride || '').trim();
     if (override) return override;
-    if (ipMeta.timezone) return ipMeta.timezone;
+    const ipTimezone = normalizeTimezone(ipMeta.timezone);
+    if (ipTimezone) return ipTimezone;
     return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
   }, [options.timezoneOverride, ipMeta.timezone]);
 
@@ -667,18 +641,6 @@ export default function Loader({ url, ui = true, zoom }) {
     if (!activeTab) return;
     const frame = store.activeFrameRef?.current || store.frameRefs?.current?.[activeTab.id];
     toggleDevToolsForTab(activeTab.id, frame);
-  };
-
-  const openInGhostNewTab = (rawUrl, config = {}) => {
-    const store = loaderStore.getState();
-    if (!rawUrl || store.tabs.length >= 20) return;
-    const processedUrl = config?.skipProxy
-      ? rawUrl
-      : process(rawUrl, false, options.prType || 'auto', options.engine || null);
-    const targetUrl = toGhostDisplayUrl(processedUrl) || processedUrl;
-    const id = createId();
-    addTab({ title: config?.title || 'New Tab', id, url: targetUrl });
-    setActive(id);
   };
 
   const resolveCurrentSite = () => {
@@ -1053,6 +1015,7 @@ export default function Loader({ url, ui = true, zoom }) {
         { url: '/api/ip/meta', source: 'proxy' },
         { url: 'https://ipwho.is/', source: 'ipwho' },
         { url: 'https://ipapi.co/json/', source: 'ipapi' },
+        { url: 'https://ipinfo.io/json', source: 'ipinfo' },
       ];
 
       for (const provider of providers) {
@@ -1081,16 +1044,6 @@ export default function Loader({ url, ui = true, zoom }) {
         return;
       }
 
-      const browserCoords = await getBrowserCoords();
-      if (!browserCoords || canceled) return;
-      writeCachedCoords(browserCoords);
-      const fallbackTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-      setIpMeta((prev) => ({
-        ...prev,
-        latitude: browserCoords.lat,
-        longitude: browserCoords.lon,
-        timezone: prev.timezone || fallbackTimezone,
-      }));
     };
 
     fetchIpMeta();
@@ -1104,6 +1057,11 @@ export default function Loader({ url, ui = true, zoom }) {
 
     const loadWeather = async () => {
       try {
+        if (options.hideLocation === true) {
+          setMenuWeather({ temp: null, weatherCode: null, isDay: true });
+          return;
+        }
+
         let coords = null;
         const manualCoords = parseCoords(options.weatherCoordsOverride);
         const shouldUseIp = options.weatherUseIpLocation !== false;
@@ -1120,35 +1078,23 @@ export default function Loader({ url, ui = true, zoom }) {
           coords = readCachedCoords();
         }
 
-        if (!coords && shouldUseIp) {
-          const browserCoords = await getBrowserCoords();
-          if (browserCoords) {
-            coords = browserCoords;
-            writeCachedCoords(browserCoords);
-            if (!canceled) {
-              const fallbackTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone || '';
-              setIpMeta((prev) => ({
-                ...prev,
-                latitude: browserCoords.lat,
-                longitude: browserCoords.lon,
-                timezone: prev.timezone || fallbackTimezone,
-              }));
-            }
-          }
-        }
-
         if (!coords) {
-          coords = readCachedCoords() || WEATHER_FALLBACK_COORDS;
+          setMenuWeather({ temp: null, weatherCode: null, isDay: true });
+          return;
         }
 
         writeCachedCoords(coords);
 
         const unit = (options.weatherUnit || 'fahrenheit') === 'celsius' ? 'celsius' : 'fahrenheit';
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(coords.lat)}&longitude=${encodeURIComponent(coords.lon)}&current=temperature_2m,weather_code,is_day&temperature_unit=${unit}`;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(coords.lat)}&longitude=${encodeURIComponent(coords.lon)}&current=temperature_2m,weather_code,is_day&temperature_unit=${unit}&timezone=auto`;
         const response = await fetch(url);
         if (!response.ok) throw new Error('weather fetch failed');
         const data = await response.json();
         if (canceled) return;
+        const responseTimezone = normalizeTimezone(data?.timezone);
+        if (responseTimezone) {
+          setIpMeta((prev) => (prev.timezone === responseTimezone ? prev : { ...prev, timezone: responseTimezone }));
+        }
         const current = data?.current || {};
         setMenuWeather({
           temp: Number(current.temperature_2m),
@@ -1167,7 +1113,7 @@ export default function Loader({ url, ui = true, zoom }) {
       canceled = true;
       clearInterval(poll);
     };
-  }, [ipMeta.latitude, ipMeta.longitude, options.weatherUnit, options.weatherUseIpLocation, options.weatherCoordsOverride]);
+  }, [ipMeta.latitude, ipMeta.longitude, options.hideLocation, options.weatherUnit, options.weatherUseIpLocation, options.weatherCoordsOverride]);
 
   useEffect(() => {
     if (historyPopupOpen) {
@@ -1696,15 +1642,17 @@ export default function Loader({ url, ui = true, zoom }) {
                   </div>
                   <div className="mt-1 flex items-center justify-between text-[11px] text-white/80">
                     <span className="truncate max-w-[7.2rem]">{options.hideLocation === true ? 'Location Hidden' : (ipMeta.city || effectiveTimezone || '--')}</span>
-                    <span className="inline-flex items-center gap-1">
-                      {(() => {
-                        const WxIcon = weatherIcon;
-                        return <WxIcon size={12} />;
-                      })()}
-                      {Number.isFinite(menuWeather.temp)
-                        ? `${Math.round(menuWeather.temp)}°${weatherUnitLabel}`
-                        : '--'}
-                    </span>
+                    {options.hideLocation !== true && (
+                      <span className="inline-flex items-center gap-1">
+                        {(() => {
+                          const WxIcon = weatherIcon;
+                          return <WxIcon size={12} />;
+                        })()}
+                        {Number.isFinite(menuWeather.temp)
+                          ? `${Math.round(menuWeather.temp)}°${weatherUnitLabel}`
+                          : '--'}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -2227,9 +2175,16 @@ export default function Loader({ url, ui = true, zoom }) {
               </div>
 
               <div className="p-4 overflow-y-auto max-h-[calc(80dvh-5rem)]">
-                {changelogEntries.map((entry) => (
+                {[...changelogEntries].slice().reverse().map((entry) => (
                   <div key={entry.version} className="mb-6 last:mb-0">
-                    <h3 className="font-medium text-lg mb-2">Version {entry.version}</h3>
+                    <div className="mb-2 flex items-center gap-2">
+                      <h3 className="font-medium text-lg">Version {entry.version}</h3>
+                      {entry.track ? (
+                        <span className={"rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wide " + (String(entry.track).toLowerCase() === 'stable' ? 'border-emerald-400/50 bg-emerald-400/10 text-emerald-300' : 'border-amber-300/50 bg-amber-300/10 text-amber-200')}>
+                          {entry.track}
+                        </span>
+                      ) : null}
+                    </div>
                     <p className="text-xs opacity-70 mb-3">{entry.date}</p>
                     <ul className="space-y-2 text-sm">
                       {entry.changes.map((change, index) => (

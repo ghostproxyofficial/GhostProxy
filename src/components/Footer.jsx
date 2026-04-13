@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
 import { RotateCw } from 'lucide-react';
 import { useOptions } from '/src/utils/optionsContext';
+import changelogEntries from '/src/data/changelog.json';
 
 const Footer = memo(() => {
   const defaultWispEndpoint = 'wss://dogekeepthisasecret.undoanarchy.rocks/wisp/';
@@ -14,6 +15,13 @@ const Footer = memo(() => {
   const [diagnosticsOpen, setDiagnosticsOpen] = useState(false);
   const [samples, setSamples] = useState([]);
   const [probeStats, setProbeStats] = useState({ attempts: 0, fails: 0, slow: 0 });
+
+  const latestVersionLabel = useMemo(() => {
+    const latestEntry = [...(Array.isArray(changelogEntries) ? changelogEntries : [])]
+      .sort((a, b) => Number(String(b?.version || '0')) - Number(String(a?.version || '0')))[0];
+    const version = String(latestEntry?.version || '').trim();
+    return version ? `v${version}` : 'v1';
+  }, []);
 
   const resolveWispEndpoint = useCallback(() => {
     const normalizeWisp = (value) => {
@@ -214,7 +222,7 @@ const Footer = memo(() => {
         'pointer-events-auto rounded-md border border-white/10 bg-[#0d1016]/92 px-3 py-2 text-sm flex items-center gap-3 ml-14',
         inGhostBrowserMode ? 'ml-14' : '',
       )}>
-        <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" onClick={openChangelog}>v1</button>
+        <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" onClick={openChangelog}>{latestVersionLabel}</button>
         <span className="opacity-55">\</span>
         <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" type="button" onClick={() => openExternalLink('https://github.com/ghostproxyofficial/GhostProxy')}>GitHub</button>
         <span className="opacity-55">\</span>

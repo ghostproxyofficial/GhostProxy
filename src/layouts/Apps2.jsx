@@ -235,19 +235,6 @@ const GAME_SOURCE_CONFIG = [
 
 const ALASKA_BASE = 'https://alaskantires.lat';
 
-const formatMB = (bytes) => {
-  if (!Number.isFinite(bytes) || bytes <= 0) return '0.00MB';
-  return `${(bytes / (1024 * 1024)).toFixed(2)}MB`;
-};
-
-const toDataDocUrl = (html) => `data:text/html;charset=utf-8,${encodeURIComponent(html)}`;
-
-const buildLoadingDoc = (name, loadedBytes = 0, totalBytes = 0) => {
-  const totalLabel = totalBytes > 0 ? formatMB(totalBytes) : '...';
-  const remainingLabel = totalBytes > 0 ? formatMB(Math.max(totalBytes - loadedBytes, 0)) : '...';
-  return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Loading ${name}</title><style>html,body{height:100%;margin:0;background:#000;color:#fff;font-family:Inter,system-ui,sans-serif}.wrap{height:100%;display:flex;align-items:center;justify-content:center}.card{text-align:center}.logo{width:86px;height:86px;object-fit:contain;filter:invert(1) brightness(2);opacity:.95}.title{margin-top:14px;font-size:1.05rem;font-weight:600}.sub{margin-top:8px;font-size:.85rem;opacity:.78}</style></head><body><div class="wrap"><div class="card"><img class="logo" src="/ghost.png" alt="Ghost"/><div class="title">Loading...</div><div class="sub">${formatMB(loadedBytes)}/${remainingLabel} left</div><div class="sub" style="opacity:.55">Total: ${totalLabel}</div></div></div></body></html>`;
-};
-
 const toAbsolute = (raw, base = ALASKA_BASE) => {
   if (!raw) return '';
   if (/^https?:\/\//i.test(raw)) return raw;

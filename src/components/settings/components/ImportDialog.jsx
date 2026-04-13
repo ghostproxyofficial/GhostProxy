@@ -4,6 +4,23 @@ import clsx from 'clsx';
 import { useOptions } from '/src/utils/optionsContext';
 import { showAlert } from '/src/utils/uiDialog';
 
+const isPlainObject = (value) => !!value && typeof value === 'object' && !Array.isArray(value);
+
+const isValidBackupShape = (parsed) => {
+    if (!isPlainObject(parsed)) return false;
+
+    const hasLocal = Object.prototype.hasOwnProperty.call(parsed, 'localStorage');
+    const hasSession = Object.prototype.hasOwnProperty.call(parsed, 'sessionStorage');
+    const hasCookies = Object.prototype.hasOwnProperty.call(parsed, 'cookies');
+    if (!hasLocal && !hasSession && !hasCookies) return false;
+
+    if (hasLocal && !isPlainObject(parsed.localStorage)) return false;
+    if (hasSession && !isPlainObject(parsed.sessionStorage)) return false;
+    if (hasCookies && typeof parsed.cookies !== 'string') return false;
+
+    return true;
+};
+
 export default function ImportDialog({ open, onClose }) {
     const { options } = useOptions();
     const [render, setRender] = useState(false);
@@ -43,6 +60,9 @@ export default function ImportDialog({ open, onClose }) {
         reader.onload = () => {
             try {
                 const parsed = JSON.parse(String(reader.result || '{}'));
+                if (!isValidBackupShape(parsed)) {
+                    throw new Error('invalid-backup-structure');
+                }
                 setParsedData(parsed);
 
                 const local = parsed.localStorage || {};
@@ -57,7 +77,7 @@ export default function ImportDialog({ open, onClose }) {
                     cookies: !!parsed.cookies,
                 });
             } catch {
-                showAlert('Invalid backup file. Ensure it is a valid .ghost or .json export.', 'Import Error');
+                showAlert('Invalid file. This backup format is not supported or has changed.', 'Import Error');
                 setSelectedFile(null);
                 setParsedData(null);
             }
@@ -133,7 +153,7 @@ export default function ImportDialog({ open, onClose }) {
             window.dispatchEvent(new Event('ghost-options-updated'));
             showAlert('Import completed successfully.', 'Ghost Import');
             onClose();
-        } catch (err) {
+        } catch {
             showAlert('An error occurred while importing data.', 'Import Error');
         }
     };

@@ -74,10 +74,37 @@ const Type = ({ type, title }) => {
 
 const InfoPanel = () => {
   const { options } = useOptions();
+  const navigate = useNavigate();
   const sections = Object.values(settings.infoConfig());
   const [open, setOpen] = useState('Project Credits');
   const runtimeLibraries = useMemo(() => Object.keys(pkg.dependencies || {}).sort(), []);
   const devLibraries = useMemo(() => Object.keys(pkg.devDependencies || {}).sort(), []);
+
+  const openDocsInGhost = useCallback((event) => {
+    event?.preventDefault?.();
+    try {
+      const topWindow = window.top && window.top !== window ? window.top : window;
+      const getActiveTabId = topWindow.__ghostGetActiveTabId;
+      const updateBrowserTab = topWindow.__ghostUpdateBrowserTabUrl;
+      const activeTabId = typeof getActiveTabId === 'function' ? getActiveTabId() : null;
+      if (activeTabId && typeof updateBrowserTab === 'function') {
+        updateBrowserTab(activeTabId, 'ghost://docs', { skipProxy: true });
+        return;
+      }
+
+      const openBrowserTab = topWindow.__ghostOpenBrowserTab;
+      if (typeof openBrowserTab === 'function') {
+        openBrowserTab('ghost://docs', {
+          title: 'Ghost Docs',
+          skipProxy: true,
+        });
+        return;
+      }
+    } catch {
+    }
+
+    navigate('/search', { state: { url: 'ghost://docs' } });
+  }, [navigate]);
 
   const contentMap = {
     'Project Credits': (
@@ -301,6 +328,23 @@ const InfoPanel = () => {
                 GitHub
               </a>
               {' '}(if you want to of course)
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <p className="font-semibold mb-1">Need more detailed help?</p>
+          <ul className="space-y-1">
+            <li>
+              - For complete setup and feature walkthroughs, open{' '}
+              <a
+                href="ghost://docs"
+                onClick={openDocsInGhost}
+                className="underline underline-offset-2 hover:opacity-80"
+              >
+                Ghost Docs
+              </a>
+              .
             </li>
           </ul>
         </div>

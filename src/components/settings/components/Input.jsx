@@ -12,7 +12,6 @@ const TextInput = ({
   disabled = false,
   inputType = 'text',
   compact = false,
-  live = false,
   mode = null,
   backgroundColor,
 }) => {

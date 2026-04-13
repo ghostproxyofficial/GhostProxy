@@ -18,7 +18,7 @@ const __dirname = dirname(__filename);
 const port = process.env.PORT || 2345;
 const NVIDIA_API_KEY =
   process.env.NVIDIA_API_KEY ||
-  "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";
+  "";
 const NVIDIA_CHAT_ENDPOINT = "https://integrate.api.nvidia.com/v1/chat/completions";
 const NVIDIA_MODEL = process.env.NVIDIA_MODEL || "microsoft/phi-3.5-mini-instruct";
 const server = createServer();

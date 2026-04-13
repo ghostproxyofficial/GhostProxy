@@ -1,9 +1,50 @@
 [
   {
-    "version": "v1",
+    "version": "1.0",
+    "track": "Beta",
     "date": "2026-02-17",
     "changes": [
       "Released Ghost."
+    ]
+  },
+  {
+    "version": "1.1",
+    "track": "Beta",
+    "date": "2026-03-15",
+    "changes": [
+      "3/14 update: Fixed proxy reliability, fixed many bugs, and added a homescreen feature.",
+      "3/15 update: Fixed more bugs and improved UX in multiple places.",
+      "3/15 update 2: Customization overhaul with more themes and replacement of the CSS editor with Custom Themes."
+    ]
+  },
+  {
+    "version": "1.2",
+    "track": "Beta",
+    "date": "2026-04-11",
+    "changes": [
+      "4/11 update: Full overhaul of features, games, and customization.",
+      "95% of the 5000+ games now work; all entertainment options except Monochrome were working at this point.",
+      "Added many settings and improved overall UI/UX.",
+      "AI integration improved with Duck.ai and VM performance increased."
+    ]
+  },
+  {
+    "version": "1.3",
+    "track": "Beta",
+    "date": "2026-04-12",
+    "changes": [
+      "4/12 update: Fixed chat source, fixed music source, and fixed multiple connectivity and UI/UX bugs.",
+      "Reliability milestone reached with broad feature parity and improved stability.",
+      "Small update: Fixed Monochrome music playback."
+    ]
+  },
+  {
+    "version": "1.4",
+    "track": "Stable",
+    "date": "2026-04-12",
+    "changes": [
+      "Published full documentation including Ghost Docs and README updates.",
+      "Promoted release track from Beta to Stable for versions 1.4 and onward."
     ]
   }
 ]
