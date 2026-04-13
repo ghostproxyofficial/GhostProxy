@@ -4,7 +4,7 @@ import { memo, useEffect, useMemo, useRef, useState } from 'react';
 
 const BUG_REPORT_FORM_URL = 'https://forms.gle/94VwArsXReWqyWWr9';
 
-const Logo = memo(({ options, action, width, height }) => {
+const Logo = memo(({ options, action, width, height, showBetaBadge = true }) => {
   const { options: op } = useOptions();
   const [betaHover, setBetaHover] = useState(false);
   const closeTimerRef = useRef(null);
@@ -121,7 +121,7 @@ const Logo = memo(({ options, action, width, height }) => {
             maskSize: 'contain',
           }}
         />
-        {betaBadge}
+        {showBetaBadge ? betaBadge : null}
       </div>
     );
   }
@@ -137,7 +137,7 @@ const Logo = memo(({ options, action, width, height }) => {
         onClick={action}
         style={style}
       />
-      {betaBadge}
+      {showBetaBadge ? betaBadge : null}
     </div>
   );
 });
