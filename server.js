@@ -122,16 +122,9 @@ app.get("/return", async (req, reply) =>
 );
 
 app.get("/api/ip/meta", async (req, reply) => {
-  const neutralMeta = {
-    timezone: "UTC",
-    latitude: 0,
-    longitude: 0,
-    city: "",
-  };
-
   const host = String(req.hostname || "").toLowerCase();
   if (["localhost", "127.0.0.1", "::1"].includes(host)) {
-    return reply.send(neutralMeta);
+    return reply.code(503).send({ error: "ip_meta_unavailable" });
   }
 
   const providers = [
@@ -192,9 +185,9 @@ app.get("/api/ip/meta", async (req, reply) => {
       }
     }
 
-    return reply.send(neutralMeta);
+    return reply.code(503).send({ error: "ip_meta_unavailable" });
   } catch {
-    return reply.send(neutralMeta);
+    return reply.code(503).send({ error: "ip_meta_unavailable" });
   }
 });
 

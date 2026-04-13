@@ -48,7 +48,7 @@ import { getLucideIcon } from '/src/components/settings/components/SidebarEditor
 const SAVED_TABS_KEY = 'ghostSavedTabs';
 const SITE_POLICY_KEY = 'ghostSitePolicies';
 const WEATHER_COORDS_CACHE_KEY = 'ghostWeatherCoordsCache';
-const WEATHER_FALLBACK_COORDS = { lat: 40.7128, lon: -74.006 };
+const WEATHER_COORDS_MAX_AGE_MS = 60 * 60 * 1000;
 
 const getSitePolicies = () => {
   try {
@@ -287,18 +287,33 @@ export default function Loader({ url, ui = true, zoom }) {
       const lon = Number(parsed?.lon);
       if (!Number.isFinite(lat) || !Number.isFinite(lon)) return null;
       if (lat < -90 || lat > 90 || lon < -180 || lon > 180) return null;
-      return { lat, lon };
+      if (Math.abs(lat) < 0.000001 && Math.abs(lon) < 0.000001) return null;
+      const source = String(parsed?.source || '').trim().toLowerCase();
+      if (!['ip-meta', 'manual'].includes(source)) return null;
+      const timestamp = Number(parsed?.t || 0);
+      if (!Number.isFinite(timestamp) || Date.now() - timestamp > WEATHER_COORDS_MAX_AGE_MS) return null;
+      const city = String(parsed?.city || '').trim();
+      const timezone = String(parsed?.timezone || '').trim();
+      return { lat, lon, source, t: timestamp, city, timezone };
     } catch {
       return null;
     }
   };
 
-  const writeCachedCoords = (coords) => {
+  const writeCachedCoords = (coords, source = 'ip-meta', meta = {}) => {
     if (!coords || !Number.isFinite(coords.lat) || !Number.isFinite(coords.lon)) return;
+    if (!['ip-meta', 'manual'].includes(source)) return;
     try {
       localStorage.setItem(
         WEATHER_COORDS_CACHE_KEY,
-        JSON.stringify({ lat: coords.lat, lon: coords.lon, t: Date.now() }),
+        JSON.stringify({
+          lat: coords.lat,
+          lon: coords.lon,
+          source,
+          city: String(meta?.city || ''),
+          timezone: String(meta?.timezone || ''),
+          t: Date.now(),
+        }),
       );
     } catch { }
   };
@@ -1029,7 +1044,8 @@ export default function Loader({ url, ui = true, zoom }) {
       meta.latitude >= -90 &&
       meta.latitude <= 90 &&
       meta.longitude >= -180 &&
-      meta.longitude <= 180;
+      meta.longitude <= 180 &&
+      !(Math.abs(meta.latitude) < 0.000001 && Math.abs(meta.longitude) < 0.000001);
 
 
 
@@ -1050,7 +1066,11 @@ export default function Loader({ url, ui = true, zoom }) {
           const parsed = parseProviderMeta(data, provider.source);
           if (!isValidMeta(parsed)) continue;
           if (canceled) return;
-          writeCachedCoords({ lat: parsed.latitude, lon: parsed.longitude });
+          writeCachedCoords(
+            { lat: parsed.latitude, lon: parsed.longitude },
+            'ip-meta',
+            { city: parsed.city, timezone: parsed.timezone },
+          );
           setIpMeta(parsed);
           return;
         } catch { }
@@ -1063,7 +1083,8 @@ export default function Loader({ url, ui = true, zoom }) {
           ...prev,
           latitude: cached.lat,
           longitude: cached.lon,
-          timezone: prev.timezone || fallbackTimezone,
+          timezone: normalizeTimezone(cached.timezone) || prev.timezone || fallbackTimezone,
+          city: String(cached.city || prev.city || ''),
         }));
         return;
       }
@@ -1087,19 +1108,28 @@ export default function Loader({ url, ui = true, zoom }) {
         }
 
         let coords = null;
+        let coordsSource = 'none';
         const manualCoords = parseCoords(options.weatherCoordsOverride);
         const shouldUseIp = options.weatherUseIpLocation !== false;
 
         if (!shouldUseIp) {
           coords = manualCoords;
+          if (coords) coordsSource = 'manual';
         }
 
         if (!coords && Number.isFinite(ipMeta.latitude) && Number.isFinite(ipMeta.longitude)) {
           coords = { lat: Number(ipMeta.latitude), lon: Number(ipMeta.longitude) };
+          coordsSource = 'ip-meta';
         }
 
         if (!coords && shouldUseIp) {
           coords = readCachedCoords();
+          if (coords) {
+            coordsSource = 'cache';
+            if (!ipMeta.city && coords.city) {
+              setIpMeta((prev) => ({ ...prev, city: coords.city }));
+            }
+          }
         }
 
         if (!coords) {
@@ -1107,7 +1137,12 @@ export default function Loader({ url, ui = true, zoom }) {
           return;
         }
 
-        writeCachedCoords(coords);
+        if (coordsSource === 'manual' || coordsSource === 'ip-meta') {
+          writeCachedCoords(coords, coordsSource, {
+            city: coordsSource === 'ip-meta' ? ipMeta.city : '',
+            timezone: coordsSource === 'ip-meta' ? ipMeta.timezone : '',
+          });
+        }
 
         const unit = (options.weatherUnit || 'fahrenheit') === 'celsius' ? 'celsius' : 'fahrenheit';
         const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(coords.lat)}&longitude=${encodeURIComponent(coords.lon)}&current=temperature_2m,weather_code,is_day&temperature_unit=${unit}&timezone=auto`;
@@ -1665,7 +1700,7 @@ export default function Loader({ url, ui = true, zoom }) {
                     </span>
                   </div>
                   <div className="mt-1 flex items-center justify-between text-[11px] text-white/80">
-                    <span className="truncate max-w-[7.2rem]">{options.hideLocation === true ? 'Location Hidden' : (ipMeta.city || effectiveTimezone || '--')}</span>
+                    <span className="truncate max-w-[7.2rem]">{options.hideLocation === true ? 'Location Hidden' : (ipMeta.city || 'Location')}</span>
                     {options.hideLocation !== true && (
                       <span className="inline-flex items-center gap-1">
                         {(() => {
