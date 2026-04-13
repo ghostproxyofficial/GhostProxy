@@ -6,6 +6,7 @@ import NotFound from './pages/NotFound';
 import { useEffect, useMemo, memo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { OptionsProvider, useOptions } from './utils/optionsContext';
+import { getEffectiveShortcuts, eventToShortcut, isTypingTarget } from './utils/shortcuts';
 import { initPreload } from './utils/preload';
 import { designConfig as bgDesign } from './utils/config';
 import DialogHost from './components/DialogHost';

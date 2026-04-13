@@ -89,6 +89,7 @@ const Settings = () => {
   const [q, setQ] = useState('');
   const [content, setContent] = useState('Privacy');
   const [loaded, setLoaded] = useState(false);
+  const [windowHeight, setWindowHeight] = useState('100vh');
 
   const consumePendingSection = useCallback(() => {
     try {

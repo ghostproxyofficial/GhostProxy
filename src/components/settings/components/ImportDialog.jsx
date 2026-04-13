@@ -153,7 +153,7 @@ export default function ImportDialog({ open, onClose }) {
             window.dispatchEvent(new Event('ghost-options-updated'));
             showAlert('Import completed successfully.', 'Ghost Import');
             onClose();
-        } catch {
+        } catch (err) {
             showAlert('An error occurred while importing data.', 'Import Error');
         }
     };

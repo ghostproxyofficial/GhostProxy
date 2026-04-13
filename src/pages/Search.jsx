@@ -246,6 +246,18 @@ export default function Loader({ url, ui = true, zoom }) {
     rafId: 0,
   });
   const logRestoreRef = useRef(null);
+  const [timeState, setTimeState] = useState(Date.now());
+  const [windowHeight, setWindowHeight] = useState('100vh');
+
+  useEffect(() => {
+    const handleResize = () => {
+      const scale = Number(options?.uiScale || document.documentElement.style.getPropertyValue('--ui-scale') || 1);
+      setWindowHeight(`${window.innerHeight / scale}px`);
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [options?.uiScale]);
 
   useEffect(() => {
     if (!ui) return;
@@ -641,6 +653,18 @@ export default function Loader({ url, ui = true, zoom }) {
     if (!activeTab) return;
     const frame = store.activeFrameRef?.current || store.frameRefs?.current?.[activeTab.id];
     toggleDevToolsForTab(activeTab.id, frame);
+  };
+
+  const openInGhostNewTab = (rawUrl, config = {}) => {
+    const store = loaderStore.getState();
+    if (!rawUrl || store.tabs.length >= 20) return;
+    const processedUrl = config?.skipProxy
+      ? rawUrl
+      : process(rawUrl, false, options.prType || 'auto', options.engine || null);
+    const targetUrl = toGhostDisplayUrl(processedUrl) || processedUrl;
+    const id = createId();
+    addTab({ title: config?.title || 'New Tab', id, url: targetUrl });
+    setActive(id);
   };
 
   const resolveCurrentSite = () => {
