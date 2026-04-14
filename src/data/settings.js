@@ -79,6 +79,11 @@ const aiProviderConfig = [
   { option: 'HuggingChat', value: { defaultAiProvider: 'huggingchat' } },
 ];
 
+const chatProviderConfig = [
+  { option: 'Stout Chat', value: { defaultChatProvider: 'stoutchat' } },
+  { option: 'Discord', value: { defaultChatProvider: 'discordchat' } },
+];
+
 export const privacyConfig = ({ options, updateOption, openPanic }) => ({
   1: {
     name: 'Site Title',
@@ -314,6 +319,19 @@ export const customizeConfig = ({ options, updateOption, openCssEditor }) => ({
     value: find(
       aiProviderConfig,
       (c) => c.value?.defaultAiProvider === String(options.defaultAiProvider || ''),
+      0,
+    ),
+    type: 'select',
+    action: (a) => updateOption(a),
+  },
+  18: {
+    name: 'Chat Provider',
+    desc: 'What chat provider opens when you click the Chat button.',
+    config: chatProviderConfig,
+    dropdownDirection: 'up',
+    value: find(
+      chatProviderConfig,
+      (c) => c.value?.defaultChatProvider === String(options.defaultChatProvider || ''),
       0,
     ),
     type: 'select',

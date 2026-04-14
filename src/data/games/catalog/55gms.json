@@ -1,11 +1,5 @@
 ﻿[
   {
-    "name": "[!!] Request A Game",
-    "url": "https://docs.google.com/forms/d/e/1FAIpQLSfY7Eh5sWLn9DcNHilyp2Xi_I8YA0MxXbENQDsatkwD_F1qeA/viewform",
-    "image": "/img/jotform.png",
-    "usesProxy": false
-  },
-  {
     "name": "Daniel Gomez Clicker",
     "url": "https://rednotsus.github.io/gomezclicker/",
     "image": "https://rednotsus.github.io/gomezclicker/img/perfectCookie.png",

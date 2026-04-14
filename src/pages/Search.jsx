@@ -513,6 +513,8 @@ export default function Loader({ url, ui = true, zoom }) {
   const popupSecondaryBorder = isLightTheme ? 'rgba(15,23,42,0.16)' : 'rgba(255,255,255,0.22)';
   const popupPrimaryBg = isLightTheme ? '#3d4654' : '#3a3f48';
   const popupPrimaryText = '#f6f8fc';
+  const historySearchStickyBg = options.quickModalBgColor || popupPanelBg;
+  const historySearchInputBg = isLightTheme ? 'rgba(15,23,42,0.06)' : 'rgba(0,0,0,0.18)';
 
   const runFind = (backwards = false) => {
     const store = loaderStore.getState();
@@ -596,9 +598,20 @@ export default function Loader({ url, ui = true, zoom }) {
         return trimmed;
       }
 
-      const processed = skipProxy
-        ? trimmed
-        : process(trimmed, false, options.prType || 'auto', options.engine || null);
+      if (skipProxy) {
+        try {
+          const parsed = new URL(trimmed, location.origin);
+          const isDiscoverRoute = parsed.origin === location.origin && parsed.pathname === '/discover';
+          if (isDiscoverRoute && (parsed.searchParams.has('source') || parsed.searchParams.has('tab'))) {
+            return parsed.toString();
+          }
+        } catch {
+        }
+
+        return toGhostDisplayUrl(trimmed) || trimmed;
+      }
+
+      const processed = process(trimmed, false, options.prType || 'auto', options.engine || null);
 
       return toGhostDisplayUrl(processed) || processed;
     },
@@ -609,8 +622,10 @@ export default function Loader({ url, ui = true, zoom }) {
     // Intercept ghost://ai — redirect to external provider if one is set
     if (String(rawUrl).toLowerCase() === 'ghost://ai' && options.defaultAiProvider) {
       const providerUrls = {
+        stoutchat: 'https://duck.ai',
         duckai: 'https://duck.ai',
         ghostai: null,
+        discordchat: 'https://discord.com/app',
         chatgpt: 'https://chat.openai.com',
         gemini: 'https://gemini.google.com',
         claude: 'https://claude.ai',
@@ -650,6 +665,12 @@ export default function Loader({ url, ui = true, zoom }) {
         setIframeUrl(activeTab.id, 'ghost://home');
       }
     }
+  };
+
+  const getDefaultChatUrl = () => {
+    const provider = String(options.defaultChatProvider || 'stoutchat').toLowerCase();
+    if (provider === 'discordchat') return 'https://discord.com/app';
+    return 'https://app.revolt.chat/login';
   };
 
   const isActiveTabInternalGhost = () => {
@@ -1721,7 +1742,7 @@ export default function Loader({ url, ui = true, zoom }) {
                   { label: 'Games', action: () => navigateActiveTab('ghost://games') },
                   { label: 'TV', action: () => navigateActiveTab('ghost://tv') },
                   { label: 'Music', action: () => navigateActiveTab('ghost://music') },
-                  { label: 'Chat', action: () => navigateActiveTab('https://app.revolt.chat/login') },
+                  { label: 'Chat', action: () => navigateActiveTab(getDefaultChatUrl()) },
                   { label: 'Remote Access', action: () => navigateActiveTab('ghost://remote') },
                   { label: 'Artificial Intelligence', action: () => navigateActiveTab('ghost://ai') },
                   { label: 'Code Runner', action: () => navigateActiveTab('ghost://code') },
@@ -1772,7 +1793,7 @@ export default function Loader({ url, ui = true, zoom }) {
             {options?.sidebarToggles?.showChat !== false && (
               <SidebarButton
                 label="Chat"
-                onClick={() => navigateActiveTab('https://app.revolt.chat/login')}
+                onClick={() => navigateActiveTab(getDefaultChatUrl())}
               >
                 <LucideIcons.MessageSquare size={16} />
               </SidebarButton>
@@ -2134,13 +2155,14 @@ export default function Loader({ url, ui = true, zoom }) {
               </div>
             </div>
             <div className="px-4 pb-4 pt-0 overflow-y-auto max-h-[calc(80dvh-4rem)] space-y-2">
-              <div className="sticky top-0 z-10 pb-2 pt-0" style={{ backgroundColor: '#2d2d30' }}>
-                <div className="h-2" style={{ backgroundColor: '#2d2d30' }} />
+              <div className="sticky top-0 z-10 pb-2 pt-0" style={{ backgroundColor: historySearchStickyBg }}>
+                <div className="h-2" style={{ backgroundColor: historySearchStickyBg }} />
                 <input
                   value={historyQuery}
                   onChange={(e) => setHistoryQuery(e.target.value)}
                   placeholder="Search history"
-                  className="w-full h-9 rounded-md border border-white/10 bg-[#00000025] px-3 text-sm outline-none"
+                  className="w-full h-9 rounded-md border border-white/10 px-3 text-sm outline-none"
+                  style={{ backgroundColor: historySearchInputBg }}
                 />
               </div>
               {filteredHistoryItems.length === 0 && <p className="text-sm opacity-70">No matching history entries.</p>}

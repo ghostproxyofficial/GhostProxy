@@ -51,7 +51,8 @@ const DEFAULT_OPTIONS = {
   weatherUseIpLocation: true,
   weatherCoordsOverride: '',
   defaultMusicPlayer: '',
-  defaultAiProvider: 'ghostai',
+  defaultAiProvider: '',
+  defaultChatProvider: 'stoutchat',
   debugMode: false,
 };
 
@@ -115,8 +116,8 @@ const normalizeLegacyOptions = (stored) => {
 
   const validAiProviders = new Set([
     '',
-    'ghostai',
     'duckai',
+    'ghostai',
     'chatgpt',
     'gemini',
     'claude',
@@ -129,11 +130,33 @@ const normalizeLegacyOptions = (stored) => {
     'poe',
     'huggingchat',
   ]);
-  const normalizedProvider = String(out.defaultAiProvider ?? '').trim().toLowerCase();
-  if (!validAiProviders.has(normalizedProvider) || normalizedProvider === 'undefined' || normalizedProvider === 'null' || normalizedProvider === '--') {
+
+  const validChatProviders = new Set([
+    'stoutchat',
+    'discordchat',
+  ]);
+
+  const normalizedAiProvider = String(out.defaultAiProvider ?? '').trim().toLowerCase();
+  const normalizedChatProvider = String(out.defaultChatProvider ?? '').trim().toLowerCase();
+
+  if (['stoutchat', 'discordchat'].includes(normalizedAiProvider) && !normalizedChatProvider) {
+    out.defaultChatProvider = normalizedAiProvider;
+    out.defaultAiProvider = 'ghostai';
+  }
+
+  const migratedAiProvider = String(out.defaultAiProvider ?? '').trim().toLowerCase();
+  if (!validAiProviders.has(migratedAiProvider) || migratedAiProvider === 'undefined' || migratedAiProvider === 'null' || migratedAiProvider === '--') {
     out.defaultAiProvider = '';
   } else {
-    out.defaultAiProvider = normalizedProvider;
+    out.defaultAiProvider = migratedAiProvider;
+  }
+
+  const migratedChatProvider = String(out.defaultChatProvider ?? '').trim().toLowerCase();
+  const normalizedMigratedChatProvider = migratedChatProvider === 'duckai' ? 'stoutchat' : migratedChatProvider;
+  if (!validChatProviders.has(normalizedMigratedChatProvider) || normalizedMigratedChatProvider === 'undefined' || normalizedMigratedChatProvider === 'null' || normalizedMigratedChatProvider === '--') {
+    out.defaultChatProvider = 'stoutchat';
+  } else {
+    out.defaultChatProvider = normalizedMigratedChatProvider;
   }
 
   const legacyThemeMap = {

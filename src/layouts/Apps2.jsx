@@ -284,10 +284,10 @@ const normalizeSourceGames = (source) => {
   });
 };
 
-const Games = memo(() => {
+const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false }) => {
   const nav = useNavigate();
   const { options } = useOptions();
-  const [sourceKey, setSourceKey] = useState('gnmath');
+  const [sourceKey, setSourceKey] = useState(initialSourceKey || 'gnmath');
   const [showAllGames, setShowAllGames] = useState(false);
   const [sortBy, setSortBy] = useState('name-asc');
   const [sortOpen, setSortOpen] = useState(false);
@@ -317,6 +317,39 @@ const Games = memo(() => {
     [sourceKey],
   );
   const isLocalSource = selectedSource.key === 'local';
+  const lastInitialSourceRef = useRef(String(initialSourceKey || 'gnmath').toLowerCase());
+
+  const buildReturnTo = useCallback(
+    (nextSourceKey) => {
+      const params = new URLSearchParams();
+      if (inGhostBrowserMode) params.set('ghost', '1');
+      params.set('tab', 'games');
+      if (nextSourceKey) params.set('source', String(nextSourceKey));
+      return `/discover?${params.toString()}`;
+    },
+    [inGhostBrowserMode],
+  );
+
+  useEffect(() => {
+    const normalized = String(initialSourceKey || 'gnmath').toLowerCase();
+    if (lastInitialSourceRef.current === normalized) return;
+    lastInitialSourceRef.current = normalized;
+
+    setSourceKey(normalized);
+    setCategory(null);
+    setShowDl(false);
+    setQ('');
+    setPage(1);
+    setFallback({});
+  }, [initialSourceKey]);
+
+  useEffect(() => {
+    setQ('');
+    setPage(1);
+    setCategory(null);
+    setShowDl(false);
+    setFallback({});
+  }, [sourceKey]);
 
   const refreshDownloadedGames = useCallback(async () => {
     try {
@@ -462,10 +495,13 @@ const Games = memo(() => {
   const navApp = useCallback(
     (app) => {
       if (!app) return;
-      const targetApp = showDl ? { ...app, local: true } : app;
+      const sourceForReturn = app?.sourceKey || (showDl ? 'local' : sourceKey);
+      const targetApp = showDl
+        ? { ...app, local: true, sourceKey: sourceForReturn, returnTo: buildReturnTo(sourceForReturn) }
+        : { ...app, sourceKey: sourceForReturn, returnTo: buildReturnTo(sourceForReturn) };
       nav('/discover/r/', { state: { app: targetApp } });
     },
-    [nav, showDl],
+    [nav, showDl, sourceKey, buildReturnTo],
   );
 
   const handleSearch = useCallback((e) => {
@@ -511,6 +547,7 @@ const Games = memo(() => {
 
       const opensInViewer = new Set(['gnmath', 'gnports']);
       if (opensInViewer.has(String(game.sourceKey || '').toLowerCase())) {
+        const sourceForReturn = game.sourceKey || sourceKey;
         nav('/discover/r/', {
           state: {
             app: {
@@ -519,6 +556,8 @@ const Games = memo(() => {
               icon: game.icon,
               url: game.url,
               renderAsHtml: true,
+              sourceKey: sourceForReturn,
+              returnTo: buildReturnTo(sourceForReturn),
             },
           },
         });
@@ -560,7 +599,7 @@ const Games = memo(() => {
         openFallback(game.url, isNowGG);
       }
     },
-    [nav],
+    [nav, sourceKey, buildReturnTo],
   );
 
   return (
@@ -806,8 +845,14 @@ const Games = memo(() => {
                   }}
                   className="group relative rounded-2xl border border-white/12 bg-[#111a27] overflow-hidden aspect-[16/10] shadow-[0_8px_22px_rgba(0,0,0,0.24)] hover:shadow-[0_14px_30px_rgba(0,0,0,0.36)] hover:-translate-y-0.5 transition-all"
                 >
-                  {game.icon && !game.noIcon && (!options.performanceMode || /ghost/i.test(String(game.icon))) ? (
-                    <img src={game.icon} alt={game.appName} className="w-full h-full object-cover" loading="lazy" />
+                  {game.icon && !game.noIcon && !fallback[game.appName] && (!options.performanceMode || /ghost/i.test(String(game.icon))) ? (
+                    <img
+                      src={game.icon}
+                      alt={game.appName}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      onError={() => handleImgError(game.appName)}
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center px-2 text-center text-sm font-semibold opacity-90">
                       {game.appName}
@@ -958,11 +1003,22 @@ const getEntertainmentTabFromSearch = (search) => {
   return 'games';
 };
 
+const getEntertainmentSourceFromSearch = (search) => {
+  const requested = (new URLSearchParams(search).get('source') || '').toLowerCase();
+  if (!requested) return 'gnmath';
+
+  const allowedSource = GAME_SOURCE_CONFIG.find(
+    (source) => source.key === requested && source.type !== 'divider' && source.type !== 'action',
+  );
+  return allowedSource ? allowedSource.key : 'gnmath';
+};
+
 const GamesLayout = () => {
   const { options } = useOptions();
   const location = useLocation();
   const nav = useNavigate();
   const [tab, setTab] = useState(() => getEntertainmentTabFromSearch(location.search));
+  const sourceFromSearch = useMemo(() => getEntertainmentSourceFromSearch(location.search), [location.search]);
   const [fallback, setFallback] = useState({});
   const inGhostBrowserMode = new URLSearchParams(location.search).get('ghost') === '1';
 
@@ -1056,7 +1112,7 @@ const GamesLayout = () => {
           </div>
         </div>
 
-        {tab === 'games' && <Games />}
+        {tab === 'games' && <Games initialSourceKey={sourceFromSearch} inGhostBrowserMode={inGhostBrowserMode} />}
         {tab === 'tv' && (
           <>
             <ExternalAppsGrid

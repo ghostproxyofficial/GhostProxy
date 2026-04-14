@@ -112,6 +112,17 @@ const normalizeTabUrl = (url) => {
     return raw;
   }
 
+  try {
+    const parsed = new URL(raw, location.origin);
+    if (parsed.origin === location.origin) {
+      const internalPaths = ['/apps', '/settings', '/discover', '/docs', '/search', '/code', '/ai', '/remote', '/new'];
+      if (internalPaths.some((base) => parsed.pathname === base || parsed.pathname.startsWith(`${base}/`))) {
+        return parsed.toString();
+      }
+    }
+  } catch {
+  }
+
   let opts = {};
   try {
     opts = JSON.parse(localStorage.getItem('options') || '{}');

@@ -55,7 +55,9 @@ const SEND_COOLDOWN_MS = 5000;
 const createId = () => `chat-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 
 const PROVIDER_LINKS = {
+  stoutchat: 'https://duck.ai',
   duckai: 'https://duck.ai',
+  discordchat: 'https://discord.com/app',
   chatgpt: 'https://chat.openai.com',
   gemini: 'https://gemini.google.com',
   claude: 'https://claude.ai',
@@ -226,14 +228,7 @@ export default function AIPage() {
   });
   const aiSettingsRef = useRef(null);
   const { options, updateOption } = useOptions();
-  const [rememberProviderChoice, setRememberProviderChoice] = useState(() => {
-    try {
-      return localStorage.getItem('ghostAiProviderChooserRemember') !== 'false';
-    } catch {
-      return true;
-    }
-  });
-  const [selectedProvider, setSelectedProvider] = useState('duckai');
+  const [selectedProvider, setSelectedProvider] = useState(() => String(options.defaultAiProvider || 'duckai'));
   const [aiProviderPopupOpen, setAiProviderPopupOpen] = useState(() => {
     try {
       if (String(options.defaultAiProvider || '') === '') return true;
@@ -249,25 +244,25 @@ export default function AIPage() {
     }
   }, [options.defaultAiProvider]);
 
+  useEffect(() => {
+    setSelectedProvider(String(options.defaultAiProvider || 'duckai'));
+  }, [options.defaultAiProvider]);
+
   const applySelectedProvider = () => {
     const nextProvider = String(selectedProvider || '').trim();
     if (!nextProvider) return;
 
-    if (rememberProviderChoice) {
-      updateOption({ defaultAiProvider: nextProvider });
-      try {
-        localStorage.setItem('ghostAiProviderChooserRemember', 'true');
-      } catch { }
-    } else {
-      try {
-        localStorage.setItem('ghostAiProviderChooserRemember', 'false');
-      } catch { }
-    }
+    updateOption({ defaultAiProvider: nextProvider });
 
-    if (nextProvider === 'ghostai') {
-      setAiProviderPopupOpen(false);
-      return;
+    if (nextProvider === 'stoutchat' || nextProvider === 'discordchat') {
+      updateOption({ defaultChatProvider: nextProvider });
     }
+    try {
+      localStorage.setItem('ghostAiProviderChooserDismissed', 'true');
+    } catch { }
+    setAiProviderPopupOpen(false);
+
+    if (nextProvider === 'ghostai') return;
 
     const link = PROVIDER_LINKS[nextProvider];
     if (link) {
@@ -1110,30 +1105,8 @@ export default function AIPage() {
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-3 mt-4">
-              <label className="inline-flex items-center gap-2 text-sm text-white/80">
-                <input
-                  type="checkbox"
-                  checked={rememberProviderChoice}
-                  onChange={(e) => setRememberProviderChoice(e.target.checked)}
-                />
-                Remember my option
-              </label>
+            <div className="flex items-center justify-end gap-2 mt-4">
               <div className="flex items-center gap-2">
-                {rememberProviderChoice && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      try {
-                        localStorage.setItem('ghostAiProviderChooserDismissed', 'true');
-                      } catch { }
-                      setAiProviderPopupOpen(false);
-                    }}
-                    className="px-3 py-1.5 rounded-lg text-sm text-white/70 hover:text-white hover:bg-white/8 transition-colors"
-                  >
-                    Don&apos;t show this again
-                  </button>
-                )}
                 <button
                   type="button"
                   onClick={applySelectedProvider}
