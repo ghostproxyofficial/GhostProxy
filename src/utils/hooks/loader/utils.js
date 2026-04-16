@@ -41,7 +41,11 @@ export const encoding = {
       }
       return new TextDecoder().decode(o) + s.slice(h);
     } catch {
-      return decodeURIComponent(s);
+      try {
+        return decodeURIComponent(s);
+      } catch {
+        return s;
+      }
     }
   },
 };

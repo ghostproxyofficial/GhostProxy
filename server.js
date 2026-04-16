@@ -16,11 +16,13 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const port = process.env.PORT || 2345;
+const host = process.env.HOST || "0.0.0.0";
 const NVIDIA_API_KEY =
   process.env.NVIDIA_API_KEY ||
   "";
 const NVIDIA_CHAT_ENDPOINT = "https://integrate.api.nvidia.com/v1/chat/completions";
 const NVIDIA_MODEL = process.env.NVIDIA_MODEL || "microsoft/phi-3.5-mini-instruct";
+const UPSTREAM_TIMEOUT_MS = Number(process.env.UPSTREAM_TIMEOUT_MS || 15000);
 const server = createServer();
 const bare = process.env.BARE !== "false" ? createBareServer("/seal/") : null;
 logging.set_level(logging.NONE);
@@ -31,10 +33,31 @@ Object.assign(wisp.options, {
   dns_result_order: "ipv4first"
 });
 
+const isWispUpgradeRoute = (rawUrl) => {
+  const value = String(rawUrl || "");
+  try {
+    const pathname = new URL(value, "http://localhost").pathname;
+    return pathname === "/wisp" || pathname === "/wisp/" || pathname.endsWith("/wisp/") || pathname.endsWith("/wisp");
+  } catch {
+    const pathname = value.split("?")[0] || "";
+    return pathname === "/wisp" || pathname === "/wisp/" || pathname.endsWith("/wisp/") || pathname.endsWith("/wisp");
+  }
+};
+
+const fetchWithTimeout = async (resource, init = {}, timeoutMs = UPSTREAM_TIMEOUT_MS) => {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(resource, { ...init, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+};
+
 server.on("upgrade", (req, sock, head) =>
   bare?.shouldRoute(req)
     ? bare.routeUpgrade(req, sock, head)
-    : req.url.endsWith("/wisp/")
+    : isWispUpgradeRoute(req.url)
       ? wisp.routeRequest(req, sock, head)
       : sock.end()
 );
@@ -78,7 +101,20 @@ if (process.env.MASQR === "true")
 
 const proxy = (url, type = "application/javascript") => async (req, reply) => {
   try {
-    const res = await fetch(url(req));
+    const forwardedHeaders = {
+      accept: req.headers.accept || "*/*",
+      "user-agent": req.headers["user-agent"] || "GhostProxy/1.0",
+    };
+    if (req.headers.range) {
+      forwardedHeaders.range = req.headers.range;
+    }
+
+    const res = await fetchWithTimeout(url(req), {
+      method: "GET",
+      headers: forwardedHeaders,
+      redirect: "follow",
+    });
+
     if (!res.ok) return reply.code(res.status).send();
 
     const hop = [
@@ -104,7 +140,10 @@ const proxy = (url, type = "application/javascript") => async (req, reply) => {
     if (!res.headers.get("content-type")) reply.type(type);
 
     return reply.send(res.body);
-  } catch {
+  } catch (error) {
+    if (error?.name === "AbortError") {
+      return reply.code(504).send({ error: "upstream_timeout" });
+    }
     return reply.code(500).send();
   }
 };
@@ -115,7 +154,7 @@ app.get("/js/script.js", proxy(() => "https://byod.privatedns.org/js/script.js")
 app.get("/ds", (req, res) => res.redirect("https://discord.gg/ZBef7HnAeg"));
 app.get("/return", async (req, reply) =>
   req.query?.q
-    ? fetch(`https://duckduckgo.com/ac/?q=${encodeURIComponent(req.query.q)}`)
+  ? fetchWithTimeout(`https://duckduckgo.com/ac/?q=${encodeURIComponent(req.query.q)}`)
         .then(r => r.json())
         .catch(() => reply.code(500).send({ error: "request failed" }))
     : reply.code(401).send({ error: "query parameter?" })
@@ -174,7 +213,7 @@ app.get("/api/ip/meta", async (req, reply) => {
   try {
     for (const provider of providers) {
       try {
-        const response = await fetch(provider.url, { headers: { "user-agent": "GhostProxy/1.0" } });
+        const response = await fetchWithTimeout(provider.url, { headers: { "user-agent": "GhostProxy/1.0" } });
         if (!response.ok) continue;
         const data = await response.json();
         const parsed = provider.parse(data);
@@ -218,7 +257,7 @@ app.post("/api/ai/chat", async (req, reply) => {
         .map((m) => ({ role: m.role, content: m.content })),
     ];
 
-    const upstream = await fetch(NVIDIA_CHAT_ENDPOINT, {
+    const upstream = await fetchWithTimeout(NVIDIA_CHAT_ENDPOINT, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -267,4 +306,4 @@ app.setNotFoundHandler((req, reply) =>
     : reply.code(404).send({ error: "Not Found" })
 );
 
-app.listen({ port }).then(() => console.log(`Server running on ${port}`));
+app.listen({ port, host }).then(() => console.log(`Server running on ${port}`));

@@ -26,7 +26,13 @@ self.__uv$config = {
                 o[i] = parseInt(s[x] + s[x + 1], 16) ^ k[i % 8];
             }
             return new TextDecoder().decode(o) + s.slice(h);
-        } catch { return decodeURIComponent(s); }
+        } catch {
+            try {
+                return decodeURIComponent(s);
+            } catch {
+                return s;
+            }
+        }
     },
     handler: "/uv/uv.handler.js",
     client: "/uv/uv.client.js",
