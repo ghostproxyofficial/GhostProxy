@@ -32,6 +32,8 @@ const NewTab = ({ id, updateFn }) => {
   const [infoCardOpen, setInfoCardOpen] = useState(false);
   const WEATHER_COORDS_CACHE_KEY = 'ghostWeatherCoordsCache';
   const WEATHER_COORDS_MAX_AGE_MS = 60 * 60 * 1000;
+  const WEATHER_DATA_CACHE_KEY = 'ghostWeatherDataCacheV1';
+  const WEATHER_DATA_MAX_AGE_MS = 5 * 60 * 1000;
 
   const normalizeTimezone = (value) => {
     const raw = String(value || '').trim();
@@ -89,6 +91,104 @@ const NewTab = ({ id, updateFn }) => {
         }),
       );
     } catch { }
+  };
+
+  const buildWeatherCacheScope = (coords, unit) => {
+    if (!coords) return '';
+    return `${Number(coords.lat).toFixed(3)},${Number(coords.lon).toFixed(3)}:${unit}`;
+  };
+
+  const readCachedWeather = (coords, unit) => {
+    const scope = buildWeatherCacheScope(coords, unit);
+    if (!scope) return null;
+    try {
+      const raw = localStorage.getItem(WEATHER_DATA_CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (String(parsed?.scope || '') !== scope) return null;
+      const timestamp = Number(parsed?.t || 0);
+      if (!Number.isFinite(timestamp) || Date.now() - timestamp > WEATHER_DATA_MAX_AGE_MS) return null;
+
+      const current = parsed?.current || {};
+      const forecast = Array.isArray(parsed?.forecast) ? parsed.forecast : [];
+
+      return {
+        timezone: String(parsed?.timezone || ''),
+        current: {
+          temp: Number.isFinite(Number(current.temp)) ? Number(current.temp) : null,
+          weatherCode: Number.isFinite(Number(current.weatherCode)) ? Number(current.weatherCode) : null,
+          isDay: Number(current.isDay) === 1,
+        },
+        forecast: forecast
+          .filter((entry) => entry && typeof entry === 'object')
+          .map((entry) => ({
+            date: String(entry.date || ''),
+            weatherCode: Number.isFinite(Number(entry.weatherCode)) ? Number(entry.weatherCode) : null,
+            max: Number.isFinite(Number(entry.max)) ? Number(entry.max) : null,
+            min: Number.isFinite(Number(entry.min)) ? Number(entry.min) : null,
+          })),
+      };
+    } catch {
+      return null;
+    }
+  };
+
+  const writeCachedWeather = (coords, unit, payload) => {
+    const scope = buildWeatherCacheScope(coords, unit);
+    if (!scope || !payload) return;
+    try {
+      localStorage.setItem(
+        WEATHER_DATA_CACHE_KEY,
+        JSON.stringify({
+          scope,
+          t: Date.now(),
+          timezone: String(payload.timezone || ''),
+          current: payload.current || {},
+          forecast: Array.isArray(payload.forecast) ? payload.forecast : [],
+        }),
+      );
+    } catch { }
+  };
+
+  const formatDateKey = (value, timeZone) => {
+    try {
+      const parts = new Intl.DateTimeFormat('en-CA', {
+        timeZone,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+      }).formatToParts(new Date(value));
+      const year = parts.find((part) => part.type === 'year')?.value || '0000';
+      const month = parts.find((part) => part.type === 'month')?.value || '00';
+      const day = parts.find((part) => part.type === 'day')?.value || '00';
+      return `${year}-${month}-${day}`;
+    } catch {
+      return String(value || '').slice(0, 10);
+    }
+  };
+
+  const normalizeIsoDateKey = (value) => String(value || '').trim().slice(0, 10);
+
+  const addDaysToDateKey = (dateKey, dayOffset) => {
+    try {
+      const [year, month, day] = String(dateKey || '').split('-').map((part) => Number(part));
+      if (!Number.isFinite(year) || !Number.isFinite(month) || !Number.isFinite(day)) return '';
+      const next = new Date(Date.UTC(year, month - 1, day + dayOffset));
+      return next.toISOString().slice(0, 10);
+    } catch {
+      return '';
+    }
+  };
+
+  const formatForecastLabel = (dateKey, timeZone) => {
+    try {
+      return new Intl.DateTimeFormat([], {
+        weekday: 'short',
+        timeZone,
+      }).format(new Date(`${dateKey}T12:00:00Z`));
+    } catch {
+      return '--';
+    }
   };
 
   const weatherUnitLabel = (options.weatherUnit || 'fahrenheit') === 'celsius' ? 'C' : 'F';
@@ -372,6 +472,18 @@ const NewTab = ({ id, updateFn }) => {
         }
 
         const unit = (options.weatherUnit || 'fahrenheit') === 'celsius' ? 'celsius' : 'fahrenheit';
+        const cachedWeather = readCachedWeather(coords, unit);
+        if (cachedWeather && !cancelled) {
+          setMenuWeather(cachedWeather.current);
+          if (cachedWeather.forecast.length > 0) {
+            setForecastDays(cachedWeather.forecast.slice(0, 3));
+          }
+          const cachedTimezone = normalizeTimezone(cachedWeather.timezone);
+          if (cachedTimezone) {
+            setIpMeta((prev) => (prev.timezone === cachedTimezone ? prev : { ...prev, timezone: cachedTimezone }));
+          }
+        }
+
         const query = new URLSearchParams({
           latitude: String(coords.lat),
           longitude: String(coords.lon),
@@ -395,7 +507,7 @@ const NewTab = ({ id, updateFn }) => {
           });
           const currentOnlyResponse = await fetch(`https://api.open-meteo.com/v1/forecast?${currentOnlyQuery.toString()}`);
           if (!currentOnlyResponse.ok) {
-            if (!cancelled) {
+            if (!cancelled && !cachedWeather) {
               setMenuWeather({ temp: null, weatherCode: null, isDay: true });
               setForecastDays([]);
             }
@@ -424,39 +536,59 @@ const NewTab = ({ id, updateFn }) => {
         const codes = Array.isArray(daily.weather_code) ? daily.weather_code : [];
         const maxTemps = Array.isArray(daily.temperature_2m_max) ? daily.temperature_2m_max : [];
         const minTemps = Array.isArray(daily.temperature_2m_min) ? daily.temperature_2m_min : [];
+        const forecastTimezone = responseTimezone || effectiveTimezone;
+        const todayKey = formatDateKey(Date.now(), forecastTimezone);
 
-        const nextDays = [];
-        for (let index = 1; index < times.length && nextDays.length < 3; index += 1) {
+        const dailyByDate = new Map();
+        for (let index = 0; index < times.length; index += 1) {
           const time = String(times[index] || '').trim();
           if (!time) continue;
-          const max = Number(maxTemps[index]);
-          const min = Number(minTemps[index]);
-          const weatherCode = Number(codes[index]);
-          nextDays.push({
+          const entryKey = normalizeIsoDateKey(time);
+          if (!entryKey) continue;
+          dailyByDate.set(entryKey, {
+            dateKey: entryKey,
             date: time,
-            weatherCode: Number.isFinite(weatherCode) ? weatherCode : null,
-            max: Number.isFinite(max) ? Math.round(max) : null,
-            min: Number.isFinite(min) ? Math.round(min) : null,
+            weatherCode: Number.isFinite(Number(codes[index])) ? Number(codes[index]) : null,
+            max: Number.isFinite(Number(maxTemps[index])) ? Math.round(Number(maxTemps[index])) : null,
+            min: Number.isFinite(Number(minTemps[index])) ? Math.round(Number(minTemps[index])) : null,
           });
         }
 
-        if (nextDays.length === 0) {
-          for (let index = 0; index < times.length && nextDays.length < 3; index += 1) {
-            const time = String(times[index] || '').trim();
-            if (!time) continue;
-            const max = Number(maxTemps[index]);
-            const min = Number(minTemps[index]);
-            const weatherCode = Number(codes[index]);
+        const nextDays = [];
+        for (let offset = 0; offset < 3; offset += 1) {
+          const targetKey = addDaysToDateKey(todayKey, offset);
+          if (!targetKey) continue;
+
+          const entry = dailyByDate.get(targetKey);
+          if (entry) {
+            nextDays.push(entry);
+            continue;
+          }
+
+          const fallbackIndex = times.findIndex((time) => normalizeIsoDateKey(time) === targetKey);
+          if (fallbackIndex >= 0) {
+            const fallbackTime = String(times[fallbackIndex] || '').trim();
+            const fallbackDateKey = normalizeIsoDateKey(fallbackTime);
             nextDays.push({
-              date: time,
-              weatherCode: Number.isFinite(weatherCode) ? weatherCode : null,
-              max: Number.isFinite(max) ? Math.round(max) : null,
-              min: Number.isFinite(min) ? Math.round(min) : null,
+              dateKey: fallbackDateKey,
+              date: fallbackTime,
+              weatherCode: Number.isFinite(Number(codes[fallbackIndex])) ? Number(codes[fallbackIndex]) : null,
+              max: Number.isFinite(Number(maxTemps[fallbackIndex])) ? Math.round(Number(maxTemps[fallbackIndex])) : null,
+              min: Number.isFinite(Number(minTemps[fallbackIndex])) ? Math.round(Number(minTemps[fallbackIndex])) : null,
             });
           }
         }
 
         setForecastDays(nextDays);
+        writeCachedWeather(coords, unit, {
+          timezone: responseTimezone,
+          current: {
+            temp: Number.isFinite(Number(current.temperature_2m)) ? Number(current.temperature_2m) : null,
+            weatherCode: Number.isFinite(Number(current.weather_code)) ? Number(current.weather_code) : null,
+            isDay: Number(current.is_day) === 1 ? 1 : 0,
+          },
+          forecast: nextDays,
+        });
       } catch { }
     };
 
@@ -570,12 +702,12 @@ const NewTab = ({ id, updateFn }) => {
                 {(forecastDays.length > 0 ? forecastDays : [{}, {}, {}]).slice(0, 3).map((entry, index) => {
                   const ForecastIcon = resolveWeatherIcon(entry.weatherCode);
                   const dayLabel = entry.date
-                    ? new Intl.DateTimeFormat([], { weekday: 'short', timeZone: effectiveTimezone }).format(new Date(entry.date))
-                    : '--';
+                    ? formatForecastLabel(String(entry.dateKey || entry.date).slice(0, 10), effectiveTimezone)
+                    : ['Thu', 'Fri', 'Sat'][index] || '--';
 
                   return (
                     <div
-                      key={`${entry.date || 'placeholder'}-${index}`}
+                      key={`${entry.dateKey || entry.date || 'placeholder'}-${index}`}
                       className="rounded-lg border px-2 py-2 text-[11px]"
                       style={{ backgroundColor: infoCardSubtleBg, borderColor: infoCardBorder }}
                     >

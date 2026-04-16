@@ -49,6 +49,8 @@ const SAVED_TABS_KEY = 'ghostSavedTabs';
 const SITE_POLICY_KEY = 'ghostSitePolicies';
 const WEATHER_COORDS_CACHE_KEY = 'ghostWeatherCoordsCache';
 const WEATHER_COORDS_MAX_AGE_MS = 60 * 60 * 1000;
+const WEATHER_DATA_CACHE_KEY = 'ghostWeatherDataCacheV1';
+const WEATHER_DATA_MAX_AGE_MS = 5 * 60 * 1000;
 
 const getSitePolicies = () => {
   try {
@@ -314,6 +316,53 @@ export default function Loader({ url, ui = true, zoom }) {
           city: String(meta?.city || ''),
           timezone: String(meta?.timezone || ''),
           t: Date.now(),
+        }),
+      );
+    } catch { }
+  };
+
+  const buildWeatherCacheScope = (coords, unit) => {
+    if (!coords) return '';
+    return `${Number(coords.lat).toFixed(3)},${Number(coords.lon).toFixed(3)}:${unit}`;
+  };
+
+  const readCachedWeather = (coords, unit) => {
+    const scope = buildWeatherCacheScope(coords, unit);
+    if (!scope) return null;
+    try {
+      const raw = localStorage.getItem(WEATHER_DATA_CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (String(parsed?.scope || '') !== scope) return null;
+      const timestamp = Number(parsed?.t || 0);
+      if (!Number.isFinite(timestamp) || Date.now() - timestamp > WEATHER_DATA_MAX_AGE_MS) return null;
+
+      const current = parsed?.current || {};
+      return {
+        timezone: String(parsed?.timezone || ''),
+        current: {
+          temp: Number.isFinite(Number(current.temp)) ? Number(current.temp) : null,
+          weatherCode: Number.isFinite(Number(current.weatherCode)) ? Number(current.weatherCode) : null,
+          isDay: Number(current.isDay) === 1,
+        },
+      };
+    } catch {
+      return null;
+    }
+  };
+
+  const writeCachedWeather = (coords, unit, payload) => {
+    const scope = buildWeatherCacheScope(coords, unit);
+    if (!scope || !payload) return;
+    try {
+      localStorage.setItem(
+        WEATHER_DATA_CACHE_KEY,
+        JSON.stringify({
+          scope,
+          t: Date.now(),
+          timezone: String(payload.timezone || ''),
+          current: payload.current || {},
+          forecast: Array.isArray(payload.forecast) ? payload.forecast : [],
         }),
       );
     } catch { }
@@ -1174,8 +1223,25 @@ export default function Loader({ url, ui = true, zoom }) {
         }
 
         const unit = (options.weatherUnit || 'fahrenheit') === 'celsius' ? 'celsius' : 'fahrenheit';
-        const url = `https://api.open-meteo.com/v1/forecast?latitude=${encodeURIComponent(coords.lat)}&longitude=${encodeURIComponent(coords.lon)}&current=temperature_2m,weather_code,is_day&temperature_unit=${unit}&timezone=auto`;
-        const response = await fetch(url);
+        const cachedWeather = readCachedWeather(coords, unit);
+        if (cachedWeather && !canceled) {
+          setMenuWeather(cachedWeather.current);
+          const cachedTimezone = normalizeTimezone(cachedWeather.timezone);
+          if (cachedTimezone) {
+            setIpMeta((prev) => (prev.timezone === cachedTimezone ? prev : { ...prev, timezone: cachedTimezone }));
+          }
+        }
+
+        const query = new URLSearchParams({
+          latitude: String(coords.lat),
+          longitude: String(coords.lon),
+          current: 'temperature_2m,weather_code,is_day',
+          daily: 'weather_code,temperature_2m_max,temperature_2m_min',
+          temperature_unit: unit,
+          timezone: 'auto',
+        });
+
+        const response = await fetch(`https://api.open-meteo.com/v1/forecast?${query.toString()}`);
         if (!response.ok) throw new Error('weather fetch failed');
         const data = await response.json();
         if (canceled) return;
@@ -1189,9 +1255,20 @@ export default function Loader({ url, ui = true, zoom }) {
           weatherCode: Number(current.weather_code),
           isDay: Number(current.is_day) !== 0,
         });
+        writeCachedWeather(coords, unit, {
+          timezone: responseTimezone,
+          current: {
+            temp: Number(current.temperature_2m),
+            weatherCode: Number(current.weather_code),
+            isDay: Number(current.is_day) !== 0 ? 1 : 0,
+          },
+        });
       } catch {
         if (canceled) return;
-        setMenuWeather({ temp: null, weatherCode: null, isDay: true });
+        const shouldKeepWeather = options.hideLocation !== true;
+        if (!shouldKeepWeather) {
+          setMenuWeather({ temp: null, weatherCode: null, isDay: true });
+        }
       }
     };
 

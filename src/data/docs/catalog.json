@@ -86,6 +86,11 @@
         "file": "/docs/development/1.md"
       },
       {
+        "id": "5",
+        "title": "How to host your own wisp endpoint",
+        "file": "/docs/development/5.md"
+      },
+      {
         "id": "2",
         "title": "How to setup Remote Proxy Server",
         "file": "/docs/development/2.md"

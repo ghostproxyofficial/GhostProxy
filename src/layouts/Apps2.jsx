@@ -24,8 +24,14 @@ const YELLOW_PLAY_ICON = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/
 const WHITE_MUSIC_ICON = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
 const POPUP_TRANSITION_MS = 180;
 const STARRED_GAMES_STORAGE_KEY = 'ghostStarredGames';
-const LUMIN_SDK_SCRIPT_SRC = 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js';
+const LUMIN_SDK_SCRIPT_SRCS = [
+  'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js',
+  'https://unpkg.com/@luminsdk/script@latest/dist/lumin.min.js',
+  'https://fastly.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js',
+];
 const LUMIN_GAME_URL_PREFIX = 'lumin://';
+const LUMIN_GAMES_CACHE_KEY = 'ghostLuminSdkGamesCacheV1';
+const LUMIN_GAMES_CACHE_MAX_AGE_MS = 30 * 60 * 1000;
 
 const normalizeGameToken = (value) =>
   String(value || '')
@@ -91,98 +97,176 @@ const ensureScriptLoaded = (src, globalName) => {
   });
 };
 
+const wait = (ms) => new Promise((resolve) => window.setTimeout(resolve, ms));
+
+const ensureAnyScriptLoaded = async (srcList, globalName) => {
+  for (const src of srcList) {
+    const ready = await ensureScriptLoaded(src, globalName);
+    if (ready) return true;
+  }
+  return false;
+};
+
+const readCachedLuminGames = () => {
+  try {
+    const raw = localStorage.getItem(LUMIN_GAMES_CACHE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    const timestamp = Number(parsed?.t || 0);
+    if (!Number.isFinite(timestamp) || (Date.now() - timestamp) > LUMIN_GAMES_CACHE_MAX_AGE_MS) return [];
+    const games = Array.isArray(parsed?.games) ? parsed.games : [];
+    return games
+      .filter((item) => item && typeof item === 'object' && item.url)
+      .map((item) => ({
+        appName: String(item.appName || 'Untitled Game'),
+        desc: String(item.desc || 'LuminSDK'),
+        icon: '',
+        url: String(item.url || ''),
+        disabled: false,
+        noIcon: true,
+        luminImageToken: String(item.luminImageToken || ''),
+        sourceType: 'mix',
+        sourceKey: 'luminsdk',
+      }));
+  } catch {
+    return [];
+  }
+};
+
+const writeCachedLuminGames = (games) => {
+  if (!Array.isArray(games) || games.length === 0) return;
+  try {
+    localStorage.setItem(
+      LUMIN_GAMES_CACHE_KEY,
+      JSON.stringify({
+        t: Date.now(),
+        games: games.map((game) => ({
+          appName: game.appName,
+          desc: game.desc,
+          url: game.url,
+          luminImageToken: game.luminImageToken || '',
+        })),
+      }),
+    );
+  } catch { }
+};
+
 const fetchLuminSdkGames = async () => {
   if (typeof window === 'undefined') return [];
 
-  const ready = await ensureScriptLoaded(LUMIN_SDK_SCRIPT_SRC, 'Lumin');
+  const ready = await ensureAnyScriptLoaded(LUMIN_SDK_SCRIPT_SRCS, 'Lumin');
   if (!ready || typeof window.Lumin?.init !== 'function' || typeof window.Lumin?.getGames !== 'function') return [];
 
-  try {
-    await window.Lumin.init({
-      headless: true,
-      theme: 'dark',
-    });
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await window.Lumin.init({
+        headless: true,
+        theme: 'dark',
+      });
 
-    const pageLimit = 120;
-    let page = 1;
-    let pages = 1;
-    const aggregate = [];
-    const maxPages = 250;
+      const pageLimit = 120;
+      let page = 1;
+      let pages = 1;
+      const aggregate = [];
+      const maxPages = 250;
 
-    while (page <= pages && page <= maxPages) {
-      const response = await window.Lumin.getGames({ page, limit: pageLimit, q: '' });
-      const responseGames = Array.isArray(response?.games) ? response.games : [];
-      const reportedPages = Number(response?.pages || 0);
-      const reportedTotal = Number(response?.total || 0);
-      pages = reportedPages > 0 ? reportedPages : (reportedTotal > 0 ? Math.ceil(reportedTotal / pageLimit) : page);
+      while (page <= pages && page <= maxPages) {
+        let response = null;
+        for (let pageAttempt = 0; pageAttempt < 3; pageAttempt += 1) {
+          try {
+            response = await window.Lumin.getGames({ page, limit: pageLimit, q: '' });
+            const games = Array.isArray(response?.games) ? response.games : [];
+            if (games.length > 0 || page > 1) break;
+          } catch { }
 
-      if (!responseGames.length && page > 1) break;
+          await wait(250 * (pageAttempt + 1));
+        }
 
-      for (const item of responseGames) {
-        const itemId = String(item?.id || '').trim();
-        const appName = String(item?.name || item?.title || '').trim() || 'Untitled Game';
-        if (!itemId) continue;
+        const responseGames = Array.isArray(response?.games) ? response.games : [];
+        const reportedPages = Number(response?.pages || 0);
+        const reportedTotal = Number(response?.total || 0);
+        pages = reportedPages > 0 ? reportedPages : (reportedTotal > 0 ? Math.ceil(reportedTotal / pageLimit) : page);
 
-        const imageToken = String(item?.image_token || '').trim();
+        if (!responseGames.length && page > 1) break;
 
-        aggregate.push({
-          appName,
-          desc: item?.category ? `LuminSDK - ${item.category}` : 'LuminSDK',
-          icon: '',
-          url: `${LUMIN_GAME_URL_PREFIX}${itemId}`,
-          disabled: false,
-          noIcon: true,
-          luminImageToken: imageToken,
-          sourceType: 'mix',
-          sourceKey: 'luminsdk',
-        });
+        for (const item of responseGames) {
+          const itemId = String(item?.id || '').trim();
+          const appName = String(item?.name || item?.title || '').trim() || 'Untitled Game';
+          if (!itemId) continue;
+
+          const imageToken = String(item?.image_token || '').trim();
+
+          aggregate.push({
+            appName,
+            desc: item?.category ? `LuminSDK - ${item.category}` : 'LuminSDK',
+            icon: '',
+            url: `${LUMIN_GAME_URL_PREFIX}${itemId}`,
+            disabled: false,
+            noIcon: true,
+            luminImageToken: imageToken,
+            sourceType: 'mix',
+            sourceKey: 'luminsdk',
+          });
+        }
+
+        page += 1;
       }
 
-      page += 1;
+      const dedupe = new Map();
+      for (const game of aggregate) {
+        const key = `${String(game.url || '').trim().toLowerCase()}::${normalizeGameToken(game.appName)}`;
+        if (!dedupe.has(key)) dedupe.set(key, game);
+      }
+
+      const dedupedGames = Array.from(dedupe.values()).filter((game) => !isBlockedGameEntry(game));
+      if (dedupedGames.length === 0) {
+        if (attempt < 2) {
+          await wait(350 * (attempt + 1));
+          continue;
+        }
+        return [];
+      }
+
+      writeCachedLuminGames(dedupedGames);
+
+      // Resolve image tokens to blob URLs in small batches to avoid throttling.
+      const withIcons = [];
+      for (let i = 0; i < dedupedGames.length; i += 20) {
+        const batch = dedupedGames.slice(i, i + 20);
+        const resolvedBatch = await Promise.all(
+          batch.map(async (game) => {
+            const token = String(game.luminImageToken || '').trim();
+            if (!token || typeof window.Lumin?.getImageUrl !== 'function') {
+              return { ...game, noIcon: true };
+            }
+
+            try {
+              const blobUrl = String(await window.Lumin.getImageUrl(token)).trim();
+              return {
+                ...game,
+                icon: blobUrl,
+                noIcon: !blobUrl,
+              };
+            } catch {
+              return { ...game, noIcon: true };
+            }
+          }),
+        );
+        withIcons.push(...resolvedBatch);
+      }
+
+      return withIcons;
+    } catch {
+      if (attempt === 2) return [];
+      await wait(350 * (attempt + 1));
+    } finally {
+      try {
+        window.Lumin.destroy?.();
+      } catch { }
     }
-
-    const dedupe = new Map();
-    for (const game of aggregate) {
-      const key = `${String(game.url || '').trim().toLowerCase()}::${normalizeGameToken(game.appName)}`;
-      if (!dedupe.has(key)) dedupe.set(key, game);
-    }
-
-    const dedupedGames = Array.from(dedupe.values()).filter((game) => !isBlockedGameEntry(game));
-
-    // Resolve image tokens to blob URLs in small batches to avoid throttling.
-    const withIcons = [];
-    for (let i = 0; i < dedupedGames.length; i += 20) {
-      const batch = dedupedGames.slice(i, i + 20);
-      const resolvedBatch = await Promise.all(
-        batch.map(async (game) => {
-          const token = String(game.luminImageToken || '').trim();
-          if (!token || typeof window.Lumin?.getImageUrl !== 'function') {
-            return { ...game, noIcon: true };
-          }
-
-          try {
-            const blobUrl = String(await window.Lumin.getImageUrl(token)).trim();
-            return {
-              ...game,
-              icon: blobUrl,
-              noIcon: !blobUrl,
-            };
-          } catch {
-            return { ...game, noIcon: true };
-          }
-        }),
-      );
-      withIcons.push(...resolvedBatch);
-    }
-
-    return withIcons;
-  } catch {
-    return [];
-  } finally {
-    try {
-      window.Lumin.destroy?.();
-    } catch { }
   }
+
+  return [];
 };
 
 const usePopupTransition = (open) => {
@@ -565,11 +649,18 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
     let mounted = true;
 
     const hydrateLumin = async () => {
+      const cached = readCachedLuminGames();
+      if (mounted && cached.length > 0) {
+        setLuminGames(cached);
+      }
+
       setLuminLoading(true);
       const loadedGames = await fetchLuminSdkGames();
       if (!mounted) return;
-      if (Array.isArray(loadedGames)) {
+      if (Array.isArray(loadedGames) && loadedGames.length > 0) {
         setLuminGames(loadedGames);
+      } else if (cached.length === 0) {
+        setLuminGames([]);
       }
       setLuminLoading(false);
     };

@@ -119,9 +119,13 @@ const InfoPanel = () => {
         <div>
           <p className="font-semibold mb-1">Backend / Features</p>
           <ul className="space-y-1 opacity-90">
+            <li>- ghostproxyofficial/wisp-server (recommended self-host endpoint)</li>
             <li>- MercuryWorkshop/wisp-server-node</li>
             <li>- MercuryWorkshop/scramjet</li>
             <li>- titaniumnetwork-dev/Ultraviolet</li>
+            <li>- MercuryWorkshop/epoxy-transport</li>
+            <li>- MercuryWorkshop/libcurl-transport</li>
+            <li>- mercuryworkshop/bare-mux</li>
             <li>- lucide-icons/lucide</li>
             <li>- pmndrs/zustand</li>
             <li>- Stuk/jszip</li>
@@ -170,10 +174,12 @@ const InfoPanel = () => {
         <div className="rounded-lg border border-white/10 bg-black/20 p-3">
           <p className="font-semibold mb-2">Primary upstream projects</p>
           <ul className="space-y-1 text-sm">
+            <li>- ghostproxyofficial/wisp-server</li>
             <li>- MercuryWorkshop/scramjet</li>
             <li>- MercuryWorkshop/wisp-server-node</li>
             <li>- MercuryWorkshop/epoxy-transport</li>
             <li>- MercuryWorkshop/libcurl-transport</li>
+            <li>- mercuryworkshop/bare-mux</li>
             <li>- titaniumnetwork-dev/Ultraviolet</li>
             <li>- PMNDRS/zustand</li>
             <li>- lucide-icons/lucide</li>
@@ -238,7 +244,7 @@ const InfoPanel = () => {
           <p className="font-semibold mb-2">Repositories</p>
           <ul className="space-y-1">
             <li>- Frontend (website): ghostproxyofficial/GhostProxy</li>
-            <li className="line-through opacity-70">- WispServer (setting up your own proxy server): ghostproxyofficial/WispServer</li>
+            <li>- Wisp Server (setting up your own proxy server): ghostproxyofficial/wisp-server</li>
             <li className="line-through opacity-70">- Ghost Remote Access (accessing your home PC remotely): ghostproxyofficial/RemoteAccess</li>
             <li className="line-through opacity-70">- Cloud Saving (save data online): ghostproxyofficial/CloudSaving</li>
           </ul>
