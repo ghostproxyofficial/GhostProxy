@@ -313,6 +313,22 @@ const scrwlist = new Set([
   )
 ]);
 
+const SCRAMJET_FORCE_UV_HOSTS = new Set([
+  'vscode.dev',
+]);
+
+const shouldForceUvRoute = (urlValue) => {
+  try {
+    const hostname = new URL(String(urlValue || '')).hostname.replace(/^www\./i, '').toLowerCase();
+    if (!hostname) return false;
+    return [...SCRAMJET_FORCE_UV_HOSTS].some((blockedHost) =>
+      hostname === blockedHost || hostname.endsWith(`.${blockedHost}`),
+    );
+  } catch {
+    return false;
+  }
+};
+
 export const process = (input, decode = false, prType, engine = "https://duckduckgo.com/?q=") => {
   const rawInput = String(input || '').trim();
   if (!decode && /^(data:|blob:|about:)/i.test(rawInput)) {
@@ -344,6 +360,10 @@ export const process = (input, decode = false, prType, engine = "https://duckduc
         break;
       }
       const url = check(input, engine);
+      if (shouldForceUvRoute(url)) {
+        prefix = '/uv/service/';
+        break;
+      }
       const match = [...scrwlist].some(d => url.includes(d));
       prefix = match && globalThis.__ghostScramjetReady ? '/scramjet/' : '/uv/service/';
     }
