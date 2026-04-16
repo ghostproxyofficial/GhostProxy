@@ -86,6 +86,13 @@ const getGhostTabLabel = (url) => {
     'ghost://code': 'Ghost Code',
     'ghost://ai': 'Ghost AI',
     'ghost://remote': 'Ghost Remote Access',
+    'ghost://musicplayer': 'Ghost Music',
+    'ghost://monochrome': 'Ghost Music',
+    'ghost://duckai': 'Ghost Duck AI',
+    'ghost://live': 'Ghost Live TV',
+    'ghost://movies': 'Ghost Movies/TV',
+    'ghost://anime': 'Ghost Anime',
+    'ghost://browselol': 'Ghost Browser.lol',
   };
 
   if (ghostRouteMap[normalizedGhost]) {

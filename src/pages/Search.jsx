@@ -163,6 +163,7 @@ export default function Loader({ url, ui = true, zoom }) {
   const setIframeUrl = loaderStore((state) => state.setIframeUrl);
   const addTab = loaderStore((state) => state.addTab);
   const setActive = loaderStore((state) => state.setActive);
+  const setDisplayUrl = loaderStore((state) => state.setDisplayUrl);
   const lastFindText = useRef('');
   const lastOpenStateKeyRef = useRef('');
   const [historyPopupOpen, setHistoryPopupOpen] = useState(false);
@@ -619,6 +620,9 @@ export default function Loader({ url, ui = true, zoom }) {
   );
 
   const navigateActiveTab = (rawUrl) => {
+    const requestedRawUrl = String(rawUrl || '').trim();
+    let displayUrl = '';
+
     // Intercept ghost://ai — redirect to external provider if one is set
     if (String(rawUrl).toLowerCase() === 'ghost://ai' && options.defaultAiProvider) {
       const providerUrls = {
@@ -641,6 +645,9 @@ export default function Loader({ url, ui = true, zoom }) {
       const externalUrl = providerUrls[options.defaultAiProvider];
       if (externalUrl) {
         rawUrl = externalUrl;
+        if (options.defaultAiProvider === 'duckai' || options.defaultAiProvider === 'stoutchat') {
+          displayUrl = 'ghost://duckai';
+        }
       }
     }
 
@@ -653,15 +660,16 @@ export default function Loader({ url, ui = true, zoom }) {
     if (options.openLinkInNewTab) {
       if (store.tabs.length < 20) {
         const id = createId();
-        addTab({ title: 'New Tab', id, url: targetUrl });
-        if (String(rawUrl).toLowerCase() === 'ghost://home') {
+        addTab({ title: 'New Tab', id, url: targetUrl, displayUrl });
+        if (requestedRawUrl.toLowerCase() === 'ghost://home') {
           setIframeUrl(id, 'ghost://home');
         }
         setActive(id);
       }
     } else if (activeTab) {
       updateUrl(activeTab.id, targetUrl);
-      if (String(rawUrl).toLowerCase() === 'ghost://home') {
+      setDisplayUrl(activeTab.id, displayUrl);
+      if (requestedRawUrl.toLowerCase() === 'ghost://home') {
         setIframeUrl(activeTab.id, 'ghost://home');
       }
     }
@@ -1261,6 +1269,9 @@ export default function Loader({ url, ui = true, zoom }) {
       ? routeUrl
       : process(routeUrl, false, options.prType || 'auto', options.engine || null);
     const targetUrl = toGhostDisplayUrl(processedUrl) || processedUrl;
+    const routedDisplayUrl = typeof location.state?.displayUrl === 'string'
+      ? location.state.displayUrl.trim()
+      : '';
 
     if (location.state?.openInGhostNewTab) {
       const stateKey = `${routeUrl}-${location.key}`;
@@ -1269,7 +1280,7 @@ export default function Loader({ url, ui = true, zoom }) {
 
       if (storeTabs.length >= 20) return;
       const id = createId();
-      addTab({ title: 'New Tab', id, url: targetUrl });
+      addTab({ title: 'New Tab', id, url: targetUrl, displayUrl: routedDisplayUrl });
       if (location.state?.askDefaultMusicPrompt) {
         setMusicPromptByTab((prev) => ({
           ...prev,
@@ -1287,8 +1298,9 @@ export default function Loader({ url, ui = true, zoom }) {
     const currentTab = storeTabs.find((tab) => tab.active) || storeTabs[0];
     if (currentTab && currentTab.url !== targetUrl) {
       updateUrl(currentTab.id, targetUrl);
+      setDisplayUrl(currentTab.id, routedDisplayUrl);
     }
-  }, [tabsHydrated, routeUrl, updateUrl, addTab, setActive, options.prType, options.engine, location.state, location.key, navigate]);
+  }, [tabsHydrated, routeUrl, updateUrl, addTab, setActive, setDisplayUrl, options.prType, options.engine, location.state, location.key, navigate]);
 
   useEffect(() => {
     if (options.saveTabs ?? true) {
@@ -1363,8 +1375,9 @@ export default function Loader({ url, ui = true, zoom }) {
     const openGhostBrowserTab = (rawUrl, config = {}) => {
       if (!rawUrl || loaderStore.getState().tabs.length >= 20) return false;
       const targetUrl = getStoredTabTarget(rawUrl, !!config?.skipProxy);
+      const displayUrl = typeof config?.displayUrl === 'string' ? config.displayUrl.trim() : '';
       const id = createId();
-      addTab({ title: config?.title || 'New Tab', id, url: targetUrl });
+      addTab({ title: config?.title || 'New Tab', id, url: targetUrl, displayUrl });
       if (config.askDefaultMusicPrompt) {
         setMusicPromptByTab((prev) => ({
           ...prev,
@@ -1388,6 +1401,10 @@ export default function Loader({ url, ui = true, zoom }) {
       }
       const targetUrl = getStoredTabTarget(rawUrl, !!config?.skipProxy);
       loaderStore.getState().updateUrl(tabId, targetUrl);
+      loaderStore.getState().setDisplayUrl(
+        tabId,
+        typeof config?.displayUrl === 'string' ? config.displayUrl.trim() : '',
+      );
       // Also set iframeUrl for ghost:// protocol URLs
       if (String(rawUrl).startsWith('ghost://')) {
         loaderStore.getState().setIframeUrl(tabId, rawUrl);

@@ -139,6 +139,7 @@ const store = create(
           title: 'New Tab',
           id: createId(),
           url: 'tabs://new',
+          displayUrl: '',
           active: true,
           history: ['tabs://new'],
           historyIndex: 0,
@@ -187,12 +188,14 @@ const store = create(
       addTab: (tab) =>
         set((state) => {
           const normalizedUrl = normalizeTabUrl(tab.url || 'tabs://new');
+          const displayUrl = typeof tab.displayUrl === 'string' ? tab.displayUrl.trim() : '';
           return {
             tabs: [
               ...state.tabs,
               {
                 ...tab,
                 url: normalizedUrl,
+                displayUrl,
                 history: [normalizedUrl],
                 historyIndex: 0,
                 isLoading: false,
@@ -260,6 +263,7 @@ const store = create(
         set((state) => ({
           tabs: state.tabs.map((tab) => {
             if (tab.id !== tabId) return tab;
+            const clearDisplayUrl = Boolean(tab.displayUrl) && tab.url !== normalizedUrl;
 
             if (addToHistory) {
               const currentHistoryUrl = tab.history[tab.historyIndex];
@@ -273,6 +277,7 @@ const store = create(
               return {
                 ...tab,
                 url: normalizedUrl,
+                displayUrl: clearDisplayUrl ? '' : (tab.displayUrl || ''),
                 history: newHistory,
                 historyIndex: newHistory.length - 1,
                 isLoading: normalizedUrl !== 'tabs://new',
@@ -280,10 +285,26 @@ const store = create(
             }
 
             if (tab.url === normalizedUrl) return tab;
-            return { ...tab, url: normalizedUrl, isLoading: normalizedUrl !== 'tabs://new' };
+            return {
+              ...tab,
+              url: normalizedUrl,
+              displayUrl: clearDisplayUrl ? '' : (tab.displayUrl || ''),
+              isLoading: normalizedUrl !== 'tabs://new',
+            };
           }),
         }));
       },
+      setDisplayUrl: (tabId, displayUrl = '') =>
+        set((state) => ({
+          tabs: state.tabs.map((tab) =>
+            tab.id === tabId
+              ? {
+                ...tab,
+                displayUrl: typeof displayUrl === 'string' ? displayUrl.trim() : '',
+              }
+              : tab,
+          ),
+        })),
       updateTitle: (tabId, title) =>
         set((state) => ({
           tabs: state.tabs.map((tab) => (tab.id === tabId ? { ...tab, title } : tab)),
@@ -370,6 +391,7 @@ const store = create(
               title: 'New Tab',
               id: createId(),
               url: 'tabs://new',
+              displayUrl: '',
               active: true,
               history: ['tabs://new'],
               historyIndex: 0,

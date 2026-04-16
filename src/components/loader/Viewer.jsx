@@ -379,6 +379,19 @@ const Viewer = ({ zoom }) => {
       return value;
     }
     if (value.startsWith('ghost://')) {
+      const route = value.toLowerCase().replace(/^ghost:\/\//, '').replace(/^\/+/, '').split(/[?#]/)[0];
+      const aliasTargets = {
+        musicplayer: 'https://music.anonymoose.workers.dev',
+        monochrome: 'https://music.anonymoose.workers.dev',
+        duckai: 'https://duck.ai',
+        live: 'https://thetvapp.to',
+        movies: 'https://www.cineby.sc',
+        anime: 'https://9animetv.to',
+        browselol: 'https://browser.lol/create',
+      };
+      if (aliasTargets[route]) {
+        return process(aliasTargets[route], false, options.prType || 'auto', options.engine || null);
+      }
       return process(value, false, options.prType || 'auto', options.engine || null);
     }
     try {

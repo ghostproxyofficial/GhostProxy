@@ -12,9 +12,9 @@ const Footer = memo(() => {
   const location = useLocation();
   const inGhostBrowserMode = new URLSearchParams(location.search).get('ghost') === '1';
   const [latency, setLatency] = useState(0);
-  const [diagnosticsOpen, setDiagnosticsOpen] = useState(false);
   const [samples, setSamples] = useState([]);
   const [probeStats, setProbeStats] = useState({ attempts: 0, fails: 0, slow: 0 });
+  const hasCustomBackground = String(options.customBackgroundImage || '').trim().length > 0;
 
   const latestVersionLabel = useMemo(() => {
     const latestEntry = [...(Array.isArray(changelogEntries) ? changelogEntries : [])]
@@ -166,11 +166,16 @@ const Footer = memo(() => {
   }, []);
 
   const openExternalLink = useCallback((url) => {
-    if (inGhostBrowserMode && openInGhostTab(url, { title: 'New Tab' })) {
+    if (openInGhostTab(url, { title: 'New Tab' })) {
       return;
     }
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }, [inGhostBrowserMode, openInGhostTab]);
+    navigate('/search', {
+      state: {
+        url,
+        openInGhostNewTab: true,
+      },
+    });
+  }, [navigate, openInGhostTab]);
 
   const openInfo = useCallback(() => {
     try {
@@ -216,10 +221,15 @@ const Footer = memo(() => {
       ? 'text-[#facc15]'
       : 'text-[#22c55e]';
 
+  const footerCardClass = hasCustomBackground
+    ? 'rounded-md border border-white/10 bg-[#0d1016]/92'
+    : 'rounded-md border border-transparent bg-transparent';
+
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[120] flex items-end justify-between px-2 pb-2 pointer-events-none">
       <div className={clsx(
-        'pointer-events-auto rounded-md border border-white/10 bg-[#0d1016]/92 px-3 py-2 text-sm flex items-center gap-3 ml-14',
+        'pointer-events-auto px-3 py-2 text-sm flex items-center gap-3 ml-14',
+        footerCardClass,
         inGhostBrowserMode ? 'ml-14' : '',
       )}>
         <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" onClick={openChangelog}>{latestVersionLabel}</button>
@@ -231,16 +241,11 @@ const Footer = memo(() => {
         <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" onClick={openInfo}>Info</button>
       </div>
 
-      <div
-        className="pointer-events-auto relative"
-        onMouseEnter={() => setDiagnosticsOpen(true)}
-        onMouseLeave={() => setDiagnosticsOpen(false)}
-      >
+      <div className="pointer-events-auto relative">
         <div
           className={clsx(
-            'rounded-md border border-white/10 bg-[#0d1016]/92 px-3 py-2 text-sm flex items-center gap-2',
-            'transition-all duration-150',
-            diagnosticsOpen ? 'translate-y-[-1px]' : '',
+            'px-3 py-2 text-sm flex items-center gap-2',
+            footerCardClass,
           )}
         >
           <span className="opacity-70">Server Latency:</span>
@@ -252,20 +257,6 @@ const Footer = memo(() => {
           >
             <RotateCw size={13} />
           </button>
-        </div>
-
-        <div
-          className={clsx(
-            'absolute right-0 bottom-[calc(100%+8px)] w-56 rounded-md border border-white/10 bg-[#0b0e14]/96 p-2.5 text-xs shadow-2xl',
-            'transition-all duration-150',
-            diagnosticsOpen ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-1 pointer-events-none',
-          )}
-        >
-          <p className="text-[11px] uppercase tracking-wide opacity-60 mb-2">Server Diagnostics</p>
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between"><span className="opacity-75">Jitter</span><span>{diagnostics.jitter}ms</span></div>
-            <div className="flex items-center justify-between"><span className="opacity-75">Samples</span><span>{probeStats.attempts}</span></div>
-          </div>
         </div>
       </div>
     </div>

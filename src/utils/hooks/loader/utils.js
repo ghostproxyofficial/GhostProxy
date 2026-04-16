@@ -148,6 +148,13 @@ const resolveGhostRoute = (input) => {
     'code-runner': `${location.origin}/code?ghost=1&run=1`,
     'ai': `${location.origin}/ai?ghost=1`,
     'remote': `${location.origin}/remote?ghost=1`,
+    'musicplayer': 'ghost://musicplayer',
+    'monochrome': 'ghost://musicplayer',
+    'duckai': 'ghost://duckai',
+    'live': 'ghost://live',
+    'movies': 'ghost://movies',
+    'anime': 'ghost://anime',
+    'browselol': 'ghost://browselol',
   };
 
   const raw = String(input || '').trim();
@@ -177,6 +184,13 @@ const resolveGhostRoute = (input) => {
       'code-runner',
       'ai',
       'remote',
+      'musicplayer',
+      'monochrome',
+      'duckai',
+      'live',
+      'movies',
+      'anime',
+      'browselol',
     ]);
 
     if (simpleAliases.has(normalized)) {
@@ -234,6 +248,13 @@ export const toGhostDisplayUrl = (url) => {
       'code',
       'ai',
       'remote',
+      'musicplayer',
+      'monochrome',
+      'duckai',
+      'live',
+      'movies',
+      'anime',
+      'browselol',
     ]);
 
     if (allowedRoutes.has(normalizedRoute)) {

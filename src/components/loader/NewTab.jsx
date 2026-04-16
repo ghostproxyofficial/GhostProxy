@@ -146,15 +146,20 @@ const NewTab = ({ id, updateFn }) => {
     }
   }, [menuClockNow, effectiveTimezone]);
 
-  const infoCardBg = options.menuColor || options.quickModalBgColor || 'rgba(15, 20, 29, 0.88)';
-  const infoCardSurfaceBg = `color-mix(in srgb, color-mix(in srgb, ${infoCardBg} 55%, black 45%) 78%, transparent)`;
-  const infoCardSubtleBg = options.quickModalBgColor || options.omninputColor || 'rgba(0, 0, 0, 0.22)';
+  const infoCardBg = options.menuColor || options.quickModalBgColor || '#111827';
+  const isLightTheme = options.type === 'light';
+  const logoCenterOffsetPx = 30;
+  const infoCardSurfaceBg = isLightTheme
+    ? 'rgba(248, 250, 252, 0.62)'
+    : 'rgba(19, 19, 19, 0.62)';
+  const infoCardSubtleBg = isLightTheme
+    ? 'rgba(15, 23, 42, 0.06)'
+    : 'rgba(255, 255, 255, 0.04)';
   const infoCardText = options.siteTextColor || '#b4bcc8';
-  const infoCardBorder = options.type === 'light' ? 'rgba(15,23,42,0.14)' : 'rgba(255,255,255,0.12)';
-  const homePillHorizontalOffsetPx = 16;
-  const homePillClosedWidth = 'min(17.25rem, 92vw)';
-  const homePillClosedSidePaddingPx = 16;
-  const homePillClosedItemsGapPx = 16;
+  const infoCardBorder = isLightTheme ? 'rgba(15, 23, 42, 0.14)' : 'rgba(255, 255, 255, 0.1)';
+  const homePillClosedWidth = 'min(21rem, 94vw)';
+  const homePillClosedSidePaddingPx = 14;
+  const homePillClosedItemsGapPx = 10;
 
   useEffect(() => {
     const map = {
@@ -494,12 +499,14 @@ const NewTab = ({ id, updateFn }) => {
       </div>
       <div
         className="fixed inset-x-0 bottom-3 z-[121] pointer-events-none flex justify-center"
-        style={{ transform: `translateX(${homePillHorizontalOffsetPx}px)` }}
+        style={{ transform: `translateX(${logoCenterOffsetPx}px)` }}
       >
         <div
           className={clsx(
-            'pointer-events-auto rounded-xl border backdrop-blur-xl overflow-hidden transition-[width,box-shadow,transform,background-color,padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] shadow-[0_16px_40px_rgba(0,0,0,0.42)]',
-            infoCardOpen ? 'w-[min(24.5rem,94vw)] px-4 py-3 translate-y-0' : 'py-1 translate-y-0',
+            'pointer-events-auto rounded-2xl border backdrop-blur-md overflow-hidden transition-[width,box-shadow,transform,background-color,padding] duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+            infoCardOpen
+              ? 'w-[min(24rem,94vw)] px-4 py-3 shadow-[0_14px_34px_rgba(0,0,0,0.24)]'
+              : 'py-1 shadow-[0_8px_20px_rgba(0,0,0,0.18)]',
           )}
           style={{
             backgroundColor: infoCardSurfaceBg,
@@ -517,15 +524,21 @@ const NewTab = ({ id, updateFn }) => {
           onMouseLeave={() => setInfoCardOpen(false)}
         >
           <div
-            className={clsx('grid grid-cols-3 items-center text-[12px] sm:text-[13px] transition-all duration-300', infoCardOpen ? 'gap-3' : 'gap-4')}
+            className={clsx('grid grid-cols-3 items-center text-[12px] sm:text-[13px] transition-all duration-300', infoCardOpen ? 'gap-3' : 'gap-2.5')}
             style={infoCardOpen ? undefined : { columnGap: `${homePillClosedItemsGapPx}px` }}
           >
-            <span className="text-center">{menuTimeLabel}</span>
-            <span className="inline-flex items-center justify-center gap-1.5">
+            <span className="text-center font-medium tracking-tight">{menuTimeLabel}</span>
+            <span
+              className="inline-flex items-center justify-center gap-1.5 rounded-md px-0 py-0"
+              style={{ backgroundColor: 'transparent' }}
+            >
               <Battery size={13} />
               {Number.isFinite(batteryInfo.level) ? `${batteryInfo.level}%` : '--'}
             </span>
-            <span className="inline-flex items-center justify-center gap-1.5">
+            <span
+              className="inline-flex items-center justify-center gap-1.5 rounded-md px-0 py-0"
+              style={{ backgroundColor: 'transparent' }}
+            >
               {options.hideLocation === true ? (
                 <span>Location</span>
               ) : (
@@ -547,7 +560,7 @@ const NewTab = ({ id, updateFn }) => {
             )}
           >
             <div className="overflow-hidden">
-              <div className="flex items-center justify-between text-[11px] opacity-80 px-0.5">
+              <div className="flex items-center justify-between text-[11px] px-0.5" style={{ opacity: 0.82 }}>
                 <span>{menuDateLabel}</span>
                 <span className="truncate max-w-[10.5rem] text-right">{options.hideLocation === true ? 'Location' : (ipMeta.city || 'Location')}</span>
               </div>
@@ -563,8 +576,8 @@ const NewTab = ({ id, updateFn }) => {
                   return (
                     <div
                       key={`${entry.date || 'placeholder'}-${index}`}
-                      className="rounded-lg border border-white/10 px-2 py-2 text-[11px]"
-                      style={{ backgroundColor: infoCardSubtleBg }}
+                      className="rounded-lg border px-2 py-2 text-[11px]"
+                      style={{ backgroundColor: infoCardSubtleBg, borderColor: infoCardBorder }}
                     >
                       <div className="flex items-center justify-between">
                         <span className="opacity-80">{dayLabel}</span>

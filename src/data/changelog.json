@@ -23,7 +23,7 @@
     "date": "2026-04-11",
     "changes": [
       "4/11 update: Full overhaul of features, games, and customization.",
-      "95% of the 5000+ games now work; all entertainment options except Monochrome were working at this point.",
+      "95% of the 5000+ games now work; all entertainment options except Ghost Music were working at this point.",
       "Added many settings and improved overall UI/UX.",
       "AI integration improved with Duck.ai and VM performance increased."
     ]
@@ -35,7 +35,7 @@
     "changes": [
       "4/12 update: Fixed chat source, fixed music source, and fixed multiple connectivity and UI/UX bugs.",
       "Reliability milestone reached with broad feature parity and improved stability.",
-      "Small update: Fixed Monochrome music playback."
+      "Small update: Fixed Ghost Music playback."
     ]
   },
   {

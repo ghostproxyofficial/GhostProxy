@@ -1,6 +1,6 @@
 import Nav from '../layouts/Nav';
 import { useState, useMemo, useEffect, useCallback, memo, useRef, lazy, Suspense } from 'react';
-import { Search, LayoutGrid, ChevronLeft, ChevronRight, Play, Menu, ChevronDown, Check } from 'lucide-react';
+import { Search, LayoutGrid, ChevronLeft, ChevronRight, Play, Menu, ChevronDown, Check, Star } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useOptions } from '/src/utils/optionsContext';
 import styles from '../styles/apps.module.css';
@@ -23,6 +23,167 @@ const RED_PLAY_ICON = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/200
 const YELLOW_PLAY_ICON = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><circle cx="64" cy="64" r="62" fill="%23facc15"/><polygon points="50,38 94,64 50,90" fill="white"/></svg>';
 const WHITE_MUSIC_ICON = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>';
 const POPUP_TRANSITION_MS = 180;
+const STARRED_GAMES_STORAGE_KEY = 'ghostStarredGames';
+const LUMIN_SDK_SCRIPT_SRC = 'https://cdn.jsdelivr.net/gh/luminsdk/script@latest/lumin.min.js';
+const LUMIN_GAME_URL_PREFIX = 'lumin://';
+
+const normalizeGameToken = (value) =>
+  String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, '');
+
+const isBlockedGameEntry = (game) => {
+  if (!game) return false;
+
+  const normalizedName = normalizeGameToken(game.appName || game.name || game.label || '');
+  if (normalizedName === '1v1lol') return true;
+
+  try {
+    const rawUrl = String(game.url || game.link || '').trim();
+    if (!rawUrl) return false;
+    const parsed = new URL(rawUrl, ALASKA_BASE);
+    const host = String(parsed.hostname || '').toLowerCase();
+    return host === '1v1.lol' || host.endsWith('.1v1.lol');
+  } catch {
+    return false;
+  }
+};
+
+const getGameStarId = (game, fallbackSourceKey = 'local') => {
+  const source = String(game?.sourceKey || fallbackSourceKey || 'local').toLowerCase();
+  const url = String(game?.url || game?.link || '').trim().toLowerCase();
+  const name = normalizeGameToken(game?.appName || game?.name || game?.label || '');
+  return `${source}::${url || name}`;
+};
+
+const sortGamesForDisplay = (games, sortBy, starredSet, defaultSourceKey = 'local') => {
+  return [...games].sort((a, b) => {
+    const aStarred = starredSet.has(getGameStarId(a, a?.sourceKey || defaultSourceKey));
+    const bStarred = starredSet.has(getGameStarId(b, b?.sourceKey || defaultSourceKey));
+    if (aStarred !== bStarred) return aStarred ? -1 : 1;
+
+    const aName = String(a?.appName || '');
+    const bName = String(b?.appName || '');
+    return sortBy === 'name-desc' ? bName.localeCompare(aName) : aName.localeCompare(bName);
+  });
+};
+
+const ensureScriptLoaded = (src, globalName) => {
+  if (typeof window === 'undefined') return Promise.resolve(false);
+  if (globalName && window[globalName]) return Promise.resolve(true);
+
+  return new Promise((resolve) => {
+    const existing = Array.from(document.querySelectorAll('script')).find((node) => node.src === src);
+    if (existing) {
+      const done = () => resolve(Boolean(!globalName || window[globalName]));
+      existing.addEventListener('load', done, { once: true });
+      existing.addEventListener('error', () => resolve(false), { once: true });
+      window.setTimeout(done, 1200);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = true;
+    script.onload = () => resolve(Boolean(!globalName || window[globalName]));
+    script.onerror = () => resolve(false);
+    document.head.appendChild(script);
+  });
+};
+
+const fetchLuminSdkGames = async () => {
+  if (typeof window === 'undefined') return [];
+
+  const ready = await ensureScriptLoaded(LUMIN_SDK_SCRIPT_SRC, 'Lumin');
+  if (!ready || typeof window.Lumin?.init !== 'function' || typeof window.Lumin?.getGames !== 'function') return [];
+
+  try {
+    await window.Lumin.init({
+      headless: true,
+      theme: 'dark',
+    });
+
+    const pageLimit = 120;
+    let page = 1;
+    let pages = 1;
+    const aggregate = [];
+    const maxPages = 250;
+
+    while (page <= pages && page <= maxPages) {
+      const response = await window.Lumin.getGames({ page, limit: pageLimit, q: '' });
+      const responseGames = Array.isArray(response?.games) ? response.games : [];
+      const reportedPages = Number(response?.pages || 0);
+      const reportedTotal = Number(response?.total || 0);
+      pages = reportedPages > 0 ? reportedPages : (reportedTotal > 0 ? Math.ceil(reportedTotal / pageLimit) : page);
+
+      if (!responseGames.length && page > 1) break;
+
+      for (const item of responseGames) {
+        const itemId = String(item?.id || '').trim();
+        const appName = String(item?.name || item?.title || '').trim() || 'Untitled Game';
+        if (!itemId) continue;
+
+        const imageToken = String(item?.image_token || '').trim();
+
+        aggregate.push({
+          appName,
+          desc: item?.category ? `LuminSDK - ${item.category}` : 'LuminSDK',
+          icon: '',
+          url: `${LUMIN_GAME_URL_PREFIX}${itemId}`,
+          disabled: false,
+          noIcon: true,
+          luminImageToken: imageToken,
+          sourceType: 'mix',
+          sourceKey: 'luminsdk',
+        });
+      }
+
+      page += 1;
+    }
+
+    const dedupe = new Map();
+    for (const game of aggregate) {
+      const key = `${String(game.url || '').trim().toLowerCase()}::${normalizeGameToken(game.appName)}`;
+      if (!dedupe.has(key)) dedupe.set(key, game);
+    }
+
+    const dedupedGames = Array.from(dedupe.values()).filter((game) => !isBlockedGameEntry(game));
+
+    // Resolve image tokens to blob URLs in small batches to avoid throttling.
+    const withIcons = [];
+    for (let i = 0; i < dedupedGames.length; i += 20) {
+      const batch = dedupedGames.slice(i, i + 20);
+      const resolvedBatch = await Promise.all(
+        batch.map(async (game) => {
+          const token = String(game.luminImageToken || '').trim();
+          if (!token || typeof window.Lumin?.getImageUrl !== 'function') {
+            return { ...game, noIcon: true };
+          }
+
+          try {
+            const blobUrl = String(await window.Lumin.getImageUrl(token)).trim();
+            return {
+              ...game,
+              icon: blobUrl,
+              noIcon: !blobUrl,
+            };
+          } catch {
+            return { ...game, noIcon: true };
+          }
+        }),
+      );
+      withIcons.push(...resolvedBatch);
+    }
+
+    return withIcons;
+  } catch {
+    return [];
+  } finally {
+    try {
+      window.Lumin.destroy?.();
+    } catch { }
+  }
+};
 
 const usePopupTransition = (open) => {
   const [rendered, setRendered] = useState(open);
@@ -49,7 +210,7 @@ const usePopupTransition = (open) => {
   return { rendered, visible };
 };
 
-const AppCard = memo(({ app, onClick, fallbackMap, onImgError, itemTheme, itemStyles, actionLabel = 'Play', options }) => {
+const AppCard = memo(({ app, onClick, fallbackMap, onImgError, itemTheme, itemStyles, actionLabel = 'Play', options, showFavorite = false, isFavorite = false, onToggleFavorite = null }) => {
   const [loaded, setLoaded] = useState(false);
   const isGhostIcon = app.icon && /ghost/i.test(String(app.icon));
   const hideIcon = (!isGhostIcon && !!options?.performanceMode) || !!app.noIcon;
@@ -58,7 +219,7 @@ const AppCard = memo(({ app, onClick, fallbackMap, onImgError, itemTheme, itemSt
     <div
       key={app.appName}
       className={clsx(
-        'flex-shrink-0',
+        'relative flex-shrink-0',
         itemStyles.app,
         itemTheme.appItemColor,
         itemTheme[`theme-${itemTheme.current || 'default'}`],
@@ -67,6 +228,19 @@ const AppCard = memo(({ app, onClick, fallbackMap, onImgError, itemTheme, itemSt
       )}
       onClick={!app.disabled ? () => onClick(app) : undefined}
     >
+      {showFavorite && typeof onToggleFavorite === 'function' && (
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation();
+            onToggleFavorite(app);
+          }}
+          className="absolute top-2.5 right-2.5 z-[4] rounded-full p-1.5 bg-black/50 hover:bg-black/68 text-white/90 transition-colors"
+          aria-label={isFavorite ? 'Unstar game' : 'Star game'}
+        >
+          <Star size={13} className={clsx(isFavorite && 'text-yellow-300')} fill={isFavorite ? 'currentColor' : 'none'} />
+        </button>
+      )}
       <div className="w-20 h-20 rounded-[12px] mb-4 overflow-hidden relative">
         {!hideIcon && !loaded && !fallbackMap[app.appName] && (
           <div className="absolute inset-0 bg-gray-700 animate-pulse" />
@@ -93,7 +267,7 @@ const AppCard = memo(({ app, onClick, fallbackMap, onImgError, itemTheme, itemSt
   );
 });
 
-const CategoryRow = memo(({ category, games, onClick, onViewMore, fallback, onImgError, theme, options, styles }) => {
+const CategoryRow = memo(({ category, games, onClick, onViewMore, fallback, onImgError, theme, options, styles, starredGameSet, onToggleFavorite }) => {
   const ref = useRef(null);
 
   const scroll = (dir) => {
@@ -149,6 +323,9 @@ const CategoryRow = memo(({ category, games, onClick, onViewMore, fallback, onIm
             itemTheme={theme}
             itemStyles={styles}
             options={options}
+            showFavorite={true}
+            isFavorite={starredGameSet?.has(getGameStarId(game, game.sourceKey || 'local'))}
+            onToggleFavorite={onToggleFavorite}
           />
         ))}
       </div>
@@ -158,6 +335,7 @@ const CategoryRow = memo(({ category, games, onClick, onViewMore, fallback, onIm
 
 const GAME_SOURCE_CONFIG = [
   { key: 'gnmath', label: 'gn-math', type: 'mix', data: gnmathCatalog },
+  { key: 'luminsdk', label: 'LuminSDK', type: 'mix', data: null },
   { key: 'local', label: 'DogeUB', type: 'local', data: null },
   {
     key: 'petezah',
@@ -281,7 +459,7 @@ const normalizeSourceGames = (source) => {
       sourceType: source.type,
       sourceKey: source.key,
     };
-  });
+  }).filter((game) => !isBlockedGameEntry(game));
 };
 
 const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false }) => {
@@ -312,12 +490,29 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
   const [dlCount, setDlCount] = useState(0);
   const [showDl, setShowDl] = useState(false);
   const [dlGames, setDlGames] = useState([]);
+  const [luminGames, setLuminGames] = useState([]);
+  const [luminLoading, setLuminLoading] = useState(false);
+  const [starredGames, setStarredGames] = useState(() => {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(STARRED_GAMES_STORAGE_KEY) || '[]');
+      return Array.isArray(parsed) ? parsed.filter((item) => typeof item === 'string') : [];
+    } catch {
+      return [];
+    }
+  });
   const selectedSource = useMemo(
     () => GAME_SOURCE_CONFIG.find((s) => s.key === sourceKey) || GAME_SOURCE_CONFIG[0],
     [sourceKey],
   );
+  const starredGameSet = useMemo(() => new Set(starredGames), [starredGames]);
   const isLocalSource = selectedSource.key === 'local';
   const lastInitialSourceRef = useRef(String(initialSourceKey || 'gnmath').toLowerCase());
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(STARRED_GAMES_STORAGE_KEY, JSON.stringify(starredGames));
+    } catch { }
+  }, [starredGames]);
 
   const buildReturnTo = useCallback(
     (nextSourceKey) => {
@@ -367,6 +562,25 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
   }, [refreshDownloadedGames]);
 
   useEffect(() => {
+    let mounted = true;
+
+    const hydrateLumin = async () => {
+      setLuminLoading(true);
+      const loadedGames = await fetchLuminSdkGames();
+      if (!mounted) return;
+      if (Array.isArray(loadedGames)) {
+        setLuminGames(loadedGames);
+      }
+      setLuminLoading(false);
+    };
+
+    hydrateLumin();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!isLocalSource || !showDl) return;
     refreshDownloadedGames();
   }, [isLocalSource, showDl, refreshDownloadedGames]);
@@ -395,14 +609,24 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
     Object.values(data).forEach((cats) => {
       games.push(...cats);
     });
-    return games;
+    return games.filter((game) => !isBlockedGameEntry(game));
   }, [data]);
+
+  const toggleGameStar = useCallback((game) => {
+    const starId = getGameStarId(game, game?.sourceKey || sourceKey || 'local');
+    setStarredGames((prev) => {
+      const set = new Set(prev);
+      if (set.has(starId)) set.delete(starId);
+      else set.add(starId);
+      return Array.from(set);
+    });
+  }, [sourceKey]);
 
   const filtered = useMemo(() => {
     if (showAllGames) {
       const sourceGames = GAME_SOURCE_CONFIG
         .filter((source) => source.type !== 'divider' && source.type !== 'action' && source.key !== 'local')
-        .flatMap((source) => normalizeSourceGames(source));
+        .flatMap((source) => (source.key === 'luminsdk' ? luminGames : normalizeSourceGames(source)));
 
       const localGames = all.map((game) => ({
         ...game,
@@ -412,17 +636,11 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
       }));
 
       const qLower = q.toLowerCase().trim();
-      let list = qLower
+      const merged = qLower
         ? [...localGames, ...sourceGames].filter((game) => game.appName.toLowerCase().includes(qLower))
         : [...localGames, ...sourceGames];
 
-      switch (sortBy) {
-        case 'name-desc':
-          list = [...list].sort((a, b) => b.appName.localeCompare(a.appName));
-          break;
-        default:
-          list = [...list].sort((a, b) => a.appName.localeCompare(b.appName));
-      }
+      const list = sortGamesForDisplay(merged, sortBy, starredGameSet, 'local');
 
       const totalPages = Math.ceil(list.length / perPage);
       const paged = list.slice((page - 1) * perPage, page * perPage);
@@ -430,19 +648,13 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
     }
 
     if (!isLocalSource) {
-      const normalized = normalizeSourceGames(selectedSource);
+      const normalized = selectedSource.key === 'luminsdk' ? luminGames : normalizeSourceGames(selectedSource);
       const qLower = q.toLowerCase().trim();
-      let list = qLower
+      const preSorted = qLower
         ? normalized.filter((game) => game.appName.toLowerCase().includes(qLower))
         : normalized;
 
-      switch (sortBy) {
-        case 'name-desc':
-          list = [...list].sort((a, b) => b.appName.localeCompare(a.appName));
-          break;
-        default:
-          list = [...list].sort((a, b) => a.appName.localeCompare(b.appName));
-      }
+      const list = sortGamesForDisplay(preSorted, sortBy, starredGameSet, selectedSource.key);
 
       const totalPages = Math.ceil(list.length / perPage);
       const paged = list.slice((page - 1) * perPage, page * perPage);
@@ -470,10 +682,17 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
       });
     }
 
-    const total = Math.ceil(toFilter.length / perPage);
-    const paged = toFilter.slice((page - 1) * perPage, page * perPage);
-    return { filteredGames: toFilter, paged, totalPages: total };
-  }, [showAllGames, isLocalSource, selectedSource, sortBy, all, data, category, showDl, dlGames, q, page, perPage]);
+    const sorted = sortGamesForDisplay(
+      toFilter.map((game) => ({ ...game, sourceKey: 'local' })),
+      sortBy,
+      starredGameSet,
+      'local',
+    );
+
+    const total = Math.ceil(sorted.length / perPage);
+    const paged = sorted.slice((page - 1) * perPage, page * perPage);
+    return { filteredGames: sorted, paged, totalPages: total };
+  }, [showAllGames, isLocalSource, selectedSource, sortBy, all, data, category, showDl, dlGames, q, page, perPage, starredGameSet, luminGames]);
 
   useEffect(() => {
     if (page > filtered.totalPages && filtered.totalPages > 0) setPage(1);
@@ -538,14 +757,63 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
   const placeholder = useMemo(() => `Search ${all.length} games`, [all.length]);
   const sourcePlaceholder = useMemo(() => {
     if (isLocalSource) return placeholder;
+    if (selectedSource.key === 'luminsdk' && luminLoading) return 'Loading LuminSDK games...';
     return `Search ${filtered.filteredGames.length} games`;
-  }, [isLocalSource, placeholder, filtered.filteredGames.length]);
+  }, [isLocalSource, placeholder, filtered.filteredGames.length, selectedSource.key, luminLoading]);
 
   const openSourceGame = useCallback(
     async (game) => {
       if (!game?.url) return;
 
-      const opensInViewer = new Set(['gnmath', 'gnports']);
+      if (String(game.sourceKey || '').toLowerCase() === 'luminsdk') {
+        const gameId = String(game.url || '').startsWith(LUMIN_GAME_URL_PREFIX)
+          ? String(game.url).slice(LUMIN_GAME_URL_PREFIX.length)
+          : '';
+        if (!gameId) return;
+
+        const ready = await ensureScriptLoaded(LUMIN_SDK_SCRIPT_SRC, 'Lumin');
+        if (!ready || typeof window.Lumin?.init !== 'function' || typeof window.Lumin?.getGameUrl !== 'function') {
+          return;
+        }
+
+        let resolvedUrl = '';
+        try {
+          await window.Lumin.init({ headless: true, theme: 'dark' });
+          for (let attempt = 0; attempt < 2; attempt += 1) {
+            try {
+              const result = await window.Lumin.getGameUrl(gameId);
+              resolvedUrl = String(result?.url || '').trim();
+              if (resolvedUrl) break;
+            } catch { }
+          }
+        } catch {
+          resolvedUrl = '';
+        } finally {
+          try {
+            window.Lumin.destroy?.();
+          } catch { }
+        }
+
+        if (!resolvedUrl) return;
+
+        const sourceForReturn = game.sourceKey || sourceKey;
+        nav('/discover/r/', {
+          state: {
+            app: {
+              appName: game.appName,
+              desc: game.desc,
+              icon: game.icon,
+              url: resolvedUrl,
+              renderAsHtml: false,
+              sourceKey: sourceForReturn,
+              returnTo: buildReturnTo(sourceForReturn),
+            },
+          },
+        });
+        return;
+      }
+
+      const opensInViewer = new Set(['gnmath', 'gnports', 'luminsdk']);
       if (opensInViewer.has(String(game.sourceKey || '').toLowerCase())) {
         const sourceForReturn = game.sourceKey || sourceKey;
         nav('/discover/r/', {
@@ -828,14 +1096,19 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
                   itemTheme={{ ...theme, current: options.theme || 'default' }}
                   itemStyles={styles}
                   options={options}
+                  showFavorite={true}
+                  isFavorite={starredGameSet.has(getGameStarId(game, game.sourceKey || 'local'))}
+                  onToggleFavorite={toggleGameStar}
                 />
               ))}
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 px-6 pb-6">
               {filtered.paged.map((game) => (
-                <button
+                <div
                   key={`${game.sourceKey || selectedSource.key}-${game.appName}`}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => {
                     if (game.sourceKey === 'local') {
                       navApp(game);
@@ -843,8 +1116,32 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
                     }
                     openSourceGame(game);
                   }}
-                  className="group relative rounded-2xl border border-white/12 bg-[#111a27] overflow-hidden aspect-[16/10] shadow-[0_8px_22px_rgba(0,0,0,0.24)] hover:shadow-[0_14px_30px_rgba(0,0,0,0.36)] hover:-translate-y-0.5 transition-all"
+                  onKeyDown={(event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') return;
+                    event.preventDefault();
+                    if (game.sourceKey === 'local') {
+                      navApp(game);
+                      return;
+                    }
+                    openSourceGame(game);
+                  }}
+                  className="relative cursor-pointer rounded-[18px] border border-white/12 bg-[#0d1522] overflow-hidden aspect-[16/10] shadow-[0_10px_24px_rgba(0,0,0,0.32)] hover:shadow-[0_16px_32px_rgba(0,0,0,0.4)] hover:-translate-y-0.5 transition-all"
                 >
+                  <button
+                    type="button"
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleGameStar(game);
+                    }}
+                    className="absolute top-2 right-2 z-[6] rounded-full p-1.5 bg-black/45 hover:bg-black/65 text-white/90 transition-colors"
+                    aria-label={starredGameSet.has(getGameStarId(game, game.sourceKey || selectedSource.key)) ? 'Unstar game' : 'Star game'}
+                  >
+                    <Star
+                      size={15}
+                      className={clsx(starredGameSet.has(getGameStarId(game, game.sourceKey || selectedSource.key)) && 'text-yellow-300')}
+                      fill={starredGameSet.has(getGameStarId(game, game.sourceKey || selectedSource.key)) ? 'currentColor' : 'none'}
+                    />
+                  </button>
                   {game.icon && !game.noIcon && !fallback[game.appName] && (!options.performanceMode || /ghost/i.test(String(game.icon))) ? (
                     <img
                       src={game.icon}
@@ -854,16 +1151,28 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
                       onError={() => handleImgError(game.appName)}
                     />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center px-2 text-center text-sm font-semibold opacity-90">
-                      {game.appName}
+                    <div className="w-full h-full flex items-center justify-center text-white/70">
+                      <LayoutGrid size={34} />
                     </div>
                   )}
-                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/60 via-black/18 to-transparent opacity-95" />
-                  <div className="absolute inset-x-0 bottom-0 bg-black/70 backdrop-blur-sm text-white text-xs px-3 py-2 translate-y-full group-hover:translate-y-0 transition-transform">
+                  <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/70 via-black/12 to-transparent opacity-95" />
+                  <div className="absolute inset-x-0 bottom-0 bg-black/68 backdrop-blur-sm text-white text-sm font-semibold px-3 py-2.5 leading-tight">
                     {game.appName}
                   </div>
-                </button>
+                </div>
               ))}
+            </div>
+          )}
+
+          {selectedSource.key === 'luminsdk' && luminLoading && filtered.paged.length === 0 && (
+            <div className="flex items-center justify-center pb-8 text-sm opacity-80">
+              Loading LuminSDK games...
+            </div>
+          )}
+
+          {selectedSource.key === 'luminsdk' && !luminLoading && filtered.filteredGames.length === 0 && (
+            <div className="flex items-center justify-center pb-8 text-sm opacity-70">
+              No LuminSDK games found.
             </div>
           )}
 
@@ -899,7 +1208,15 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
             <CategoryRow
               key={cat}
               category={cat}
-              games={games}
+              games={sortGamesForDisplay(
+                (Array.isArray(games) ? games : []).filter((game) => !isBlockedGameEntry(game)).map((game) => ({
+                  ...game,
+                  sourceKey: 'local',
+                })),
+                sortBy,
+                starredGameSet,
+                'local',
+              )}
               onClick={navApp}
               onViewMore={handleViewMore}
               fallback={fallback}
@@ -907,6 +1224,8 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
               theme={{ ...theme, current: options.theme || 'default' }}
               options={options}
               styles={styles}
+              starredGameSet={starredGameSet}
+              onToggleFavorite={toggleGameStar}
             />
           ))}
         </div>
@@ -957,7 +1276,7 @@ const TV_APPS = [
 ];
 
 const GHOST_MUSIC_APPS = [
-  { appName: 'Monochrome', desc: 'Monochrome music player', icon: WHITE_MUSIC_ICON, url: 'https://main.monochrome-507.pages.dev', playerKey: 'monochrome', isMusicProvider: true },
+  { appName: 'Ghost Music', desc: 'Ghost Music player', icon: WHITE_MUSIC_ICON, url: 'https://music.anonymoose.workers.dev', playerKey: 'musicplayer', isMusicProvider: true },
 ];
 
 const THIRD_PARTY_MUSIC_APPS = [
@@ -971,6 +1290,18 @@ const THIRD_PARTY_MUSIC_APPS = [
   { appName: 'Pandora', desc: 'Personalized radio', icon: 'https://www.google.com/s2/favicons?sz=128&domain=pandora.com', url: 'https://www.pandora.com', playerKey: 'pandora', isMusicProvider: true },
   { appName: 'Qobuz', desc: 'Hi-res music streaming', icon: 'https://www.google.com/s2/favicons?sz=128&domain=qobuz.com', url: 'https://www.qobuz.com', playerKey: 'qobuz', isMusicProvider: true },
 ];
+
+const getEntertainmentMaskedUrl = (app) => {
+  const playerKey = String(app?.playerKey || '').toLowerCase();
+  if (playerKey === 'musicplayer' || playerKey === 'monochrome') return 'ghost://musicplayer';
+
+  const name = String(app?.appName || '').toLowerCase();
+  if (name === 'live tv/sports') return 'ghost://live';
+  if (name === 'general movies/tv') return 'ghost://movies';
+  if (name === 'anime') return 'ghost://anime';
+
+  return '';
+};
 
 const ExternalAppsGrid = memo(({ items, onClick, options, fallback, onImgError, actionLabel = 'Play', title }) => {
   return (
@@ -1033,6 +1364,7 @@ const GamesLayout = () => {
   const openInNewGhostTab = useCallback(
     (app) => {
       if (!app?.url) return;
+      const displayUrl = getEntertainmentMaskedUrl(app);
       const topWin = (() => {
         try {
           return window.top && window.top !== window ? window.top : window;
@@ -1044,6 +1376,7 @@ const GamesLayout = () => {
       if (typeof opener === 'function') {
         const opened = opener(app.url, {
           title: app.appName || 'New Tab',
+          displayUrl,
           askDefaultMusicPrompt: !!app.isMusicProvider,
           musicProviderKey: app.playerKey || '',
           musicProviderName: app.appName || '',
@@ -1054,6 +1387,7 @@ const GamesLayout = () => {
       nav('/search', {
         state: {
           url: app.url,
+          displayUrl,
           openInGhostNewTab: true,
           askDefaultMusicPrompt: !!app.isMusicProvider,
           musicProviderKey: app.playerKey || '',
@@ -1076,11 +1410,12 @@ const GamesLayout = () => {
     [],
   );
 
-  const defaultMusicPlayerKey = String(options.defaultMusicPlayer || 'monochrome').toLowerCase();
+  const defaultMusicPlayerKey = String(options.defaultMusicPlayer || 'musicplayer').toLowerCase();
+  const normalizedDefaultMusicPlayerKey = defaultMusicPlayerKey === 'monochrome' ? 'musicplayer' : defaultMusicPlayerKey;
   const topMusicApps = useMemo(() => {
-    const selected = allMusicApps.find((app) => app.playerKey === defaultMusicPlayerKey) || allMusicApps[0];
+    const selected = allMusicApps.find((app) => app.playerKey === normalizedDefaultMusicPlayerKey) || allMusicApps[0];
     return selected ? [selected] : [];
-  }, [allMusicApps, defaultMusicPlayerKey]);
+  }, [allMusicApps, normalizedDefaultMusicPlayerKey]);
 
   const otherMusicApps = useMemo(
     () => allMusicApps.filter((app) => app.playerKey !== topMusicApps[0]?.playerKey),

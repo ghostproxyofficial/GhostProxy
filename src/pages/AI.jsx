@@ -266,6 +266,7 @@ export default function AIPage() {
 
     const link = PROVIDER_LINKS[nextProvider];
     if (link) {
+      const maskedDisplayUrl = nextProvider === 'duckai' ? 'ghost://duckai' : '';
       let handledByGhostBrowser = false;
       try {
         const topWindow = window.top && window.top !== window ? window.top : window;
@@ -273,7 +274,7 @@ export default function AIPage() {
         const updateBrowserTab = topWindow.__ghostUpdateBrowserTabUrl;
         const activeTabId = typeof getActiveTabId === 'function' ? getActiveTabId() : null;
         if (activeTabId && typeof updateBrowserTab === 'function') {
-          updateBrowserTab(activeTabId, link, { skipProxy: false });
+          updateBrowserTab(activeTabId, link, { skipProxy: false, displayUrl: maskedDisplayUrl });
           handledByGhostBrowser = true;
         }
       } catch {
@@ -1011,34 +1012,55 @@ export default function AIPage() {
       {/* AI Provider chooser popup */}
       {aiProviderPopupOpen && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/55 backdrop-blur-sm p-4">
-          <div className="w-full max-w-3xl rounded-[28px] border border-white/10 bg-[#0f141d] p-6 shadow-2xl">
+          <div
+            className="w-full max-w-3xl rounded-[28px] border p-6 shadow-2xl"
+            style={{
+              backgroundColor: isLight ? '#f8fafc' : '#0f141d',
+              borderColor: isLight ? 'rgba(15,23,42,0.14)' : 'rgba(255,255,255,0.1)',
+              color: isLight ? '#0f172a' : '#ffffff',
+            }}
+          >
             <div className="pr-3 mb-5">
-              <h2 className="text-2xl font-semibold text-white">AI Provider</h2>
-              <p className="text-base text-white/70 mt-2 leading-6">Choose what AI provider you want to use.</p>
-              <p className="text-sm text-white/55 mt-1">You can change this anytime in settings.</p>
+              <h2 className={isLight ? 'text-2xl font-semibold text-[#0f172a]' : 'text-2xl font-semibold text-white'}>AI Provider</h2>
+              <p className={isLight ? 'text-base text-[#334155] mt-2 leading-6' : 'text-base text-white/70 mt-2 leading-6'}>Choose what AI provider you want to use.</p>
+              <p className={isLight ? 'text-sm text-[#475569] mt-1' : 'text-sm text-white/55 mt-1'}>You can change this anytime in settings.</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-4">
               <button
                 type="button"
                 onClick={() => setSelectedProvider('duckai')}
-                className={`text-left rounded-2xl border bg-white/5 p-4 transition-colors ${selectedProvider === 'duckai' ? 'border-white/45 bg-white/10' : 'border-white/20 hover:bg-white/10'}`}
+                className={`text-left rounded-2xl border p-4 transition-colors ${isLight
+                    ? selectedProvider === 'duckai'
+                      ? 'border-[#334155]/55 bg-[#e2e8f0]'
+                      : 'border-[#334155]/20 bg-white hover:bg-[#f1f5f9]'
+                    : selectedProvider === 'duckai'
+                      ? 'border-white/45 bg-white/10'
+                      : 'border-white/20 bg-white/5 hover:bg-white/10'
+                  }`}
               >
-                <div className="text-lg font-semibold text-white">Duck.ai</div>
-                <div className="text-sm text-white/70 mt-1">Free unlimited AI, saves locally.</div>
+                <div className={isLight ? 'text-lg font-semibold text-[#0f172a]' : 'text-lg font-semibold text-white'}>Duck.ai</div>
+                <div className={isLight ? 'text-sm text-[#475569] mt-1' : 'text-sm text-white/70 mt-1'}>Free unlimited AI, saves locally.</div>
               </button>
               <button
                 type="button"
                 onClick={() => setSelectedProvider('ghostai')}
-                className={`text-left rounded-2xl border bg-white/5 p-4 transition-colors ${selectedProvider === 'ghostai' ? 'border-white/45 bg-white/10' : 'border-white/20 hover:bg-white/10'}`}
+                className={`text-left rounded-2xl border p-4 transition-colors ${isLight
+                    ? selectedProvider === 'ghostai'
+                      ? 'border-[#334155]/55 bg-[#e2e8f0]'
+                      : 'border-[#334155]/20 bg-white hover:bg-[#f1f5f9]'
+                    : selectedProvider === 'ghostai'
+                      ? 'border-white/45 bg-white/10'
+                      : 'border-white/20 bg-white/5 hover:bg-white/10'
+                  }`}
               >
-                <div className="text-lg font-semibold text-white">Ghost AI</div>
-                <div className="text-sm text-white/70 mt-1">Bring your own API/Endpoint.</div>
+                <div className={isLight ? 'text-lg font-semibold text-[#0f172a]' : 'text-lg font-semibold text-white'}>Ghost AI</div>
+                <div className={isLight ? 'text-sm text-[#475569] mt-1' : 'text-sm text-white/70 mt-1'}>Bring your own API/Endpoint.</div>
               </button>
             </div>
 
             <div className="mb-5">
-              <p className="text-xs uppercase tracking-wide text-white/45 mb-2">Other providers</p>
+              <p className={isLight ? 'text-xs uppercase tracking-wide text-[#64748b] mb-2' : 'text-xs uppercase tracking-wide text-white/45 mb-2'}>Other providers</p>
               <div className="flex flex-wrap gap-2">
                 {[
                   ['chatgpt', 'ChatGPT'],
@@ -1057,7 +1079,14 @@ export default function AIPage() {
                     key={id}
                     type="button"
                     onClick={() => setSelectedProvider(id)}
-                    className={`h-9 px-3 rounded-lg border text-xs text-white/85 ${selectedProvider === id ? 'border-white/40 bg-white/14' : 'border-white/15 bg-white/5 hover:bg-white/10'}`}
+                    className={`h-9 px-3 rounded-lg border text-xs ${isLight
+                        ? selectedProvider === id
+                          ? 'border-[#334155]/40 bg-[#e2e8f0] text-[#0f172a]'
+                          : 'border-[#334155]/20 bg-white text-[#334155] hover:bg-[#f1f5f9]'
+                        : selectedProvider === id
+                          ? 'border-white/40 bg-white/14 text-white'
+                          : 'border-white/15 bg-white/5 text-white/85 hover:bg-white/10'
+                      }`}
                   >
                     {label}
                   </button>
@@ -1110,7 +1139,9 @@ export default function AIPage() {
                 <button
                   type="button"
                   onClick={applySelectedProvider}
-                  className="px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/18 border border-white/15 text-sm text-white/90 transition-colors"
+                  className={isLight
+                    ? 'px-4 py-1.5 rounded-lg bg-[#e2e8f0] hover:bg-[#cbd5e1] border border-[#334155]/20 text-sm text-[#0f172a] transition-colors'
+                    : 'px-4 py-1.5 rounded-lg bg-white/10 hover:bg-white/18 border border-white/15 text-sm text-white/90 transition-colors'}
                 >
                   Select
                 </button>

@@ -3,7 +3,7 @@ import ReactGA from 'react-ga4';
 import Search from './pages/Search';
 import lazyLoad from './lazyWrapper';
 import NotFound from './pages/NotFound';
-import { useEffect, useMemo, memo, useState } from 'react';
+import { useEffect, useMemo, memo, useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { OptionsProvider, useOptions } from './utils/optionsContext';
 import { getEffectiveShortcuts, eventToShortcut, isTypingTarget } from './utils/shortcuts';
@@ -85,8 +85,61 @@ const ReturnToBrowserHint = () => {
 
 const ThemedApp = memo(() => {
   const { options } = useOptions();
+  const navigate = useNavigate();
   const [resolvedCustomBg, setResolvedCustomBg] = useState('');
   useTracking();
+
+  const openInGhostBrowser = useCallback((url, title = 'New Tab') => {
+    const rawUrl = String(url || '').trim();
+    if (!rawUrl) return;
+
+    const topWindow = (() => {
+      try {
+        return window.top && window.top !== window ? window.top : window;
+      } catch {
+        return window;
+      }
+    })();
+
+    const openBrowserTab = topWindow.__ghostOpenBrowserTab;
+    if (typeof openBrowserTab === 'function') {
+      openBrowserTab(rawUrl, { title });
+      return;
+    }
+
+    navigate('/search', {
+      state: {
+        url: rawUrl,
+        openInGhostNewTab: true,
+      },
+    });
+  }, [navigate]);
+
+  useEffect(() => {
+    const isDiscordOrGithub = (href) => {
+      try {
+        const parsed = new URL(href, window.location.href);
+        const host = String(parsed.hostname || '').toLowerCase();
+        return host === 'github.com' || host.endsWith('.github.com') || host === 'discord.com' || host.endsWith('.discord.com') || host === 'discord.gg' || host.endsWith('.discord.gg');
+      } catch {
+        return false;
+      }
+    };
+
+    const onDocumentClick = (event) => {
+      const anchor = event.target?.closest?.('a[href]');
+      if (!anchor) return;
+      const href = String(anchor.getAttribute('href') || '').trim();
+      if (!href || !isDiscordOrGithub(href)) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      openInGhostBrowser(href, anchor.textContent?.trim() || 'New Tab');
+    };
+
+    document.addEventListener('click', onDocumentClick, true);
+    return () => document.removeEventListener('click', onDocumentClick, true);
+  }, [openInGhostBrowser]);
 
   useEffect(() => {
     let cancelled = false;

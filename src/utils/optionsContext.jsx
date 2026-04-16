@@ -107,6 +107,10 @@ const normalizeLegacyOptions = (stored) => {
   out.popupBlockDefault = toBool(out.popupBlockDefault, false);
   out.downloadBlockDefault = toBool(out.downloadBlockDefault, false);
 
+  if (String(out.defaultMusicPlayer || '').toLowerCase() === 'monochrome') {
+    out.defaultMusicPlayer = 'musicplayer';
+  }
+
   const sidebarToggles =
     out.sidebarToggles && typeof out.sidebarToggles === 'object'
       ? { ...out.sidebarToggles }

@@ -157,7 +157,10 @@ const Omnibox = () => {
   };
 
 
-  const getDisplayUrl = (url) => {
+  const getDisplayUrl = (url, displayUrl = '') => {
+    const masked = String(displayUrl || '').trim();
+    if (masked) return masked;
+
     if (isNewTab(url)) return 'ghost://home';
 
     const ghostDisplay = toGhostDisplayUrl(url);
@@ -172,7 +175,7 @@ const Omnibox = () => {
     return url;
   };
 
-  const [input, setInput] = useState(getDisplayUrl(activeTab?.url));
+  const [input, setInput] = useState(getDisplayUrl(activeTab?.url, activeTab?.displayUrl));
   const activeEngineName = useMemo(() => {
     const currentEngine = String(options.engine || '').trim();
     if (!currentEngine) return 'Google';
@@ -188,10 +191,10 @@ const Omnibox = () => {
     if (isEditingRef.current) return;
 
     const raw = getPreferredRawUrl(activeTab, activeFrameUrl);
-    const next = getDisplayUrl(raw);
+    const next = getDisplayUrl(raw, activeTab?.displayUrl);
     setInput(next);
     updateIcon(raw);
-  }, [activeTab?.id, activeTab?.url, activeFrameUrl, options.prType, options.engine, getPreferredRawUrl]);
+  }, [activeTab?.id, activeTab?.url, activeTab?.displayUrl, activeFrameUrl, options.prType, options.engine, getPreferredRawUrl]);
 
   useEffect(() => {
     if (state?.url && activeTab) {
@@ -405,6 +408,14 @@ const Omnibox = () => {
           onKeyDown={(e) => {
             if (e.key === 'Enter' && activeTab && input.length !== 0) {
               const typed = input.trim();
+              const masked = String(activeTab.displayUrl || '').trim();
+              if (masked && typed.toLowerCase() === masked.toLowerCase()) {
+                inputRef.current.blur();
+                setResults([]);
+                setSuggestOpen(false);
+                return;
+              }
+
               const processed = process(typed, false, options.prType || 'auto', options.engine || undefined);
               suppressSuggestionsRef.current = true;
               latestQuery.current = '';
@@ -413,7 +424,7 @@ const Omnibox = () => {
                 debounceRef.current = null;
               }
               if (/^ghost:\/\//i.test(typed)) {
-                updateUrl(activeTab.id, processed);
+                updateUrl(activeTab.id, typed);
                 const normalizedTyped = typed.toLowerCase();
                 if (
                   normalizedTyped === 'ghost://home' ||

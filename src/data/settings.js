@@ -50,7 +50,7 @@ const weatherUnitConfig = [
 
 const musicPlayerConfig = [
   { option: '--', value: { defaultMusicPlayer: '' } },
-  { option: 'Monochrome', value: { defaultMusicPlayer: 'monochrome' } },
+  { option: 'Ghost Music', value: { defaultMusicPlayer: 'musicplayer' } },
   { option: 'Spotify', value: { defaultMusicPlayer: 'spotify' } },
   { option: 'Apple Music', value: { defaultMusicPlayer: 'apple-music' } },
   { option: 'Amazon Music', value: { defaultMusicPlayer: 'amazon-music' } },
