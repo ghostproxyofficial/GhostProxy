@@ -29,7 +29,6 @@ const Loader = ({ theme, app }) => {
   const { options } = useOptions();
   const { gmUrl, loading, downloading } = useLocalGmLoader(app);
   const isLocal = app?.local;
-  const isLuminSource = String(app?.sourceKey || '').toLowerCase() === 'luminsdk';
   const proxiedUrl = app?.url
     ? process(app.url, false, options.prType || 'auto', options.engine || null)
     : '';
@@ -78,7 +77,7 @@ const Loader = ({ theme, app }) => {
     };
   }, [isLocal, app?.renderAsHtml, app?.url, proxiedUrl]);
 
-  const remoteFrameUrl = runtimeHtmlUrl || (isLuminSource ? app?.url : (proxiedUrl || app?.url));
+  const remoteFrameUrl = runtimeHtmlUrl || proxiedUrl || app?.url;
   const showRemoteLoader = !isLocal && !!app?.renderAsHtml && runtimeLoading && !runtimeHtmlUrl;
 
   const fs = useCallback(() => {
