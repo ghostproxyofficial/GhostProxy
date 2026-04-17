@@ -29,8 +29,9 @@ const Loader = ({ theme, app }) => {
   const { options } = useOptions();
   const { gmUrl, loading, downloading } = useLocalGmLoader(app);
   const isLocal = app?.local;
+  const effectivePrType = app?.prType || options.prType || 'auto';
   const proxiedUrl = app?.url
-    ? process(app.url, false, options.prType || 'auto', options.engine || null)
+    ? process(app.url, false, effectivePrType, options.engine || null)
     : '';
 
   useEffect(() => {
@@ -96,18 +97,19 @@ const Loader = ({ theme, app }) => {
     })();
 
     const opener = topWin.__ghostOpenBrowserTab;
-    if (typeof opener === 'function' && app?.url) {
-      const opened = opener(app.url, { title: app?.appName || 'New Tab' });
+    const externalUrl = proxiedUrl || app?.url;
+    if (typeof opener === 'function' && externalUrl) {
+      const opened = opener(externalUrl, { title: app?.appName || 'New Tab', skipProxy: false });
       if (opened) return;
     }
 
     nav('/search', {
       state: {
-        url: app?.url,
+        url: externalUrl,
         openInGhostNewTab: true,
       },
     });
-  }, [app?.url, app?.appName, nav]);
+  }, [app?.url, app?.appName, nav, proxiedUrl]);
 
   const handleZoom = useCallback((direction) => {
     setZoom((prev) => {

@@ -1342,9 +1342,10 @@ export default function Loader({ url, ui = true, zoom }) {
     if (storeTabs.length === 0) return;
 
     const shouldSkipProxy = !!location.state?.skipProxy;
+    const effectivePrType = location.state?.prType || options.prType || 'auto';
     const processedUrl = shouldSkipProxy
       ? routeUrl
-      : process(routeUrl, false, options.prType || 'auto', options.engine || null);
+      : process(routeUrl, false, effectivePrType, options.engine || null);
     const targetUrl = toGhostDisplayUrl(processedUrl) || processedUrl;
     const routedDisplayUrl = typeof location.state?.displayUrl === 'string'
       ? location.state.displayUrl.trim()
@@ -1491,11 +1492,28 @@ export default function Loader({ url, ui = true, zoom }) {
 
     window.__ghostOpenBrowserTab = openGhostBrowserTab;
     window.__ghostUpdateBrowserTabUrl = updateGhostBrowserTabUrl;
-    window.__ghostGetActiveTabId = () => {
+    const getActiveTabId = () => {
       const store = loaderStore.getState();
       const active = store.tabs.find((tab) => tab.active) || store.tabs[0];
       return active?.id || null;
     };
+    window.__ghostGetActiveTabId = getActiveTabId;
+
+    const mirroredTopWindow = (() => {
+      try {
+        if (window.top && window.top !== window && window.top.location.origin === window.location.origin) {
+          return window.top;
+        }
+      } catch { }
+      return null;
+    })();
+
+    if (mirroredTopWindow) {
+      mirroredTopWindow.__ghostOpenBrowserTab = openGhostBrowserTab;
+      mirroredTopWindow.__ghostUpdateBrowserTabUrl = updateGhostBrowserTabUrl;
+      mirroredTopWindow.__ghostGetActiveTabId = getActiveTabId;
+    }
+
     return () => {
       if (window.__ghostOpenBrowserTab === openGhostBrowserTab) {
         delete window.__ghostOpenBrowserTab;
@@ -1503,7 +1521,21 @@ export default function Loader({ url, ui = true, zoom }) {
       if (window.__ghostUpdateBrowserTabUrl === updateGhostBrowserTabUrl) {
         delete window.__ghostUpdateBrowserTabUrl;
       }
-      delete window.__ghostGetActiveTabId;
+      if (window.__ghostGetActiveTabId === getActiveTabId) {
+        delete window.__ghostGetActiveTabId;
+      }
+
+      if (mirroredTopWindow) {
+        if (mirroredTopWindow.__ghostOpenBrowserTab === openGhostBrowserTab) {
+          delete mirroredTopWindow.__ghostOpenBrowserTab;
+        }
+        if (mirroredTopWindow.__ghostUpdateBrowserTabUrl === updateGhostBrowserTabUrl) {
+          delete mirroredTopWindow.__ghostUpdateBrowserTabUrl;
+        }
+        if (mirroredTopWindow.__ghostGetActiveTabId === getActiveTabId) {
+          delete mirroredTopWindow.__ghostGetActiveTabId;
+        }
+      }
     };
   }, [addTab, setActive, getStoredTabTarget]);
 

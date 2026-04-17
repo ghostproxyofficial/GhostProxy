@@ -157,7 +157,7 @@ export const check = (() => {
   }
   applyBeforeUnload(!!op.beforeUnload);
   if (window.top === window.self && op.openBlob) {
-    const html = `<!doctype html><html><head><meta charset="utf-8"><title>Loading...</title><style>html,body{margin:0;height:100%;overflow:hidden}iframe{width:100%;height:100%;border:none}</style><link rel="icon" sizes="16x16" href=""></head><body><iframe src="${location.href}"></iframe><script>const apply=()=>{const op=JSON.parse(localStorage.getItem('options')||'{}');document.title=op.tabName||document.title;let icon=document.querySelector('link[rel~="icon"]');if(!icon){icon=document.createElement('link');icon.rel='icon';document.head.appendChild(icon);}icon.setAttribute('sizes','16x16');icon.href=op.tabIcon||'';};apply();window.addEventListener('storage',(e)=>{if(!e||e.key==='options')apply();});setInterval(apply,200);</script></body></html>`;
+    const html = `<!doctype html><html><head><meta charset="utf-8"><title>Loading...</title><style>html,body{margin:0;height:100%;overflow:hidden}iframe{width:100%;height:100%;border:none}</style><link rel="icon" sizes="16x16" href=""></head><body><iframe src="${location.href}" allow="autoplay; fullscreen; pointer-lock; clipboard-read; clipboard-write" allowfullscreen></iframe><script>const apply=()=>{const op=JSON.parse(localStorage.getItem('options')||'{}');document.title=op.tabName||document.title;let icon=document.querySelector('link[rel~="icon"]');if(!icon){icon=document.createElement('link');icon.rel='icon';document.head.appendChild(icon);}icon.setAttribute('sizes','16x16');icon.href=op.tabIcon||'';};apply();window.addEventListener('storage',(e)=>{if(!e||e.key==='options')apply();});setInterval(apply,200);</script></body></html>`;
     const blobUrl = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
     const w = open(blobUrl, '_blank');
     if (!w || w.closed) {
@@ -179,6 +179,8 @@ export const check = (() => {
         f = d.createElement('iframe');
 
       Object.assign(f, { src: location.href });
+      f.allow = 'autoplay; fullscreen; pointer-lock; clipboard-read; clipboard-write';
+      f.setAttribute('allowfullscreen', '');
       Object.assign(f.style, { width: '100%', height: '100%', border: 'none' });
       Object.assign(d.body.style, { margin: 0, height: '100%' });
       d.documentElement.style.height = '100%';

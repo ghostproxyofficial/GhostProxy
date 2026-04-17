@@ -107,6 +107,7 @@ const Viewer = ({ zoom }) => {
     const value = String(rawUrl || '').trim().toLowerCase();
     return (
       value === 'tabs://new' ||
+      value === 'about:blank' ||
       value === 'ghost://home' ||
       value === 'ghost://search' ||
       value === 'ghost://new-tab' ||

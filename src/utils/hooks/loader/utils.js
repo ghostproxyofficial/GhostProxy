@@ -71,6 +71,7 @@ const isInternalGhostCandidate = (value) => {
   const raw = String(value || '').trim();
   if (!raw) return false;
   if (raw === 'tabs://new') return true;
+  if (raw === 'about:blank' || raw.startsWith('about:blank?') || raw.startsWith('about:blank#')) return true;
   if (raw.startsWith('ghost://') || raw.startsWith('tabs://')) return true;
 
   try {

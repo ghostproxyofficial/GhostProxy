@@ -32,6 +32,7 @@ const LUMIN_SDK_SCRIPT_SRCS = [
 const LUMIN_GAME_URL_PREFIX = 'lumin://';
 const LUMIN_GAMES_CACHE_KEY = 'ghostLuminSdkGamesCacheV1';
 const LUMIN_GAMES_CACHE_MAX_AGE_MS = 30 * 60 * 1000;
+const LUMIN_ICON_PRELOAD_LIMIT = 24;
 
 const normalizeGameToken = (value) =>
   String(value || '')
@@ -229,33 +230,26 @@ const fetchLuminSdkGames = async () => {
 
       writeCachedLuminGames(dedupedGames);
 
-      // Resolve image tokens to blob URLs in small batches to avoid throttling.
-      const withIcons = [];
-      for (let i = 0; i < dedupedGames.length; i += 20) {
-        const batch = dedupedGames.slice(i, i + 20);
-        const resolvedBatch = await Promise.all(
-          batch.map(async (game) => {
+      // Resolve only the first set of icons to avoid overloading the SDK/network.
+      const hydratedGames = dedupedGames.map((game) => ({ ...game }));
+      if (typeof window.Lumin?.getImageUrl === 'function') {
+        const preloadCount = Math.min(LUMIN_ICON_PRELOAD_LIMIT, hydratedGames.length);
+        await Promise.all(
+          hydratedGames.slice(0, preloadCount).map(async (game) => {
             const token = String(game.luminImageToken || '').trim();
-            if (!token || typeof window.Lumin?.getImageUrl !== 'function') {
-              return { ...game, noIcon: true };
-            }
-
+            if (!token) return;
             try {
               const blobUrl = String(await window.Lumin.getImageUrl(token)).trim();
-              return {
-                ...game,
-                icon: blobUrl,
-                noIcon: !blobUrl,
-              };
-            } catch {
-              return { ...game, noIcon: true };
-            }
+              if (blobUrl) {
+                game.icon = blobUrl;
+                game.noIcon = false;
+              }
+            } catch { }
           }),
         );
-        withIcons.push(...resolvedBatch);
       }
 
-      return withIcons;
+      return hydratedGames;
     } catch {
       if (attempt === 2) return [];
       await wait(350 * (attempt + 1));
@@ -267,6 +261,84 @@ const fetchLuminSdkGames = async () => {
   }
 
   return [];
+};
+
+const findLuminGameIdFromPayload = (payload, preferredId) => {
+  const games = Array.isArray(payload?.games) ? payload.games : [];
+  if (!games.length) return '';
+
+  const normalizedPreferred = normalizeGameToken(preferredId);
+  const exact = games.find((item) => String(item?.id || '').trim() === preferredId);
+  if (exact?.id) return String(exact.id).trim();
+
+  const normalizedMatch = games.find((item) => {
+    const id = normalizeGameToken(item?.id || '');
+    const name = normalizeGameToken(item?.name || item?.title || '');
+    return id === normalizedPreferred || name === normalizedPreferred;
+  });
+  if (normalizedMatch?.id) return String(normalizedMatch.id).trim();
+
+  const first = games.find((item) => String(item?.id || '').trim());
+  return first?.id ? String(first.id).trim() : '';
+};
+
+const resolveLuminGameUrl = async (gameId) => {
+  const trimmedId = String(gameId || '').trim();
+  if (!trimmedId || typeof window === 'undefined') return '';
+
+  const ready = await ensureAnyScriptLoaded(LUMIN_SDK_SCRIPT_SRCS, 'Lumin');
+  if (!ready || typeof window.Lumin?.init !== 'function' || typeof window.Lumin?.getGameUrl !== 'function') {
+    return '';
+  }
+
+  const query = trimmedId.replace(/[-_]+/g, ' ').trim();
+
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await window.Lumin.init({ headless: true, theme: 'dark' });
+
+      for (let directTry = 0; directTry < 2; directTry += 1) {
+        try {
+          const result = await window.Lumin.getGameUrl(trimmedId);
+          const url = String(result?.url || '').trim();
+          if (url) return url;
+        } catch { }
+      }
+
+      if (typeof window.Lumin?.search === 'function') {
+        try {
+          const searchPayload = await window.Lumin.search(query || trimmedId);
+          const searchedId = findLuminGameIdFromPayload(searchPayload, trimmedId);
+          if (searchedId) {
+            const result = await window.Lumin.getGameUrl(searchedId);
+            const url = String(result?.url || '').trim();
+            if (url) return url;
+          }
+        } catch { }
+      }
+
+      if (typeof window.Lumin?.getGames === 'function') {
+        try {
+          const pagePayload = await window.Lumin.getGames({ page: 1, limit: 40, q: query || trimmedId });
+          const fetchedId = findLuminGameIdFromPayload(pagePayload, trimmedId);
+          if (fetchedId) {
+            const result = await window.Lumin.getGameUrl(fetchedId);
+            const url = String(result?.url || '').trim();
+            if (url) return url;
+          }
+        } catch { }
+      }
+    } catch { }
+    finally {
+      try {
+        window.Lumin.destroy?.();
+      } catch { }
+    }
+
+    await wait(250 * (attempt + 1));
+  }
+
+  return '';
 };
 
 const usePopupTransition = (open) => {
@@ -576,6 +648,8 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
   const [dlGames, setDlGames] = useState([]);
   const [luminGames, setLuminGames] = useState([]);
   const [luminLoading, setLuminLoading] = useState(false);
+  const luminIconPendingRef = useRef(new Set());
+  const luminIconFailedRef = useRef(new Set());
   const [starredGames, setStarredGames] = useState(() => {
     try {
       const parsed = JSON.parse(localStorage.getItem(STARRED_GAMES_STORAGE_KEY) || '[]');
@@ -790,6 +864,71 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
   }, [page, filtered.totalPages]);
 
   useEffect(() => {
+    const shouldHydrateVisibleLumin = selectedSource.key === 'luminsdk' || showAllGames;
+    if (!shouldHydrateVisibleLumin) return;
+
+    const candidates = filtered.paged
+      .filter((game) => String(game?.sourceKey || '').toLowerCase() === 'luminsdk')
+      .filter((game) => !game?.icon)
+      .map((game) => ({
+        token: String(game?.luminImageToken || '').trim(),
+      }))
+      .filter((entry) => entry.token)
+      .filter((entry, index, arr) => arr.findIndex((x) => x.token === entry.token) === index)
+      .filter((entry) => !luminIconPendingRef.current.has(entry.token) && !luminIconFailedRef.current.has(entry.token));
+
+    if (candidates.length === 0) return;
+
+    let cancelled = false;
+
+    const hydrateVisibleLuminIcons = async () => {
+      const ready = await ensureAnyScriptLoaded(LUMIN_SDK_SCRIPT_SRCS, 'Lumin');
+      if (!ready || typeof window.Lumin?.init !== 'function' || typeof window.Lumin?.getImageUrl !== 'function') {
+        return;
+      }
+
+      try {
+        await window.Lumin.init({ headless: true, theme: 'dark' });
+
+        for (const { token } of candidates) {
+          if (cancelled) break;
+          luminIconPendingRef.current.add(token);
+          try {
+            const blobUrl = String(await window.Lumin.getImageUrl(token)).trim();
+            if (!blobUrl || cancelled) {
+              luminIconFailedRef.current.add(token);
+              continue;
+            }
+
+            setLuminGames((prev) =>
+              prev.map((game) =>
+                String(game?.luminImageToken || '').trim() === token
+                  ? { ...game, icon: blobUrl, noIcon: false }
+                  : game,
+              ),
+            );
+          } catch {
+            luminIconFailedRef.current.add(token);
+          } finally {
+            luminIconPendingRef.current.delete(token);
+          }
+        }
+      } catch { }
+      finally {
+        try {
+          window.Lumin.destroy?.();
+        } catch { }
+      }
+    };
+
+    hydrateVisibleLuminIcons();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedSource.key, showAllGames, filtered.paged]);
+
+  useEffect(() => {
     const onPointerDown = (event) => {
       if (!controlsRef.current) return;
       if (!controlsRef.current.contains(event.target)) {
@@ -862,28 +1001,7 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
           : '';
         if (!gameId) return;
 
-        const ready = await ensureScriptLoaded(LUMIN_SDK_SCRIPT_SRC, 'Lumin');
-        if (!ready || typeof window.Lumin?.init !== 'function' || typeof window.Lumin?.getGameUrl !== 'function') {
-          return;
-        }
-
-        let resolvedUrl = '';
-        try {
-          await window.Lumin.init({ headless: true, theme: 'dark' });
-          for (let attempt = 0; attempt < 2; attempt += 1) {
-            try {
-              const result = await window.Lumin.getGameUrl(gameId);
-              resolvedUrl = String(result?.url || '').trim();
-              if (resolvedUrl) break;
-            } catch { }
-          }
-        } catch {
-          resolvedUrl = '';
-        } finally {
-          try {
-            window.Lumin.destroy?.();
-          } catch { }
-        }
+        const resolvedUrl = await resolveLuminGameUrl(gameId);
 
         if (!resolvedUrl) return;
 
@@ -896,6 +1014,7 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
               icon: game.icon,
               url: resolvedUrl,
               renderAsHtml: false,
+              prType: 'scr',
               sourceKey: sourceForReturn,
               returnTo: buildReturnTo(sourceForReturn),
             },
@@ -915,6 +1034,7 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
               icon: game.icon,
               url: game.url,
               renderAsHtml: true,
+              prType: 'scr',
               sourceKey: sourceForReturn,
               returnTo: buildReturnTo(sourceForReturn),
             },
