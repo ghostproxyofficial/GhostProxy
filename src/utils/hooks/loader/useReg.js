@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
-import { BareMuxConnection } from '@mercuryworkshop/bare-mux';
+import { BareMuxConnection, BareClient } from '@mercuryworkshop/bare-mux';
 import { useOptions } from '/src/utils/optionsContext';
+import { fetchW } from './findWisp';
 import store from './useLoaderStore';
 
 export default function useReg() {
@@ -34,6 +35,10 @@ export default function useReg() {
   };
 
   useEffect(() => {
+    let disposed = false;
+    let connectionRef = null;
+    let remoteProxyRef = null;
+
     const init = async () => {
       if (!window.scr) {
         const script = document.createElement('script');
@@ -114,11 +119,39 @@ export default function useReg() {
       globalThis.__ghostScramjetReady = true;
 
       const connection = new BareMuxConnection('/baremux/worker.js');
+      connectionRef = connection;
       setWispStatus('init');
       const manualWisp = normalizeWispEndpoint(options.wServer);
       const defaultWisp = normalizeWispEndpoint(defaultWispEndpoint);
       const isInvalidWisp = (value) => /\/\/(undefined|null)(?::|\/|$)/i.test(String(value || ''));
-      const uniqueWispCandidates = [manualWisp || defaultWisp].filter((candidate) => candidate && !isInvalidWisp(candidate));
+      const isLocalHost = (() => {
+        try {
+          const host = String(window.location.hostname || '').toLowerCase();
+          return host === 'localhost' || host === '127.0.0.1' || host === '::1';
+        } catch {
+          return false;
+        }
+      })();
+
+      const localOriginWisp = isLocalHost
+        ? normalizeWispEndpoint(`${window.location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/wisp/`)
+        : null;
+
+      let discoveredWisp = null;
+      if (!manualWisp) {
+        try {
+          discoveredWisp = normalizeWispEndpoint(await fetchW());
+        } catch {
+          discoveredWisp = null;
+        }
+      }
+
+      const uniqueWispCandidates = [
+        manualWisp,
+        discoveredWisp,
+        localOriginWisp,
+        defaultWisp,
+      ].filter((candidate, index, arr) => candidate && !isInvalidWisp(candidate) && arr.indexOf(candidate) === index);
 
       const wispUrl = uniqueWispCandidates[0] || null;
 
@@ -152,6 +185,7 @@ export default function useReg() {
       };
 
       const remoteProxyUrl = resolveRemoteProxyUrl();
+      remoteProxyRef = remoteProxyUrl;
 
       const setTransportByName = async (name, endpoint) => {
         const modulePath = name === 'epoxy' ? '/epoxy/index.mjs' : '/libcurl/index.mjs';
@@ -164,15 +198,44 @@ export default function useReg() {
         window.__ghostActiveRemoteProxy = remoteProxyUrl;
       };
 
-      const fallbackTransport = preferredTransport === 'epoxy' ? 'libcurl' : 'epoxy';
+      const probeTransport = async () => {
+        const client = new BareClient('/baremux/worker.js');
+        const probeTargets = ['https://example.com/', 'https://duckduckgo.com/'];
+        let lastError = null;
+
+        for (const target of probeTargets) {
+          try {
+            const response = await Promise.race([
+              client.fetch(target, {
+                method: 'GET',
+                redirect: 'manual',
+                cache: 'no-store',
+              }),
+              new Promise((_, reject) => {
+                setTimeout(() => reject(new Error(`[proxy] probe timeout for ${target}`)), 8000);
+              }),
+            ]);
+
+            // Any HTTP status means upstream connectivity is working through the transport.
+            if (response && Number.isFinite(response.status)) {
+              return;
+            }
+          } catch (error) {
+            lastError = error;
+          }
+        }
+
+        throw lastError || new Error('[proxy] probe request failed for all targets.');
+      };
+
       let primaryError = null;
-      let fallbackError = null;
 
       for (const endpoint of uniqueWispCandidates) {
         window.__ghostActiveWisp = endpoint;
 
         try {
           await setTransportByName(preferredTransport, endpoint);
+          await probeTransport();
           setWispStatus(true);
           return;
         } catch (error) {
@@ -180,32 +243,37 @@ export default function useReg() {
         }
 
         console.warn(
-          `[proxy] ${preferredTransport} transport failed for ${endpoint}; trying ${fallbackTransport}.`,
+          `[proxy] ${preferredTransport} transport failed for ${endpoint}; retrying once.`,
           primaryError,
         );
 
         try {
-          await setTransportByName(fallbackTransport, endpoint);
+          await setTransportByName(preferredTransport, endpoint);
+          await probeTransport();
           setWispStatus(true);
           return;
         } catch (error) {
-          fallbackError = error;
-          console.warn(`[proxy] transport fallback failed for ${endpoint}.`, fallbackError);
+          primaryError = error;
         }
       }
+
+      setWispStatus(false);
+      const endpointPreview = wispUrl || '(none)';
+      console.warn(
+        `[proxy] unable to initialize transport for ${endpointPreview}; transport=${preferredTransport}.`,
+        primaryError,
+      );
 
       window.__ghostActiveTransport = null;
       window.__ghostActiveWisp = null;
       window.__ghostActiveRemoteProxy = remoteProxyUrl;
-      setWispStatus(false);
-      console.error('[proxy] Failed to initialize transport.', {
-        primaryError,
-        fallbackError,
-        wispUrl,
-        remoteProxyUrl,
-      });
     };
 
     init();
+
+    return () => {
+      disposed = true;
+      connectionRef = null;
+    };
   }, [options.wServer, options.transport, options.proxyRouting, options.remoteProxyServer, options.remoteProxyType]);
 }
