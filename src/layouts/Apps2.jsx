@@ -165,7 +165,7 @@ const fetchLuminSdkGames = async () => {
         theme: 'dark',
       });
 
-      const pageLimit = 120;
+      const pageLimit = 1000;
       let page = 1;
       const aggregate = [];
       const seenGameKeys = new Set();
