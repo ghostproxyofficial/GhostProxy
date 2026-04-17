@@ -167,28 +167,25 @@ const fetchLuminSdkGames = async () => {
 
       const pageLimit = 120;
       let page = 1;
-      let pages = 1;
       const aggregate = [];
+      const seenGameKeys = new Set();
       const maxPages = 250;
 
-      while (page <= pages && page <= maxPages) {
+      while (page <= maxPages) {
         let response = null;
         for (let pageAttempt = 0; pageAttempt < 3; pageAttempt += 1) {
           try {
             response = await window.Lumin.getGames({ page, limit: pageLimit, q: '' });
-            const games = Array.isArray(response?.games) ? response.games : [];
-            if (games.length > 0 || page > 1) break;
+            if (Array.isArray(response?.games)) break;
           } catch { }
 
           await wait(250 * (pageAttempt + 1));
         }
 
         const responseGames = Array.isArray(response?.games) ? response.games : [];
-        const reportedPages = Number(response?.pages || 0);
-        const reportedTotal = Number(response?.total || 0);
-        pages = reportedPages > 0 ? reportedPages : (reportedTotal > 0 ? Math.ceil(reportedTotal / pageLimit) : page);
+        if (responseGames.length === 0) break;
 
-        if (!responseGames.length && page > 1) break;
+        let addedNewGame = false;
 
         for (const item of responseGames) {
           const itemId = String(item?.id || '').trim();
@@ -196,6 +193,11 @@ const fetchLuminSdkGames = async () => {
           if (!itemId) continue;
 
           const imageToken = String(item?.image_token || '').trim();
+
+          const gameKey = `${itemId.toLowerCase()}::${normalizeGameToken(appName)}`;
+          if (seenGameKeys.has(gameKey)) continue;
+          seenGameKeys.add(gameKey);
+          addedNewGame = true;
 
           aggregate.push({
             appName,
@@ -210,16 +212,11 @@ const fetchLuminSdkGames = async () => {
           });
         }
 
+        if (!addedNewGame) break;
         page += 1;
       }
 
-      const dedupe = new Map();
-      for (const game of aggregate) {
-        const key = `${String(game.url || '').trim().toLowerCase()}::${normalizeGameToken(game.appName)}`;
-        if (!dedupe.has(key)) dedupe.set(key, game);
-      }
-
-      const dedupedGames = Array.from(dedupe.values()).filter((game) => !isBlockedGameEntry(game));
+      const dedupedGames = aggregate.filter((game) => !isBlockedGameEntry(game));
       if (dedupedGames.length === 0) {
         if (attempt < 2) {
           await wait(350 * (attempt + 1));
