@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WarpDesk">
+    <title>WarpDesk</title>
+    <link rel="icon" type="image/png" href="favicon/cursor.png">
+    <link rel="shortcut icon" href="favicon/cursor.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="theme-switch-wrap">
+        <label class="theme-switch" for="theme-toggle">
+            <input type="checkbox" id="theme-toggle" aria-label="Toggle dark mode">
+            <span class="theme-switch-slider"></span>
+        </label>
+    </div>
+
+    <div class="bg-grid"></div>
+    <div class="bg-glow bg-glow-1"></div>
+    <div class="bg-glow bg-glow-2"></div>
+
+    <main class="login-container">
+        <div class="login-card">
+            <div class="logo-section">
+                <div class="logo-icon">
+                    <img class="brand-logo" src="favicon/cursor.png" alt="WarpDesk logo">
+                </div>
+                <h1>WarpDesk</h1>
+                <p class="subtitle">Remote Desktop Access</p>
+            </div>
+
+            <form id="login-form" autocomplete="off">
+                <div class="input-group">
+                    <label for="host-url">Connection URL</label>
+                    <input type="url" id="host-url" name="host-url" placeholder="https://example.com:443" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" value="admin" placeholder="admin"
+                        autocomplete="username" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter password from host terminal"
+                        autocomplete="current-password" required autofocus>
+                </div>
+
+                <div id="error-message" class="error-message" hidden>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                        <path
+                            d="M8 1a7 7 0 100 14A7 7 0 008 1zm0 10.5a.75.75 0 110-1.5.75.75 0 010 1.5zM8.75 4.75v4.5a.75.75 0 01-1.5 0v-4.5a.75.75 0 011.5 0z" />
+                    </svg>
+                    <span id="error-text"></span>
+                </div>
+
+                <button type="submit" id="login-btn">
+                    <span class="btn-text">Connect</span>
+                    <span class="btn-loader" hidden>
+                        <span class="spinner"></span>
+                        Connecting...
+                    </span>
+                </button>
+            </form>
+
+            <div class="footer-info">
+                <p>Credentials are shown on the host terminal</p>
+            </div>
+        </div>
+
+        <aside class="device-list-card" id="device-list-card">
+            <div class="device-list-head">
+                <h2>Saved Devices</h2>
+                <div class="device-head-actions">
+                    <button type="button" class="device-add-btn" id="device-add-btn" title="Add custom device" hidden>
+                        <img src="favicon/add-black.png" alt="Add device" class="device-add-icon" id="device-add-icon">
+                    </button>
+                    <button type="button" class="device-edit-btn" id="device-edit-btn" title="Edit device order">
+                        <img src="favicon/construction-black.png" alt="Edit devices" class="device-edit-icon" id="device-edit-icon">
+                    </button>
+                </div>
+            </div>
+            <p class="device-list-help">Select a device, then enter password to connect.</p>
+            <p class="device-list-edit-help" id="device-list-edit-help" hidden>Right Click to delete</p>
+            <div class="device-list" id="device-list"></div>
+        </aside>
+
+    </main>
+
+    <div class="unsupported-overlay" id="unsupported-overlay" aria-live="polite">
+        <img src="favicon/cursor.png" alt="WarpDesk" class="unsupported-logo">
+        <p>Your Device isn't supported.</p>
+    </div>
+
+    <div class="custom-modal-backdrop" id="custom-device-modal" hidden>
+        <div class="custom-modal" role="dialog" aria-modal="true" aria-labelledby="custom-device-title">
+            <h3 id="custom-device-title">Add Custom Device</h3>
+            <div class="custom-modal-fields">
+                <label for="custom-device-url">Connection URL</label>
+                <input type="url" id="custom-device-url" placeholder="https://example.com:8443">
+
+                <label for="custom-device-user">Username</label>
+                <input type="text" id="custom-device-user" value="admin" placeholder="admin">
+
+                <label for="custom-device-os">OS</label>
+                <select id="custom-device-os">
+                    <option value="windows">Windows</option>
+                    <option value="linux">Linux</option>
+                    <option value="macos">macOS</option>
+                </select>
+            </div>
+            <div class="custom-modal-actions">
+                <button type="button" class="modal-btn modal-btn-secondary" id="custom-device-cancel">Cancel</button>
+                <button type="button" class="modal-btn modal-btn-primary" id="custom-device-save">Add Device</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="login.js"></script>
+</body>
+
+</html>

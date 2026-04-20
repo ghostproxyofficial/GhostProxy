@@ -52,7 +52,7 @@ export default function SidebarEditor({ open, onClose }) {
         { id: 'showGames', label: 'Games', default: true },
         { id: 'showTV', label: 'TV', default: true },
         { id: 'showMusic', label: 'Music', default: true },
-        { id: 'showRemote', label: 'Remote Access', default: true },
+        { id: 'showRemote', label: 'WarpDesk', default: true },
         { id: 'showAI', label: 'AI', default: true },
         { id: 'showBookmarks', label: 'Bookmarks', default: true },
         { id: 'showAdBlock', label: 'Ad Block', default: true },

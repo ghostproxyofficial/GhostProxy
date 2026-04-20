@@ -24,6 +24,10 @@
     "definition": "The backend endpoint that accepts proxied tunnel traffic for Ghost transports."
   },
   {
+    "word": "WarpDesk",
+    "definition": "Ghost's beta remote desktop client for connecting to a host PC from the browser."
+  },
+  {
     "word": "Transport",
     "definition": "The request backend implementation (for example LibCurl or Epoxy) used by the proxy engine."
   },

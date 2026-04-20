@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="WarpDesk — Remote Desktop Session">
+    <title>WarpDesk Viewer</title>
+    <link rel="icon" type="image/png" href="favicon/cursor.png">
+    <link rel="shortcut icon" href="favicon/cursor.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="desktop.css">
+</head>
+
+<body>
+    <!-- Top Bar -->
+    <header class="topbar" id="topbar">
+        <div class="topbar-left">
+            <img src="favicon/cursor.png" alt="WarpDesk" class="topbar-logo-img">
+            <span class="topbar-title">WarpDesk</span>
+        </div>
+        <div class="topbar-center">
+            <div class="connection-status" id="connection-status">
+                <span class="status-text">Connecting...</span>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <button class="topbar-btn" id="pointer-lock-btn" title="Lock mouse for relative input">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="7"></circle>
+                    <circle cx="12" cy="12" r="1.5"></circle>
+                    <path d="M12 3v2"></path>
+                    <path d="M12 19v2"></path>
+                    <path d="M3 12h2"></path>
+                    <path d="M19 12h2"></path>
+                </svg>
+            </button>
+            <button class="topbar-btn" id="open-settings-btn" title="Settings">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 15a3 3 0 100-6 3 3 0 000 6z" />
+                    <path
+                        d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+                </svg>
+            </button>
+            <button class="topbar-btn" id="fullscreen-btn" title="Toggle fullscreen">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path
+                        d="M2 6V3.5A1.5 1.5 0 013.5 2H6M12 2h2.5A1.5 1.5 0 0116 3.5V6M16 12v2.5a1.5 1.5 0 01-1.5 1.5H12M6 16H3.5A1.5 1.5 0 012 14.5V12" />
+                </svg>
+            </button>
+            <button class="topbar-btn" id="close-topbar-btn" title="Hide toolbar">
+                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M4.5 4.5l9 9M13.5 4.5l-9 9" />
+                </svg>
+            </button>
+            <button class="topbar-btn topbar-btn-danger" id="quit-btn" title="Quit session">
+                <img src="favicon/log-out.png" alt="Quit" class="quit-icon">
+            </button>
+        </div>
+    </header>
+
+    <button class="topbar-toggle" id="topbar-toggle" aria-label="Hide toolbar" title="Hide toolbar">
+        <span class="toggle-arrow">▾</span>
+    </button>
+
+    <!-- Remote Desktop Canvas -->
+    <div class="canvas-container" id="canvas-container">
+        <video id="remote-video" autoplay playsinline></video>
+        <canvas id="remote-canvas"></canvas>
+
+        <!-- Connecting placeholder (shown until video track arrives) -->
+        <div class="placeholder" id="placeholder">
+            <div class="placeholder-icon">
+                <div class="connect-spinner"></div>
+            </div>
+            <h2>Connecting...</h2>
+            <p>Establishing WebRTC peer-to-peer connection</p>
+        </div>
+    </div>
+
+    <!-- Settings Overlay -->
+    <div class="overlay-panel" id="settings-panel">
+        <div class="overlay-header">
+            <h3>Remote Agent</h3>
+            <button class="close-btn" id="close-settings-btn">&times;</button>
+        </div>
+
+        <div class="overlay-tabs">
+            <button class="tab-btn active" data-tab="tab-display">Video</button>
+            <button class="tab-btn" data-tab="tab-clipboard">Clipboard</button>
+            <button class="tab-btn" data-tab="tab-terminal">Terminal</button>
+        </div>
+
+        <div class="overlay-content">
+            <!-- Video Settings -->
+            <div class="tab-pane active" id="tab-display">
+                <div class="form-group">
+                    <label for="theme-toggle-desktop">Dark Mode</label>
+                    <label class="theme-switch" for="theme-toggle-desktop">
+                        <input type="checkbox" id="theme-toggle-desktop" aria-label="Toggle dark mode">
+                        <span class="theme-switch-slider"></span>
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="setting-fps">Framerate Cap</label>
+                    <select id="setting-fps">
+                        <option value="120">120 FPS (Ultra)</option>
+                        <option value="90">90 FPS (High)</option>
+                        <option value="60">60 FPS</option>
+                        <option value="30">30 FPS</option>
+                        <option value="15">15 FPS (Slow Network)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="setting-scale">Resolution Scale</label>
+                    <select id="setting-scale">
+                        <option value="100" selected>100% Native</option>
+                        <option value="85">85% Balanced</option>
+                        <option value="75">75% Scaled</option>
+                        <option value="50">50% Fast</option>
+                    </select>
+                    <small>Lower scales drastically reduce CPU usage and network lag.</small>
+                </div>
+                <button class="btn btn-primary" id="apply-video-settings">Apply Changes</button>
+                <div class="tab-status" id="video-status">Idle</div>
+            </div>
+
+            <!-- Clipboard -->
+            <div class="tab-pane" id="tab-clipboard">
+                <p>Sync text between your local machine and the remote desktop.</p>
+                <textarea id="clipboard-text" rows="5" placeholder="Empty clipboard..."></textarea>
+                <div class="clipboard-actions">
+                    <button class="btn btn-secondary" id="btn-clip-read">Read Remote</button>
+                    <button class="btn btn-primary" id="btn-clip-write">Send to Remote</button>
+                    <button class="btn btn-secondary" id="btn-clip-local-paste">Paste Local</button>
+                    <button class="btn btn-secondary" id="btn-clip-local-copy">Copy Local</button>
+                </div>
+                <div class="tab-status" id="clipboard-status">Idle</div>
+            </div>
+
+            <!-- Terminal -->
+            <div class="tab-pane" id="tab-terminal">
+                <div class="terminal-output" id="terminal-output">
+                    <div>Welcome to WarpDesk Agent CMD</div>
+                    <div style="color: #00ffaa;">> Ready.</div>
+                </div>
+                <div class="terminal-actions">
+                    <button class="btn btn-secondary" id="terminal-run-btn">Run</button>
+                    <button class="btn btn-secondary" id="terminal-clear-btn">Clear</button>
+                </div>
+                <div class="terminal-input-row">
+                    <span>></span>
+                    <input type="text" id="terminal-input" placeholder="Type command..." autocomplete="off">
+                </div>
+                <div class="tab-status" id="terminal-status">Idle</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="unsupported-overlay" id="unsupported-overlay" aria-live="polite">
+        <img src="favicon/cursor.png" alt="WarpDesk" class="unsupported-logo">
+        <p>Your Device isn't supported.</p>
+    </div>
+
+    <script src="desktop.js"></script>
+    <script src="webrtc.js"></script>
+</body>
+
+</html>

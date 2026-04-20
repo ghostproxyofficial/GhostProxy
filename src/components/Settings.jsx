@@ -120,6 +120,7 @@ const InfoPanel = () => {
           <p className="font-semibold mb-1">Backend / Features</p>
           <ul className="space-y-1 opacity-90">
             <li>- ghostproxyofficial/wisp-server (recommended self-host endpoint)</li>
+            <li>- ghostproxyofficial/WarpDesk</li>
             <li>- MercuryWorkshop/wisp-server-node</li>
             <li>- MercuryWorkshop/scramjet</li>
             <li>- titaniumnetwork-dev/Ultraviolet</li>
@@ -175,6 +176,7 @@ const InfoPanel = () => {
           <p className="font-semibold mb-2">Primary upstream projects</p>
           <ul className="space-y-1 text-sm">
             <li>- ghostproxyofficial/wisp-server</li>
+            <li>- ghostproxyofficial/WarpDesk</li>
             <li>- MercuryWorkshop/scramjet</li>
             <li>- MercuryWorkshop/wisp-server-node</li>
             <li>- MercuryWorkshop/epoxy-transport</li>
@@ -245,7 +247,7 @@ const InfoPanel = () => {
           <ul className="space-y-1">
             <li>- Frontend (website): ghostproxyofficial/GhostProxy</li>
             <li>- Wisp Server (setting up your own proxy server): ghostproxyofficial/wisp-server</li>
-            <li className="line-through opacity-70">- Ghost Remote Access (accessing your home PC remotely): ghostproxyofficial/RemoteAccess</li>
+            <li>- WarpDesk (accessing your home PC remotely): ghostproxyofficial/WarpDesk</li>
             <li className="line-through opacity-70">- Cloud Saving (save data online): ghostproxyofficial/CloudSaving</li>
           </ul>
         </div>
@@ -454,7 +456,7 @@ const InfoPanel = () => {
                 >
                   {contentMap[section.name] || (
                     <div className="text-sm opacity-80 py-3 flex items-center gap-2">
-                      <Heart size={15} /> Content coming soon.
+                      <Heart size={15} /> More content will be added here.
                     </div>
                   )}
                 </div>

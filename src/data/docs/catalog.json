@@ -10,11 +10,6 @@
       },
       {
         "id": "2",
-        "title": "How to use Ghost",
-        "file": "/docs/getting_started/2.md"
-      },
-      {
-        "id": "3",
         "title": "General info",
         "file": "/docs/getting_started/3.md"
       }
@@ -66,7 +61,7 @@
       },
       {
         "id": "9",
-        "title": "Access my home computer with Ghost",
+        "title": "Access my home computer with WarpDesk",
         "file": "/docs/how_to/9.md"
       },
       {
@@ -86,11 +81,6 @@
         "file": "/docs/development/1.md"
       },
       {
-        "id": "5",
-        "title": "How to host your own wisp endpoint",
-        "file": "/docs/development/5.md"
-      },
-      {
         "id": "2",
         "title": "How to setup Remote Proxy Server",
         "file": "/docs/development/2.md"
@@ -102,8 +92,13 @@
       },
       {
         "id": "4",
-        "title": "How to set up Remote Access on your PC",
+        "title": "How to Set Up WarpDesk Beta on Your PC",
         "file": "/docs/development/4.md"
+      },
+      {
+        "id": "5",
+        "title": "How to host your own wisp endpoint",
+        "file": "/docs/development/5.md"
       }
     ]
   }

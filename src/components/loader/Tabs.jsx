@@ -85,7 +85,7 @@ const getGhostTabLabel = (url) => {
     'ghost://search': 'Ghost Search',
     'ghost://code': 'Ghost Code',
     'ghost://ai': 'Ghost AI',
-    'ghost://remote': 'Ghost Remote Access',
+    'ghost://remote': 'Remote Access',
     'ghost://musicplayer': 'Ghost Music',
     'ghost://monochrome': 'Ghost Music',
     'ghost://duckai': 'Ghost Duck AI',
@@ -120,7 +120,7 @@ const getGhostTabLabel = (url) => {
       '/search': 'Ghost Search',
       '/code': 'Ghost Code',
       '/ai': 'Ghost AI',
-      '/remote': 'Ghost Remote Access',
+      '/remote': 'Remote Access',
     };
     return map[path] || null;
   } catch {
