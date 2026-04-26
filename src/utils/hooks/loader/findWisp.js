@@ -47,7 +47,7 @@ export async function fetchW() {
 
   let tx;
   try {
-    tx = await fetch('https://cdn.jsdelivr.net/gh/ashxmed/symmetrical-adventure@latest/synapse.js', {
+    tx = await fetch('', {
       cache: 'no-store',
     }).then((res) => res.json());
   } catch {
