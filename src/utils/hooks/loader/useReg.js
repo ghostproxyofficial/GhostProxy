@@ -6,7 +6,7 @@ import store from './useLoaderStore';
 
 export default function useReg() {
   const { options } = useOptions();
-  const defaultWispEndpoint = 'wss://doge.studyeurope.edu.eu.org/wisp/';
+  const defaultWispEndpoint = 'wss://';
   const sws = [{ path: '/uv/ghost-sw.js', scope: '/uv/' }, { path: '/s_sw.js', scope: '/scramjet/' }];
   const setWispStatus = store((s) => s.setWispStatus);
 

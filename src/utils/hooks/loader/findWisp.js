@@ -1,7 +1,7 @@
 export async function fetchW() {
   const cacheKey = 'ghost:lastGoodWisp';
   const bootstrapEndpoints = [
-    'wss://doge.studyeurope.edu.eu.org/wisp/',
+    'wss://',
   ];
 
   const normalizeEndpoint = (value) => {
