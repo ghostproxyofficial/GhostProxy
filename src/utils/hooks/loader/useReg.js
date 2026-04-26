@@ -141,8 +141,9 @@ export default function useReg() {
       if (!manualWisp) {
         try {
           discoveredWisp = normalizeWispEndpoint(await fetchW());
-        } catch {
-          discoveredWisp = null;
+        } catch (error) {
+          console.error(error);
+          throw error;
         }
       }
 

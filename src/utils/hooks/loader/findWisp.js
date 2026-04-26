@@ -77,16 +77,13 @@ export async function fetchW() {
     arr = [];
   }
 
-  const cached = readCached();
   const endpoints = [
     ...new Set([
-      cached,
-      ...bootstrapEndpoints,
       ...arr.map(normalizeEndpoint),
-    ].map(normalizeEndpoint).filter(Boolean)),
+    ].filter(Boolean)),
   ];
 
-  if (!endpoints.length) return null;
+  if (!endpoints.length) throw new Error("no wss:// url could be found");
   let c = endpoints.length;
 
   return new Promise((resolve) => {
