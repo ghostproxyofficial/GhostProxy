@@ -6,7 +6,7 @@ import { useOptions } from '/src/utils/optionsContext';
 import changelogEntries from '/src/data/changelog.json';
 
 const Footer = memo(() => {
-  const defaultWispEndpoint = 'wss://';
+  const defaultWispEndpoint = 'wss://account.studyeurope.edu.eu.org/wisp/';
   const { options } = useOptions();
   const navigate = useNavigate();
   const location = useLocation();
