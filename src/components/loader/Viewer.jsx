@@ -377,7 +377,12 @@ const Viewer = ({ zoom }) => {
       return value;
     }
     if (value.includes('/uv/service/') || value.includes('/scramjet/')) {
-      return value;
+      try {
+        const decoded = process(value, true, options.prType || 'auto', options.engine || null);
+        return process(decoded, false, options.prType || 'auto', options.engine || null);
+      } catch {
+        return value;
+      }
     }
     if (value.startsWith('ghost://')) {
       const route = value.toLowerCase().replace(/^ghost:\/\//, '').replace(/^\/+/, '').split(/[?#]/)[0];
@@ -387,7 +392,7 @@ const Viewer = ({ zoom }) => {
         duckai: 'https://duck.ai',
         live: 'https://thetvapp.to',
         movies: 'https://www.cineby.sc',
-        anime: 'https://9animetv.to',
+        anime: 'https://hianime.re',
         browselol: 'https://browser.lol/create',
       };
       if (aliasTargets[route]) {
@@ -507,8 +512,36 @@ const Viewer = ({ zoom }) => {
         try {
           const d = iframe.contentWindow?.document;
           if (d?.getElementById('errorTrace-wrapper') || d?.getElementById('fetchedURL')) {
+            const errorText = d.body?.innerText || '';
+            const rawUrl = getFrameUrl(tab.url);
+            
+            // Auto-fallback to UV for Libcurl SSL errors
+            if (rawUrl.includes('/scramjet/') && (errorText.includes('SSL connect error') || errorText.includes('code 35') || errorText.includes('code 60') || errorText.includes('tls handshake eof'))) {
+               const targetParts = rawUrl.split('/scramjet/');
+               if (targetParts.length > 1) {
+                  try {
+                    const targetUrl = decodeURIComponent(targetParts[1]);
+                    const host = new URL(targetUrl).hostname.replace(/^www\./i, '').toLowerCase();
+                    const stored = JSON.parse(localStorage.getItem('ghostForceUvHosts') || '[]');
+                    if (!stored.includes(host)) {
+                       stored.push(host);
+                       localStorage.setItem('ghostForceUvHosts', JSON.stringify(stored));
+                       console.log(`[Viewer] Auto-fallback to UV activated for host: ${host}`);
+                       
+                       if (errorRetries.current[tab.id]) {
+                         clearTimeout(errorRetries.current[tab.id].timer);
+                         delete errorRetries.current[tab.id];
+                       }
+                       
+                       iframe.contentWindow.location.replace(process(targetUrl, false, options.prType || 'auto', options.engine || null));
+                       return;
+                    }
+                  } catch {}
+               }
+            }
+            
             // Proxy error page — schedule a rate-limited retry
-            scheduleErrorRetry(tab.id, iframe, getFrameUrl(tab.url));
+            scheduleErrorRetry(tab.id, iframe, rawUrl);
           } else {
             // Successful load — reset retry counter for this tab
             if (errorRetries.current[tab.id]) {
@@ -550,10 +583,77 @@ const Viewer = ({ zoom }) => {
           const curTTL = iframe.contentWindow.document.title;
           if (curURL === 'about:blank') return;
 
+          const cw = iframe.contentWindow;
+          if (cw) {
+            const shortcutsMap = getEffectiveShortcuts(options);
+            const activeCombos = Object.entries(shortcutsMap)
+              .filter(([, cfg]) => cfg?.enabled !== false)
+              .map(([id, cfg]) => cfg.key);
+            
+            cw.__ghostActiveCombos = activeCombos;
+            cw.postMessage({ type: 'ghost-update-shortcuts', shortcuts: activeCombos }, '*');
+
+            if (!cw.__ghostShortcutHooked) {
+              cw.__ghostShortcutHooked = true;
+
+              cw.addEventListener('keydown', (e) => {
+                const combo = eventToShortcut(e);
+
+                if (cw.__ghostActiveCombos?.includes(combo) || combo === 'F11' || combo === 'F12' || combo === 'F5') {
+                  e.preventDefault();
+                  e.stopPropagation();
+
+                  const synth = new KeyboardEvent('keydown', {
+                    key: e.key,
+                    altKey: e.altKey,
+                    ctrlKey: e.ctrlKey,
+                    shiftKey: e.shiftKey,
+                    metaKey: e.metaKey,
+                    bubbles: true,
+                    cancelable: true
+                  });
+                  window.top.dispatchEvent(synth);
+                }
+              }, { capture: true });
+            }
+          }
+
           // Check for proxy error page — rate-limited retry
           const d = iframe.contentWindow?.document;
-          if (d?.getElementById('errorTrace-wrapper')) {
-            scheduleErrorRetry(tab.id, iframe, getFrameUrl(tab.url));
+          const errorText = d?.body?.innerText || '';
+          const isErrorPage = d?.getElementById('errorTrace-wrapper') || errorText.includes('SSL connect error') || errorText.includes('code 35') || errorText.includes('code 60') || errorText.includes('tls handshake eof');
+
+          if (isErrorPage) {
+            const rawUrl = getFrameUrl(tab.url);
+            
+            // Auto-fallback to UV for Libcurl/Epoxy SSL errors
+            if (rawUrl.includes('/scramjet/') && (errorText.includes('SSL connect error') || errorText.includes('code 35') || errorText.includes('code 60') || errorText.includes('tls handshake eof'))) {
+               const targetParts = rawUrl.split('/scramjet/');
+               if (targetParts.length > 1) {
+                  try {
+                    const targetUrl = decodeURIComponent(targetParts[1]);
+                    const host = new URL(targetUrl).hostname.replace(/^www\./i, '').toLowerCase();
+                    const stored = JSON.parse(localStorage.getItem('ghostForceUvHosts') || '[]');
+                    if (!stored.includes(host)) {
+                       stored.push(host);
+                       localStorage.setItem('ghostForceUvHosts', JSON.stringify(stored));
+                       
+                       if (errorRetries.current[tab.id]) {
+                         clearTimeout(errorRetries.current[tab.id].timer);
+                         delete errorRetries.current[tab.id];
+                       }
+                       
+                       // Force 'auto' prType to ensure shouldForceUvRoute applies, then update React state AND iframe DOM
+                       const fallbackUrl = process(targetUrl, false, 'auto', options.engine || null);
+                       setIframeUrl(tab.id, fallbackUrl);
+                       iframe.src = fallbackUrl;
+                       return;
+                    }
+                  } catch {}
+               }
+            }
+            
+            scheduleErrorRetry(tab.id, iframe, rawUrl);
             return;
           }
 
@@ -564,36 +664,6 @@ const Viewer = ({ zoom }) => {
           if (curTTL && curTTL !== prevTitle.current[tab.id] && curTTL !== tab.title) {
             prevTitle.current[tab.id] = curTTL;
             updateTitle(tab.id, curTTL);
-          }
-
-          const cw = iframe.contentWindow;
-          if (cw && !cw.__ghostShortcutHooked) {
-            cw.__ghostShortcutHooked = true;
-
-            cw.addEventListener('keydown', (e) => {
-              const shortcutsMap = getEffectiveShortcuts(options);
-              const activeCombos = Object.entries(shortcutsMap)
-                .filter(([, cfg]) => cfg?.enabled !== false)
-                .map(([id, cfg]) => cfg.key);
-
-              const combo = eventToShortcut(e);
-
-              if (activeCombos.includes(combo) || combo === 'F11' || combo === 'F12' || combo === 'F5') {
-                e.preventDefault();
-                e.stopPropagation();
-
-                const synth = new KeyboardEvent('keydown', {
-                  key: e.key,
-                  altKey: e.altKey,
-                  ctrlKey: e.ctrlKey,
-                  shiftKey: e.shiftKey,
-                  metaKey: e.metaKey,
-                  bubbles: true,
-                  cancelable: true
-                });
-                window.top.dispatchEvent(synth);
-              }
-            }, { capture: true });
           }
         } catch (e) { }
       });

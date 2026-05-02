@@ -85,21 +85,7 @@ const Omnibox = () => {
     const frameProxied = isProcied(frame);
     if (!tabProxied || !frameProxied) return tabUrl;
 
-    const normalizeDecoded = (value) =>
-      String(value || '')
-        .trim()
-        .replace(/^https?:\/\//i, '')
-        .replace(/\/$/, '')
-        .toLowerCase();
-
-    const decodedTab = normalizeDecoded(process(tabUrl, true, options.prType || 'auto', options.engine || undefined));
-    const decodedFrame = normalizeDecoded(process(frame, true, options.prType || 'auto', options.engine || undefined));
-
-    if (!decodedTab || !decodedFrame) return tabUrl;
-    if (decodedTab === decodedFrame) return frame;
-    if (decodedFrame.startsWith(`${decodedTab}/`) || decodedTab.startsWith(`${decodedFrame}/`)) return frame;
-
-    return tabUrl;
+    return frame;
   }, [options.prType, options.engine]);
 
   const isProcied = (url) => url?.includes('/uv/service/') || url?.includes('/scramjet/');
@@ -381,8 +367,11 @@ const Omnibox = () => {
           onSelect={() => setIcon(Search)}
           onBlur={() => {
             isEditingRef.current = false;
-            const raw = activeTab ? getPreferredRawUrl(activeTab, activeFrameUrl) : '';
-            updateIcon(raw);
+            if (activeTab) {
+              const raw = getPreferredRawUrl(activeTab, activeFrameUrl);
+              setInput(getDisplayUrl(raw, activeTab?.displayUrl));
+              updateIcon(raw);
+            }
           }}
           onFocus={() => {
             isEditingRef.current = true;

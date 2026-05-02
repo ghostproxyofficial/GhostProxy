@@ -51,7 +51,7 @@ export async function fetchW() {
       cache: 'no-store',
     }).then((res) => res.json());
   } catch {
-    return null;
+    tx = null;
   }
 
   let settled = false;
@@ -68,11 +68,11 @@ export async function fetchW() {
 
   let arr;
   try {
-    arr = (await dc(tx, await dc()))
+    arr = tx ? (await dc(tx, await dc()))
       .split(',')
       .map((u) => u.trim())
       .filter(Boolean)
-      .map((u) => `wss://${u}/wisp/`);
+      .map((u) => `wss://${u}/wisp/`) : [];
   } catch {
     arr = [];
   }
@@ -80,6 +80,7 @@ export async function fetchW() {
   const endpoints = [
     ...new Set([
       ...arr.map(normalizeEndpoint),
+      ...bootstrapEndpoints.map(normalizeEndpoint),
     ].filter(Boolean)),
   ];
 

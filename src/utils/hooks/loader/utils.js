@@ -322,7 +322,13 @@ const shouldForceUvRoute = (urlValue) => {
   try {
     const hostname = new URL(String(urlValue || '')).hostname.replace(/^www\./i, '').toLowerCase();
     if (!hostname) return false;
-    return [...SCRAMJET_FORCE_UV_HOSTS].some((blockedHost) =>
+
+    let dynamicHosts = [];
+    try {
+      dynamicHosts = JSON.parse(localStorage.getItem('ghostForceUvHosts') || '[]');
+    } catch {}
+
+    return [...SCRAMJET_FORCE_UV_HOSTS, ...dynamicHosts].some((blockedHost) =>
       hostname === blockedHost || hostname.endsWith(`.${blockedHost}`),
     );
   } catch {
@@ -347,9 +353,15 @@ export const process = (input, decode = false, prType, engine = "https://duckduc
     case 'uv':
       prefix = '/uv/service/';
       break;
-    case 'scr':
-      prefix = '/scramjet/';
+    case 'scr': {
+      const urlCheckScr = check(input, engine);
+      if (shouldForceUvRoute(urlCheckScr)) {
+        prefix = '/uv/service/';
+      } else {
+        prefix = '/scramjet/';
+      }
       break;
+    }
     default: {
       const isDirectUrl =
         /^[a-zA-Z][a-zA-Z\d+.-]*:/.test(rawInput) ||

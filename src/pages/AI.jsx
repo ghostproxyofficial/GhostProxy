@@ -1015,7 +1015,7 @@ export default function AIPage() {
           <div
             className="w-full max-w-3xl rounded-[28px] border p-6 shadow-2xl"
             style={{
-              backgroundColor: isLight ? '#f8fafc' : '#0f141d',
+              backgroundColor: isLight ? '#f8fafc' : '#161618',
               borderColor: isLight ? 'rgba(15,23,42,0.14)' : 'rgba(255,255,255,0.1)',
               color: isLight ? '#0f172a' : '#ffffff',
             }}

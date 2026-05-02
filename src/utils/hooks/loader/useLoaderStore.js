@@ -306,9 +306,25 @@ const store = create(
           ),
         })),
       updateTitle: (tabId, title) =>
-        set((state) => ({
-          tabs: state.tabs.map((tab) => (tab.id === tabId ? { ...tab, title } : tab)),
-        })),
+        set((state) => {
+          const tab = state.tabs.find((t) => t.id === tabId);
+          if (tab) {
+            try {
+              const decodedUrl = decodeHistoryUrl(tab.url);
+              if (decodedUrl && decodedUrl !== 'tabs://new' && decodedUrl !== 'about:blank') {
+                const raw = localStorage.getItem(BROWSER_HISTORY_KEY);
+                const list = JSON.parse(raw || '[]');
+                if (list.length > 0 && list[0].url === decodedUrl) {
+                  list[0].title = title;
+                  localStorage.setItem(BROWSER_HISTORY_KEY, JSON.stringify(list));
+                }
+              }
+            } catch {}
+          }
+          return {
+            tabs: state.tabs.map((t) => (t.id === tabId ? { ...t, title } : t)),
+          };
+        }),
       setLoading: (tabId, isLoading) =>
         set((state) => ({
           tabs: state.tabs.map((tab) => (tab.id === tabId ? { ...tab, isLoading } : tab)),

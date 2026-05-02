@@ -66,45 +66,30 @@ const Footer = memo(() => {
       }
       return;
     }
+
     const started = performance.now();
     let ok = false;
+    let value = 0;
 
-    await new Promise((resolve) => {
-      let finished = false;
-      let ws;
-      try {
-        ws = new WebSocket(endpoint);
-      } catch {
-        resolve();
-        return;
-      }
-      const done = (status) => {
-        if (finished) return;
-        finished = true;
-        ok = status;
-        try {
-          ws.close();
-        } catch { }
-        resolve();
-      };
+    try {
+      const httpEndpoint = endpoint.replace(/^ws(s)?:\/\//i, 'http$1://');
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+      
+      const res = await fetch(httpEndpoint, { 
+        method: 'GET', 
+        mode: 'no-cors', 
+        cache: 'no-store', 
+        signal: controller.signal 
+      });
+      
+      clearTimeout(timeoutId);
+      value = Math.max(1, Math.round(performance.now() - started));
+      ok = true;
+    } catch {
+      ok = false;
+    }
 
-      const timeoutId = setTimeout(() => done(false), 5000);
-
-      ws.onopen = () => {
-        clearTimeout(timeoutId);
-        done(true);
-      };
-      ws.onerror = () => {
-        clearTimeout(timeoutId);
-        done(false);
-      };
-      ws.onclose = () => {
-        clearTimeout(timeoutId);
-        done(ok);
-      };
-    });
-
-    const value = Math.max(1, Math.round(performance.now() - started));
     if (ok) {
       setLatency(value);
       setSamples((prev) => [...prev.slice(-19), value]);
