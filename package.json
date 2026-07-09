@@ -1,7 +1,7 @@
 {
   "name": "ghost-proxy",
   "private": true,
-  "version": "1.9.5",
+  "version": "1.9.6",
   "description": "Ghost web proxy frontend with Scramjet/UV and Epoxy/LibCurl transports.",
   "type": "module",
   "scripts": {

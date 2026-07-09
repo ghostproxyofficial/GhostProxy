@@ -7,14 +7,14 @@ import styles from '../styles/apps.module.css';
 import theme from '../styles/theming.module.css';
 import clsx from 'clsx';
 import gnmathCatalog from '/src/data/games/catalog/gnmath.json';
-import petezahCatalog from '/src/data/games/catalog/petezah.json';
-import interstellerCatalog from '/src/data/games/catalog/intersteller.json';
 import g55msCatalog from '/src/data/games/catalog/55gms.json';
 import spaceCatalog from '/src/data/games/catalog/space.json';
 import seleniteCatalog from '/src/data/games/catalog/selenite.json';
 import gnportsCatalog from '/src/data/games/catalog/gnports.json';
 import mirrorsCatalog from '/src/data/games/catalog/mirrors.json';
-import nowggCatalog from '/src/data/games/catalog/nowgg.json';
+import seraphCatalog from '/src/data/games/catalog/seraph.json';
+import truffledCatalog from '/src/data/games/catalog/truffled.json';
+import ugsCatalog from '/src/data/games/catalog/ugs.json';
 
 const Pagination = lazy(() => import('@mui/material/Pagination'));
 const RED_PLAY_ICON = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><circle cx="64" cy="64" r="62" fill="%23ef4444"/><polygon points="50,38 94,64 50,90" fill="white"/></svg>';
@@ -489,20 +489,6 @@ const GAME_SOURCE_CONFIG = [
   { key: 'luminsdk', label: 'LuminSDK', type: 'mix', data: null },
   { key: 'local', label: 'DogeUB', type: 'local', data: null },
   {
-    key: 'petezah',
-    label: 'Petezah',
-    type: 'jsd',
-    data: petezahCatalog,
-    base: 'https://petezahgames.com',
-  },
-  {
-    key: 'intersteller',
-    label: 'Intersteller',
-    type: 'jsd',
-    data: interstellerCatalog,
-    base: 'https://intersteller.studyeurope.edu.eu.org',
-  },
-  {
     key: '55gms',
     label: '55gms',
     type: 'jsd',
@@ -525,11 +511,25 @@ const GAME_SOURCE_CONFIG = [
   },
   { key: 'gnports', label: 'gn-ports', type: 'jsd', data: gnportsCatalog },
   {
-    key: 'nowgg',
-    label: 'Now.GG',
-    type: 'proxy',
-    data: nowggCatalog,
-    description: 'Now.GG bypass made by Froggies Arcade.',
+    key: 'seraph',
+    label: 'Seraph',
+    type: 'jsd',
+    data: seraphCatalog,
+    base: 'https://glcdn.githack.com/x8r/cherrigames/raw/main/seraph',
+  },
+  {
+    key: 'truffled',
+    label: 'Truffled',
+    type: 'jsd',
+    data: truffledCatalog,
+    base: 'https://glcdn.githack.com/x8r/cherrigames/raw/main/truffled',
+  },
+  {
+    key: 'ugs',
+    label: 'UGS',
+    type: 'jsd',
+    data: ugsCatalog,
+    base: 'https://glcdn.githack.com/x8r/cherrigames/raw/main/ugs',
   },
   { key: 'divider', label: '──────────', type: 'divider', data: null },
   {
@@ -1433,7 +1433,7 @@ const TV_APPS = [
     appName: 'Live TV/Sports',
     desc: 'Watch live TV channels and sports streams',
     icon: YELLOW_PLAY_ICON,
-    url: 'https://thetvapp.to',
+    url: 'https://thetvapptv.com/',
   },
   {
     appName: 'Anime',

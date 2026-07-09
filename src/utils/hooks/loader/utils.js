@@ -329,7 +329,10 @@ export const process = (input, decode = false, prType, engine = "https://duckduc
 
   if (!decode) {
     const directUrl = check(input, engine);
-    if (directUrl.startsWith('https://monochrome.tf')) {
+    if (
+      directUrl.startsWith('https://monochrome.tf') ||
+      directUrl.startsWith('https://glcdn.githack.com')
+    ) {
       return directUrl;
     }
   }

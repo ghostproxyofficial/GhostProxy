@@ -507,7 +507,7 @@ const Viewer = ({ zoom }) => {
         musicplayer: 'https://monochrome.tf',
         monochrome: 'https://monochrome.tf',
         duckai: 'https://duck.ai',
-        live: 'https://thetvapp.to',
+        live: 'https://thetvapptv.com/',
         movies: 'https://www.cineby.sc',
         anime: 'https://hianime.ms',
         browselol: 'https://browser.lol/create',
@@ -544,7 +544,9 @@ const Viewer = ({ zoom }) => {
 
     if (!policy.popupBlock) {
       flags.push('allow-popups');
-      flags.push('allow-popups-to-escape-sandbox');
+      if (!policy.downloadBlock) {
+        flags.push('allow-popups-to-escape-sandbox');
+      }
     }
 
     if (!policy.downloadBlock) {
@@ -747,6 +749,7 @@ const Viewer = ({ zoom }) => {
                 ref={(el) => (frameRefs.current[id] = el)}
                 src={getFrameUrl(url)}
                 sandbox={getFrameSandbox(url)}
+                allow="autoplay; fullscreen; clipboard-read; clipboard-write; display-capture;"
                 style={iframeSizing}
                 className="absolute inset-0 w-full h-full transition-opacity duration-200"
                 onPointerDown={() => {
@@ -768,6 +771,7 @@ const Viewer = ({ zoom }) => {
                   ref={(el) => (frameRefs.current[id] = el)}
                   src={getFrameUrl(url)}
                   sandbox={getFrameSandbox(url)}
+                  allow="autoplay; fullscreen; clipboard-read; clipboard-write; display-capture;"
                   style={iframeSizing}
                   className="absolute inset-0 w-full h-full transition-opacity duration-200"
                   onPointerDown={() => {

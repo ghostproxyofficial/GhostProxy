@@ -78,5 +78,16 @@
       "Updated Anime discover source to HiAnime (https://hianime.ms) and implemented a warning popup advising against using the RYU server.",
       "Added customizable Image and GIF Background settings supporting all image types & GIF files."
     ]
+  },
+  {
+    "version": "1.9.6",
+    "track": "Stable",
+    "date": "2026-07-09",
+    "changes": [
+      "Added missing ReactBits animated backgrounds and exposed configuration options for existing backgrounds.",
+      "Fixed game loading security by removing unnecessary device permissions (camera, microphone) from game iframes.",
+      "Added 3 new game sources (Seraph, Truffled, UGS) and cleaned up game names across the catalog.",
+      "Updated TV App URL and optimized proxy bypass rules for static game content."
+    ]
   }
 ]
