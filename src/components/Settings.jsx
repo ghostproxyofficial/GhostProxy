@@ -154,6 +154,7 @@ const InfoPanel = () => {
             <li>- Creator of DogeUB (Ghost is a fork of his unblocker)</li>
             <li>- Creator of Vapor v4 (took some game sources from Vapor & inspo)</li>
             <li>- Creator of DayDreamX (heavily inspired by DayDreamX)</li>
+            <li>- Creator of Cherri (taken some game sources from Cherri)</li>
             <li>- Creator of ReactBits (backgrounds & some components taken from him)</li>
             <li>
               - Ghost Icon attribution:{' '}

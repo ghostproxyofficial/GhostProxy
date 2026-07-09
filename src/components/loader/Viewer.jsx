@@ -386,6 +386,20 @@ const Viewer = ({ zoom }) => {
         };
       }
 
+      if (!win.__ghostPopupOpenHook) {
+        win.__ghostPopupOpenHook = true;
+        const originalOpen = win.open;
+        if (originalOpen) {
+          win.open = function (...args) {
+            if (doc.defaultView.__ghostPopupBlocked) {
+              console.warn('[Ghost] Blocked window.open popup attempt');
+              return null;
+            }
+            return originalOpen.apply(this, args);
+          };
+        }
+      }
+
       if (!win.__ghostPopupClickHandler) {
         win.__ghostPopupClickHandler = (event) => {
           const target = event?.target?.closest?.('a[target], area[target]');
@@ -538,8 +552,7 @@ const Viewer = ({ zoom }) => {
       'allow-forms',
       'allow-pointer-lock',
       'allow-orientation-lock',
-      'allow-presentation',
-      'allow-top-navigation-by-user-activation',
+      'allow-presentation'
     ];
 
     if (!policy.popupBlock) {
