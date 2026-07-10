@@ -521,8 +521,8 @@ const Viewer = ({ zoom }) => {
     if (value.startsWith('ghost://')) {
       const route = value.toLowerCase().replace(/^ghost:\/\//, '').replace(/^\/+/, '').split(/[?#]/)[0];
       const aliasTargets = {
-        musicplayer: '/monochrome/index.html',
-        monochrome: '/monochrome/index.html',
+        musicplayer: 'https://monochrome.tf',
+        monochrome: 'https://monochrome.tf',
         duckai: 'https://duck.ai',
         live: 'https://thetvappv2.com',
         movies: 'https://lordflix.org/',
@@ -530,25 +530,21 @@ const Viewer = ({ zoom }) => {
         browselol: 'https://browser.lol/create',
       };
       if (aliasTargets[route]) {
-        if (route === 'musicplayer' || route === 'monochrome') return aliasTargets[route];
         return process(aliasTargets[route], false, options.prType || 'auto', options.engine || null);
       }
       return process(value, false, options.prType || 'auto', options.engine || null);
     }
     try {
       const parsed = new URL(value, location.origin);
-      if (parsed.origin === location.origin) {
-        return parsed.toString();
-      }
-      if (value === '/monochrome/index.html' || value.startsWith('/monochrome/index.html')) {
-        return value;
-      }
+        if (parsed.origin === location.origin) {
+          return parsed.toString();
+        }
     } catch { }
     return process(value, false, options.prType || 'auto', options.engine || null);
   };
 
   const getFrameSandbox = (rawUrl) => {
-    if (rawUrl && (rawUrl.includes('/monochrome/index.html') || rawUrl.includes('ghost://musicplayer'))) {
+    if (rawUrl && rawUrl.includes('ghost://musicplayer')) {
       return undefined;
     }
     const policy = getSitePolicyForTab(rawUrl);
@@ -770,7 +766,7 @@ const Viewer = ({ zoom }) => {
                 ref={(el) => (frameRefs.current[id] = el)}
                 src={getFrameUrl(url)}
                 sandbox={getFrameSandbox(url)}
-                allow="autoplay; fullscreen; clipboard-read; clipboard-write; display-capture;"
+                allow="autoplay; fullscreen; clipboard-read; clipboard-write; display-capture; encrypted-media;"
                 style={iframeSizing}
                 className="absolute inset-0 w-full h-full transition-opacity duration-200"
                 onPointerDown={() => {
@@ -792,7 +788,7 @@ const Viewer = ({ zoom }) => {
                   ref={(el) => (frameRefs.current[id] = el)}
                   src={getFrameUrl(url)}
                   sandbox={getFrameSandbox(url)}
-                  allow="autoplay; fullscreen; clipboard-read; clipboard-write; display-capture;"
+                  allow="autoplay; fullscreen; clipboard-read; clipboard-write; display-capture; encrypted-media;"
                   style={iframeSizing}
                   className="absolute inset-0 w-full h-full transition-opacity duration-200"
                   onPointerDown={() => {
