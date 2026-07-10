@@ -15,7 +15,7 @@ export const BACKGROUND_CONFIGS = {
   GradientBlinds: { id: 'GradientBlinds', label: 'Gradient Blinds', props: { paused: false, angle: 0, noise: 0.3, blindCount: 16, blindMinWidth: 60, mouseDampening: 0.15, mirrorGradient: false, spotlightRadius: 0.5 } },
   Grainient: { id: 'Grainient', label: 'Grainient', props: { timeSpeed: 0.25, warpStrength: 1, warpFrequency: 5, noiseScale: 2, grainAmount: 0.1, contrast: 1.5, color1: '#FF9FFC', color2: '#5227FF', color3: '#B497CF' } },
   GridMotion: { id: 'GridMotion', label: 'Grid Motion', props: { gradientColor: 'black' } },
-  Hyperspeed: { id: 'Hyperspeed', label: 'Hyperspeed', props: {} },
+  Hyperspeed: { id: 'Hyperspeed', label: 'Hyperspeed', props: { distortion: 'turbulentDistortion', length: 400, roadWidth: 10, islandWidth: 2, lanesPerRoad: 4, fov: 90, fovSpeedUp: 150, speedUp: 2, carLightsFade: 0.4, totalSideLightSticks: 20, lightPairsPerRoadWay: 40 } },
   Iridescence: { id: 'Iridescence', label: 'Iridescence', props: { speed: 1, amplitude: 0.1, mouseReact: true } },
   LetterGlitch: { id: 'LetterGlitch', label: 'Letter Glitch', props: { glitchSpeed: 50, centerVignette: false, outerVignette: true, smooth: true } },
   Lightning: { id: 'Lightning', label: 'Lightning', props: { hue: 230, xOffset: 0, speed: 1, intensity: 1, size: 1 } },

@@ -190,6 +190,7 @@ const resolveGhostRoute = (input) => {
       'ai',
       'remote',
       'musicplayer',
+      'monochrome',
       'duckai',
       'live',
       'movies',
@@ -253,6 +254,7 @@ export const toGhostDisplayUrl = (url) => {
       'ai',
       'remote',
       'musicplayer',
+      'monochrome',
       'duckai',
       'live',
       'movies',
@@ -328,6 +330,8 @@ export const process = (input, decode = false, prType, engine = "https://duckduc
   if (!decode) {
     const directUrl = check(input, engine);
     if (
+      directUrl.startsWith('https://monochrome.tf') ||
+      directUrl.startsWith('/monochrome/') ||
       directUrl.startsWith('https://glcdn.githack.com')
     ) {
       return directUrl;

@@ -1468,7 +1468,7 @@ const TV_APPS = [
 ];
 
 const GHOST_MUSIC_APPS = [
-  { appName: 'Ghost Music', desc: 'Ghost Music player', icon: WHITE_MUSIC_ICON, url: 'https://monochrome.tf', playerKey: 'musicplayer', isMusicProvider: true },
+  { appName: 'Ghost Music', desc: 'Ghost Music player', icon: WHITE_MUSIC_ICON, url: 'ghost://musicplayer', playerKey: 'musicplayer', isMusicProvider: true },
 ];
 
 const THIRD_PARTY_MUSIC_APPS = [

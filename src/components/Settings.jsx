@@ -134,6 +134,7 @@ const InfoPanel = () => {
             <li>- remarkjs/react-markdown</li>
             <li>- remarkjs/remark-gfm</li>
             <li>- movement.css</li>
+            <li>- amishbloke/monochrome</li>
             <li>- React ecosystem (React, React Router, Vite, HeadlessUI)</li>
           </ul>
         </div>
@@ -156,6 +157,7 @@ const InfoPanel = () => {
             <li>- Creator of DayDreamX (heavily inspired by DayDreamX)</li>
             <li>- Creator of Cherri (taken some game sources from Cherri)</li>
             <li>- Creator of ReactBits (backgrounds & some components taken from him)</li>
+            <li>- Creator of Monochrome (Monochrome is the built-in Music Player)</li>
             <li>
               - Ghost Icon attribution:{' '}
               <span
@@ -192,6 +194,7 @@ const InfoPanel = () => {
             <li>- remarkjs/remark-gfm</li>
             <li>- remarkjs/remark-math & rehypejs/rehype-katex</li>
             <li>- Headless UI, MUI, JSZip</li>
+            <li>- amishbloke/monochrome</li>
             <li>- React, Vite, Tailwind ecosystem packages</li>
           </ul>
         </div>

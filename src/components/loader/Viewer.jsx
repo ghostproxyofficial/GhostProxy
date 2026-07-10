@@ -356,6 +356,21 @@ const Viewer = ({ zoom }) => {
         };
         win.__ghostOpenWrapped = true;
       }
+      
+      if (!win.__ghostClickBlocked) {
+        win.addEventListener('click', (e) => {
+          if (win.__ghostPopupBlocked) {
+            let target = e.target;
+            while (target && target.tagName !== 'A') {
+              target = target.parentNode;
+            }
+            if (target && target.tagName === 'A' && target.target === '_blank') {
+              e.preventDefault();
+            }
+          }
+        }, true);
+        win.__ghostClickBlocked = true;
+      }
 
       if (!win.__ghostOriginalAnchorClick && win.HTMLAnchorElement?.prototype?.click) {
         win.__ghostOriginalAnchorClick = win.HTMLAnchorElement.prototype.click;
@@ -386,19 +401,7 @@ const Viewer = ({ zoom }) => {
         };
       }
 
-      if (!win.__ghostPopupOpenHook) {
-        win.__ghostPopupOpenHook = true;
-        const originalOpen = win.open;
-        if (originalOpen) {
-          win.open = function (...args) {
-            if (doc.defaultView.__ghostPopupBlocked) {
-              console.warn('[Ghost] Blocked window.open popup attempt');
-              return null;
-            }
-            return originalOpen.apply(this, args);
-          };
-        }
-      }
+
 
       if (!win.__ghostPopupClickHandler) {
         win.__ghostPopupClickHandler = (event) => {
@@ -518,11 +521,11 @@ const Viewer = ({ zoom }) => {
     if (value.startsWith('ghost://')) {
       const route = value.toLowerCase().replace(/^ghost:\/\//, '').replace(/^\/+/, '').split(/[?#]/)[0];
       const aliasTargets = {
-        musicplayer: 'https://monochrome.tf',
-        monochrome: 'https://monochrome.tf',
+        musicplayer: '/monochrome/index.html',
+        monochrome: '/monochrome/index.html',
         duckai: 'https://duck.ai',
-        live: 'https://thetvapptv.com/',
-        movies: 'https://www.cineby.sc',
+        live: 'https://thetvappv2.com',
+        movies: 'https://lordflix.org/',
         anime: 'https://hianime.ms',
         browselol: 'https://browser.lol/create',
       };
@@ -537,7 +540,7 @@ const Viewer = ({ zoom }) => {
       if (parsed.origin === location.origin) {
         return parsed.toString();
       }
-      if (value === 'https://monochrome.tf' || value.startsWith('https://monochrome.tf/')) {
+      if (value === '/monochrome/index.html' || value.startsWith('/monochrome/index.html')) {
         return value;
       }
     } catch { }
@@ -545,6 +548,9 @@ const Viewer = ({ zoom }) => {
   };
 
   const getFrameSandbox = (rawUrl) => {
+    if (rawUrl && (rawUrl.includes('/monochrome/index.html') || rawUrl.includes('ghost://musicplayer'))) {
+      return undefined;
+    }
     const policy = getSitePolicyForTab(rawUrl);
     const flags = [
       'allow-scripts',
@@ -561,6 +567,8 @@ const Viewer = ({ zoom }) => {
         flags.push('allow-popups-to-escape-sandbox');
       }
     }
+    
+
 
     if (!policy.downloadBlock) {
       flags.push('allow-downloads');

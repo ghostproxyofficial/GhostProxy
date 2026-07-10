@@ -69,7 +69,7 @@
     ]
   },
   {
-    "version": "1.9.5",
+    "version": "1.9.6",
     "track": "Stable",
     "date": "2026-06-01",
     "changes": [
@@ -88,6 +88,15 @@
       "Fixed game loading security by removing unnecessary device permissions (camera, microphone) from game iframes.",
       "Added 3 new game sources (Seraph, Truffled, UGS) and cleaned up game names across the catalog.",
       "Updated TV App URL and optimized proxy bypass rules for static game content."
+    ]
+  },
+  {
+    "version": "1.9.7",
+    "track": "Stable",
+    "date": "2026-07-09",
+    "changes": [
+      "Integrated Monochrome as the default built-in music player.",
+      "Fixed many bugs with video entertainment."
     ]
   }
 ]

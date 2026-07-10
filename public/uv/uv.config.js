@@ -132,6 +132,7 @@ self.__uv$config = {
                     };
                     window.addEventListener('keydown', stealShortcut, { capture: true });
                     document.addEventListener('keydown', stealShortcut, { capture: true });
+
                 })();
             </script>
             `
