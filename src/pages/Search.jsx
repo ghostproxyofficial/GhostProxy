@@ -10,6 +10,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { eventToShortcut, getEffectiveShortcuts } from '/src/utils/shortcuts';
+import clsx from 'clsx';
 import {
   Battery,
   Blocks,
@@ -202,6 +203,7 @@ export default function Loader({ url, ui = true, zoom }) {
   const addTab = loaderStore((state) => state.addTab);
   const setActive = loaderStore((state) => state.setActive);
   const setDisplayUrl = loaderStore((state) => state.setDisplayUrl);
+  const sidebarCollapsed = loaderStore((state) => state.sidebarCollapsed);
   const lastFindText = useRef('');
   const lastOpenStateKeyRef = useRef('');
   const [historyPopupOpen, setHistoryPopupOpen] = useState(false);
@@ -1558,7 +1560,10 @@ export default function Loader({ url, ui = true, zoom }) {
     >
       {ui && (
         <aside
-          className="w-full h-auto md:w-[52px] md:h-full flex flex-row md:flex-col items-center px-1.5 md:py-2.5 z-[140] border-t md:border-t-0 md:border-r border-white/10 shrink-0 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto hide-scrollbar"
+          className={clsx(
+            "w-full h-auto md:h-full flex flex-row md:flex-col items-center px-1.5 md:py-2.5 z-[140] border-t md:border-t-0 md:border-r border-white/10 shrink-0 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto hide-scrollbar transition-all duration-300",
+            sidebarCollapsed ? "md:w-0 md:px-0 md:opacity-0 md:pointer-events-none md:border-r-0" : "md:w-[52px] md:opacity-100"
+          )}
           style={{ backgroundColor: options.tabBarColor || '#070e15' }}
           onScroll={(e) => {
             setGhostMenuOpen(false);

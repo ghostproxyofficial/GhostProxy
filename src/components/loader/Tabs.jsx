@@ -1,5 +1,5 @@
 import loaderStore from '/src/utils/hooks/loader/useLoaderStore';
-import { Globe, X, Plus, Loader, UsersRound, UserPlus, Check, Pencil, Trash2, Upload, Download } from 'lucide-react';
+import { Globe, X, Plus, Loader, UsersRound, UserPlus, Check, Pencil, Trash2, Upload, Download, Volume2, Home, LayoutGrid, Settings, Gamepad2, FileText, Search, Code, Bot, MonitorSmartphone, Music, Tv, Clapperboard } from 'lucide-react';
 import { showAlert, showConfirm } from '/src/utils/uiDialog';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useOptions } from '/src/utils/optionsContext'
@@ -129,6 +129,21 @@ const getGhostTabLabel = (url) => {
   } catch {
     return null;
   }
+};
+
+const GHOST_TAB_ICONS = {
+  'Ghost Home': Home,
+  'Ghost Apps': LayoutGrid,
+  'Ghost Settings': Settings,
+  'Ghost Entertainment': Gamepad2,
+  'Ghost Docs': FileText,
+  'Ghost Search': Search,
+  'Ghost Code': Code,
+  'Ghost AI': Bot,
+  'Remote Access': MonitorSmartphone,
+  'Ghost Music': Music,
+  'Ghost Movies/TV': Tv,
+  'Ghost Anime': Clapperboard,
 };
 
 const TabBar = () => {
@@ -689,10 +704,24 @@ const TabBar = () => {
         )}
       </div>
 
-      {tabs.map(({ title, id, active, isLoading, url, pinned }, index) => {
+      {tabs.map(({ title, id, active, isLoading, url, pinned, mediaState }, index) => {
+        const isPlayingAudio = mediaState?.playing;
         const showGlobe = url === 'tabs://new' || !isLoading;
         const ghostLabel = getGhostTabLabel(url);
         const displayTitle = ghostLabel || (url === 'tabs://new' ? 'New Tab' : title);
+        const GhostIcon = ghostLabel ? GHOST_TAB_ICONS[ghostLabel] : (url === 'tabs://new' ? Home : null);
+        
+        let decodedUrl = '';
+        if (url && url !== 'tabs://new' && !url.startsWith('ghost://') && !ghostLabel) {
+          try { decodedUrl = process(url, true, options.prType || 'auto'); } catch {}
+        }
+        let faviconUrl = '';
+        if (decodedUrl) {
+          try {
+            const hostname = new URL(decodedUrl).hostname;
+            faviconUrl = `https://www.google.com/s2/favicons?domain=${hostname}&sz=32`;
+          } catch {}
+        }
 
         return (
           <div
@@ -726,8 +755,26 @@ const TabBar = () => {
               opacity: draggedIdx === index ? 0.3 : 1
             }}
           >
-            {showGlobe ? (
-              <Globe size={15} className="flex-shrink-0" />
+            {isPlayingAudio ? (
+              <Volume2 size={15} className="flex-shrink-0 animate-pulse text-white/90" />
+            ) : showGlobe ? (
+              GhostIcon ? (
+                <GhostIcon size={15} className="flex-shrink-0" />
+              ) : faviconUrl ? (
+                <img
+                  src={faviconUrl}
+                  width={15}
+                  height={15}
+                  className="flex-shrink-0 rounded-sm"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'></circle><line x1='2' y1='12' x2='22' y2='12'></line><path d='M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'></path></svg>";
+                  }}
+                  alt=""
+                />
+              ) : (
+                <Globe size={15} className="flex-shrink-0" />
+              )
             ) : (
               <Loader size={15} className="flex-shrink-0 animate-spin" />
             )}

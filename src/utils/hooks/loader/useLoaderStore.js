@@ -171,12 +171,14 @@ const store = create(
       iframeUrls: {},
       activeFrameRef: null,
       showUI: true,
+      sidebarCollapsed: false,
       closedTabs: [],
       zoomLevels: {},
       //only used if isstaticbuild == true
       wispStatus: null,
       setWispStatus: (bool) => set({ wispStatus: bool }),
       toggleUI: () => set((state) => ({ showUI: !state.showUI })),
+      toggleSidebar: () => set((state) => ({ sidebarCollapsed: !state.sidebarCollapsed })),
       setZoom: (tabId, zoom, frameRef) => {
         const ifr = frameRef?.current;
         if (ifr) {
@@ -419,6 +421,12 @@ const store = create(
           },
         })),
       updateActiveFrameRef: (ref) => set({ activeFrameRef: ref }),
+      updateMediaState: (tabId, mediaState) =>
+        set((state) => ({
+          tabs: state.tabs.map((tab) =>
+            tab.id === tabId ? { ...tab, mediaState } : tab
+          ),
+        })),
       clearStore: () =>
         set(() => ({
           tabs: [

@@ -97,7 +97,57 @@ self.__uv$config = {
                     window.addEventListener('hashchange', postState);
                     window.addEventListener('pageshow', postState);
                     postState();
+
+                    let __ghostAudioRunning = false;
+                    let __ghostLastAudio = false;
+                    const checkAudio = () => {
+                        let hasAudio = false;
+                        const media = Array.from(document.querySelectorAll('video, audio'));
+                        if (media.some(el => !el.paused && el.volume > 0 && !el.muted)) hasAudio = true;
+                        if (__ghostAudioRunning) hasAudio = true;
+
+                        if (__ghostLastAudio !== hasAudio) {
+                            __ghostLastAudio = hasAudio;
+                            try {
+                                window.parent.postMessage({
+                                    type: 'ghost-audio-state-up',
+                                    playing: hasAudio,
+                                    title: document.title || ''
+                                }, '*');
+                            } catch {}
+                        }
+                    };
+
+                    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+                    if (AudioCtx && AudioCtx.prototype) {
+                        const proto = AudioCtx.prototype;
+                        const methods = ['createBufferSource', 'createGain', 'createOscillator', 'resume', 'suspend'];
+                        methods.forEach(method => {
+                            const orig = proto[method];
+                            if (typeof orig === 'function') {
+                                proto[method] = function(...args) {
+                                    __ghostAudioRunning = true;
+                                    this.addEventListener('statechange', () => {
+                                        __ghostAudioRunning = (this.state === 'running');
+                                        checkAudio();
+                                    });
+                                    setTimeout(checkAudio, 50);
+                                    return orig.apply(this, args);
+                                };
+                            }
+                        });
+                    }
+
+                    setInterval(checkAudio, 1000);
+                    window.addEventListener('play', checkAudio, true);
+                    window.addEventListener('pause', checkAudio, true);
+
                     window.addEventListener('message', (e) => {
+                        if (e.data && e.data.type === 'ghost-audio-state-up') {
+                            if (window.parent && window.parent !== window) {
+                                window.parent.postMessage(e.data, '*');
+                            }
+                        }
                         if (e.data && e.data.type === 'ghost-update-shortcuts') shortcuts = e.data.shortcuts;
                     });
                     try { window.top.postMessage({ type: 'ghost-request-shortcuts' }, '*'); } catch {}

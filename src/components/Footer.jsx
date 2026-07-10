@@ -4,6 +4,7 @@ import clsx from 'clsx';
 import { RotateCw } from 'lucide-react';
 import { useOptions } from '/src/utils/optionsContext';
 import changelogEntries from '/src/data/changelog.json';
+import loaderStore from '/src/utils/hooks/loader/useLoaderStore';
 
 const Footer = memo(() => {
 const defaultWispEndpoint = 'wss://ashburn.edisonlearningcenter.me/connection';
@@ -11,6 +12,7 @@ const defaultWispEndpoint = 'wss://ashburn.edisonlearningcenter.me/connection';
   const navigate = useNavigate();
   const location = useLocation();
   const inGhostBrowserMode = new URLSearchParams(location.search).get('ghost') === '1';
+  const sidebarCollapsed = loaderStore((state) => state.sidebarCollapsed);
   const [latency, setLatency] = useState(0);
   const [samples, setSamples] = useState([]);
   const [probeStats, setProbeStats] = useState({ attempts: 0, fails: 0, slow: 0 });
@@ -210,13 +212,15 @@ const defaultWispEndpoint = 'wss://ashburn.edisonlearningcenter.me/connection';
     ? 'rounded-md border border-white/10 bg-[#0d1016]/92'
     : 'rounded-md border border-transparent bg-transparent';
 
+  const isSearchPage = location.pathname === '/' || location.pathname.startsWith('/search');
+  const needsSidebarOffset = isSearchPage && !sidebarCollapsed;
+
   return (
     <div className={clsx("fixed bottom-0 left-0 right-0 z-[120] items-end justify-between px-2 pb-2 pointer-events-none", inGhostBrowserMode ? "hidden md:flex" : "flex")}>
       <div className={clsx(
-        'pointer-events-auto px-3 py-2 text-sm flex items-center gap-3 ml-14',
-        footerCardClass,
-        inGhostBrowserMode ? 'ml-14' : '',
-      )}>
+        'pointer-events-auto px-3 py-2 text-sm flex items-center gap-3 transition-all duration-300',
+        footerCardClass
+      )} style={{ marginLeft: needsSidebarOffset ? '56px' : '0.09rem' }}>
         <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" onClick={openChangelog}>{latestVersionLabel}</button>
         <span className="opacity-55">\</span>
         <button className="hover:opacity-80 hover:underline underline-offset-4 transition-opacity" type="button" onClick={() => openExternalLink('https://github.com/ghostproxyofficial/GhostProxy')}>GitHub</button>

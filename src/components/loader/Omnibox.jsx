@@ -11,6 +11,12 @@ import {
   Search,
   Lock,
   Sparkles,
+  SquareSplitHorizontal,
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  Music2,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
@@ -49,11 +55,43 @@ const Omnibox = () => {
   const [Icon, setIcon] = useState(Info);
   const activeTab = loaderStore((state) => state.tabs.find((tab) => tab.active));
   const activeTabId = activeTab?.id;
-  const { updateUrl, refreshTab, goBack, goForward, toggleMenu, showUI, setIframeUrl } = loaderStore();
+  const { updateUrl, refreshTab, goBack, goForward, toggleMenu, showUI, setIframeUrl, toggleSidebar } = loaderStore();
   const inputRef = useRef(null);
   const suggestPanelRef = useRef(null);
   const quickPanelRef = useRef(null);
+  const mediaPanelRef = useRef(null);
   const { options, updateOption } = useOptions();
+  
+  const [mediaExpanded, setMediaExpanded] = useState(false);
+  const activeTabMedia = activeTab?.mediaState || { playing: false, title: '', artist: '', artwork: '' };
+  const mediaState = { ...activeTabMedia, expanded: mediaExpanded };
+
+  useEffect(() => {
+    const handleMediaMessage = (e) => {
+      if (e.data && e.data.type === 'GHOST_MEDIA_STATE') {
+        if (e.data.tabId) {
+          loaderStore.getState().updateMediaState(e.data.tabId, {
+            playing: e.data.playing,
+            title: e.data.title || 'Unknown',
+            artist: e.data.artist || '',
+            artwork: e.data.artwork || ''
+          });
+        }
+      }
+    };
+    window.addEventListener('message', handleMediaMessage);
+    return () => window.removeEventListener('message', handleMediaMessage);
+  }, []);
+
+  useEffect(() => {
+    const closeMedia = (event) => {
+      if (!mediaExpanded) return;
+      if (mediaPanelRef.current?.contains(event.target)) return;
+      setMediaExpanded(false);
+    };
+    window.addEventListener('pointerdown', closeMedia);
+    return () => window.removeEventListener('pointerdown', closeMedia);
+  }, [mediaExpanded]);
   const { state } = useLocation();
   const navigate = useNavigate();
   const activeFrameUrl = loaderStore((state) => (activeTabId ? state.iframeUrls[activeTabId] : ''));
@@ -482,6 +520,57 @@ const Omnibox = () => {
           </div>
         )}
       </div>
+
+      {/* Media Controls Pill */}
+      <div className="relative flex-shrink-0" ref={mediaPanelRef}>
+        <div
+          className={clsx(
+            "h-7 rounded-full flex items-center px-2 gap-1.5 cursor-pointer text-xs border border-white/10 transition-colors select-none ml-1 mr-1",
+            mediaState.playing ? "bg-[#ffffff15] hover:bg-[#ffffff20] text-white" : "bg-[#ffffff05] hover:bg-[#ffffff10] text-white/50",
+            options.type === 'light' && "border-black/10 bg-black/5 hover:bg-black/10 text-black/70"
+          )}
+          onClick={() => setMediaExpanded(prev => !prev)}
+        >
+          <Music2 size={13} className={mediaState.playing ? "animate-pulse" : ""} />
+          <span className="max-w-[100px] truncate">
+            {mediaState.playing ? mediaState.title : "Nothing playing"}
+          </span>
+          <div className="flex items-center gap-0.5 ml-1" onClick={e => e.stopPropagation()}>
+            <button className="p-0.5 rounded-sm hover:bg-white/20 opacity-70 hover:opacity-100"><SkipBack size={12} /></button>
+            <button className="p-0.5 rounded-sm hover:bg-white/20 opacity-70 hover:opacity-100" onClick={() => {
+              const msg = { type: 'GHOST_MEDIA_COMMAND', command: mediaState.playing ? 'pause' : 'play' };
+              document.querySelectorAll('iframe').forEach(ifr => ifr.contentWindow?.postMessage(msg, '*'));
+              loaderStore.getState().updateMediaState(activeTabId, { ...activeTabMedia, playing: !activeTabMedia.playing });
+            }}>
+              {mediaState.playing ? <Pause size={12} /> : <Play size={12} />}
+            </button>
+            <button className="p-0.5 rounded-sm hover:bg-white/20 opacity-70 hover:opacity-100"><SkipForward size={12} /></button>
+          </div>
+        </div>
+
+        {/* Media Expanded Panel */}
+        {mediaState.expanded && (
+          <div
+            className="absolute right-0 top-9 w-64 rounded-xl border border-white/12 p-3 shadow-2xl z-[180] backdrop-blur-md"
+            style={{ backgroundColor: options.menuColor || '#171d29', color: options.siteTextColor || '#fff' }}
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-14 h-14 bg-black/20 rounded-md overflow-hidden flex items-center justify-center border border-white/5 shrink-0">
+                {mediaState.artwork ? (
+                  <img src={mediaState.artwork} alt="Artwork" className="w-full h-full object-cover" />
+                ) : (
+                  <Music2 size={24} className="opacity-30" />
+                )}
+              </div>
+              <div className="flex flex-col min-w-0">
+                <span className="font-semibold text-sm truncate">{mediaState.title || "Unknown Title"}</span>
+                <span className="text-xs opacity-70 truncate">{mediaState.artist || "Unknown Artist"}</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       <Action
         Icon={SquareArrowOutUpRight}
         size="15"
@@ -491,6 +580,7 @@ const Omnibox = () => {
         }}
         disabled={popupBlockedForInternalPage}
       />
+      <Action Icon={SquareSplitHorizontal} size="15" action={() => toggleSidebar()} />
       <div className="relative" ref={quickPanelRef}>
         <Action Icon={Settings2} size="17" action={() => setQuickOpen((prev) => !prev)} />
         {quickRender && (

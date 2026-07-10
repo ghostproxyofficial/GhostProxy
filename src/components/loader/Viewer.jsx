@@ -65,6 +65,23 @@ const isLikelyDownloadHref = (value) => {
   return DOWNLOAD_HINT_RE.test(href);
 };
 
+const Viewer = ({ zoom }) => {
+  const tabs = loaderStore((state) => state.tabs);
+  const updateUrl = loaderStore((state) => state.updateUrl);
+  const updateTitle = loaderStore((state) => state.updateTitle);
+  const setLoading = loaderStore((state) => state.setLoading);
+  const setFrameRefs = loaderStore((state) => state.setFrameRefs);
+  // wisp connection check for static builds
+  const wispStatus = loaderStore((state) => state.wispStatus);
+  const { setIframeUrl, showMenu, toggleMenu } = loaderStore();
+  const frameRefs = useRef({});
+  const prevURL = useRef({});
+  const prevTitle = useRef({});
+  const errorRetries = useRef({});   // tabid -> { count, timer }
+  const { options } = useOptions();
+  const updateActiveFrameRef = loaderStore((state) => state.updateActiveFrameRef);
+  const activeFrameRef = loaderStore((state) => state.activeFrameRef);
+  const [policyTick, setPolicyTick] = useState(0);
   const syncFrameState = (tab, iframe, force = false) => {
     if (!tab || !iframe?.contentWindow) return;
     try {
@@ -162,33 +179,134 @@ const isLikelyDownloadHref = (value) => {
         cw.addEventListener('message', (e) => {
           if (e.data && typeof e.data.type === 'string' && e.data.type.startsWith('ghost-')) {
             try {
-              window.top.postMessage(e.data, '*');
+              if (e.data.type === 'ghost-audio-state-up') {
+                window.top.postMessage({
+                  type: 'GHOST_MEDIA_STATE',
+                  tabId: tab.id,
+                  playing: e.data.playing,
+                  title: e.data.title || 'Unknown',
+                  artist: '',
+                  artwork: ''
+                }, '*');
+              } else if (e.data.type === 'ghost-location-change-up') {
+                if (e.data.url && e.data.url !== 'about:blank' && e.data.url !== tab.url) {
+                  setIframeUrl(tab.id, e.data.url);
+                }
+                if (e.data.title && e.data.title !== tab.title) {
+                  updateTitle(tab.id, e.data.title);
+                }
+              } else if (e.data.type === 'ghost-title-change-up') {
+                if (e.data.title && e.data.title !== tab.title) {
+                  updateTitle(tab.id, e.data.title);
+                }
+              } else if (e.data.type === 'ghost-shortcut-up') {
+                window.top.postMessage({
+                  ...e.data,
+                  type: 'ghost-shortcut'
+                }, '*');
+              } else {
+                window.top.postMessage(e.data, '*');
+              }
+            } catch {}
+          }
+          if (e.data && e.data.type === 'GHOST_MEDIA_COMMAND') {
+            try {
+              if (cw.document.querySelector('video, audio')) {
+                const mediaElements = Array.from(cw.document.querySelectorAll('video, audio'));
+                if (e.data.command === 'play') mediaElements.forEach(m => m.play().catch(()=>{}));
+                if (e.data.command === 'pause') mediaElements.forEach(m => m.pause());
+              }
             } catch {}
           }
         });
+      }
+
+      if (!cw.__ghostAudioHooked) {
+        cw.__ghostAudioHooked = true;
+        
+        // Hook prototype to catch already-instantiated AudioContexts
+        cw.__ghostAudioContexts = [];
+        const AudioCtx = cw.AudioContext || cw.webkitAudioContext;
+        if (AudioCtx && AudioCtx.prototype) {
+          const proto = AudioCtx.prototype;
+          const methods = ['createBufferSource', 'createGain', 'createOscillator', 'resume', 'suspend'];
+          methods.forEach(method => {
+            const orig = proto[method];
+            if (typeof orig === 'function') {
+              proto[method] = function(...args) {
+                if (!cw.__ghostAudioContexts.includes(this)) {
+                  cw.__ghostAudioContexts.push(this);
+                  this.addEventListener('statechange', () => {
+                    if (this.state === 'closed') {
+                      cw.__ghostAudioContexts = cw.__ghostAudioContexts.filter(c => c !== this);
+                    }
+                  });
+                }
+                return orig.apply(this, args);
+              };
+            }
+          });
+        }
+
+        // Track dynamically created audio/video elements not appended to DOM
+        cw.__ghostDynamicMedia = [];
+        const originalCreateElement = cw.document.createElement;
+        cw.document.createElement = function(tagName, ...args) {
+          const el = originalCreateElement.call(cw.document, tagName, ...args);
+          if (typeof tagName === 'string' && (tagName.toLowerCase() === 'audio' || tagName.toLowerCase() === 'video')) {
+            cw.__ghostDynamicMedia.push(el);
+          }
+          return el;
+        };
+        const OriginalAudio = cw.Audio;
+        if (OriginalAudio) {
+          cw.Audio = new Proxy(OriginalAudio, {
+            construct(target, args) {
+              const audio = new target(...args);
+              cw.__ghostDynamicMedia.push(audio);
+              return audio;
+            }
+          });
+        }
+      }
+
+      if (!cw.__ghostMediaStateHooked) {
+        cw.__ghostMediaStateHooked = true;
+        const sendMediaState = () => {
+          try {
+            const domMedia = Array.from(cw.document.querySelectorAll('video, audio')).filter(el => !el.paused && el.volume > 0 && !el.muted);
+            const dynamicMedia = (cw.__ghostDynamicMedia || []).filter(el => !el.paused && el.volume > 0 && !el.muted);
+            const playingMedia = [...domMedia, ...dynamicMedia].find(Boolean);
+            
+            const ms = cw.navigator.mediaSession;
+            const hasRunningAudioContext = (cw.__ghostAudioContexts || []).some(ctx => ctx.state === 'running');
+            const playing = !!playingMedia || (ms && ms.playbackState === 'playing') || hasRunningAudioContext;
+            
+            let artwork = '';
+            if (ms?.metadata?.artwork && ms.metadata.artwork.length > 0) {
+              artwork = ms.metadata.artwork[ms.metadata.artwork.length - 1].src;
+            }
+            
+            window.top.postMessage({
+              type: 'GHOST_MEDIA_STATE',
+              tabId: tab.id,
+              playing,
+              title: ms?.metadata?.title || (playing ? cw.document.title : ''),
+              artist: ms?.metadata?.artist || '',
+              artwork
+            }, '*');
+          } catch {}
+        };
+        
+        cw.setInterval(sendMediaState, 1000);
+        cw.addEventListener('play', sendMediaState, true);
+        cw.addEventListener('pause', sendMediaState, true);
       }
 
       syncFrameState(tab, iframe, true);
     } catch { }
   };
 
-const Viewer = ({ zoom }) => {
-  const tabs = loaderStore((state) => state.tabs);
-  const updateUrl = loaderStore((state) => state.updateUrl);
-  const updateTitle = loaderStore((state) => state.updateTitle);
-  const setLoading = loaderStore((state) => state.setLoading);
-  const setFrameRefs = loaderStore((state) => state.setFrameRefs);
-  // wisp connection check for static builds
-  const wispStatus = loaderStore((state) => state.wispStatus);
-  const { setIframeUrl, showMenu, toggleMenu } = loaderStore();
-  const frameRefs = useRef({});
-  const prevURL = useRef({});
-  const prevTitle = useRef({});
-  const errorRetries = useRef({});   // tabid -> { count, timer }
-  const { options } = useOptions();
-  const updateActiveFrameRef = loaderStore((state) => state.updateActiveFrameRef);
-  const activeFrameRef = loaderStore((state) => state.activeFrameRef);
-  const [policyTick, setPolicyTick] = useState(0);
 
   const decodeForSite = (rawUrl) => {
     const value = String(rawUrl || '').trim();

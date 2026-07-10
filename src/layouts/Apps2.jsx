@@ -562,7 +562,6 @@ const buildLoadingDoc = (name, loadedBytes = 0, totalBytes = 0) => {
   const remainingLabel = totalBytes > 0 ? formatMB(Math.max(totalBytes - loadedBytes, 0)) : '...';
   return `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Loading ${name}</title><style>html,body{height:100%;margin:0;background:#000;color:#fff;font-family:Inter,system-ui,sans-serif}.wrap{height:100%;display:flex;align-items:center;justify-content:center}.card{text-align:center}.logo{width:86px;height:86px;object-fit:contain;filter:invert(1) brightness(2);opacity:.95}.title{margin-top:14px;font-size:1.05rem;font-weight:600}.sub{margin-top:8px;font-size:.85rem;opacity:.78}</style></head><body><div class="wrap"><div class="card"><img class="logo" src="/ghost.png" alt="Ghost"/><div class="title">Loading...</div><div class="sub">${formatMB(loadedBytes)}/${remainingLabel} left</div><div class="sub" style="opacity:.55">Total: ${totalLabel}</div></div></div></body></html>`;
 };
-
 const toAbsolute = (raw, base = ALASKA_BASE) => {
   if (!raw) return '';
   if (/^https?:\/\//i.test(raw)) return raw;
@@ -570,11 +569,17 @@ const toAbsolute = (raw, base = ALASKA_BASE) => {
   return `${base}/${raw}`;
 };
 
+const normalizeSourceGamesCache = new WeakMap();
+
 const normalizeSourceGames = (source) => {
   const data = source?.data;
   if (!Array.isArray(data)) return [];
 
-  return data.map((item) => {
+  if (normalizeSourceGamesCache.has(data)) {
+    return normalizeSourceGamesCache.get(data);
+  }
+
+  const normalized = data.map((item) => {
     const sourceBase = source?.base || ALASKA_BASE;
     const isSeleniteSource = source.key === 'selenite';
     const name = item.name || item.label || item.appName || 'Untitled Game';
@@ -597,6 +602,9 @@ const normalizeSourceGames = (source) => {
       sourceKey: source.key,
     };
   }).filter((game) => !isBlockedGameEntry(game));
+
+  normalizeSourceGamesCache.set(data, normalized);
+  return normalized;
 };
 
 const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false }) => {
@@ -1295,7 +1303,7 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 px-6 pb-6">
+            <div key={showAllGames ? 'all' : selectedSource.key} className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 px-6 pb-6">
               {filtered.paged.map((game) => (
                 <div
                   key={`${game.sourceKey || selectedSource.key}-${game.appName}`}
