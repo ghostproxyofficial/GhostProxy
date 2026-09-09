@@ -1441,7 +1441,7 @@ const TV_APPS = [
     appName: 'Live TV/Sports',
     desc: 'Watch live TV channels and sports streams',
     icon: YELLOW_PLAY_ICON,
-    url: 'https://thetvappv2.com',
+    url: 'https://tvapp1.com',
   },
   {
     appName: 'Anime',
@@ -1453,7 +1453,7 @@ const TV_APPS = [
     appName: 'General Movies/TV',
     desc: 'Browse movies and TV shows',
     icon: RED_PLAY_ICON,
-    url: 'https://lordflix.org/',
+    url: 'https://cinejoy.to',
   },
   {
     appName: 'YouTube',

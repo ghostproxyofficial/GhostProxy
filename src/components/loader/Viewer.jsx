@@ -642,8 +642,8 @@ const Viewer = ({ zoom }) => {
         musicplayer: 'https://monochrome.tf',
         monochrome: 'https://monochrome.tf',
         duckai: 'https://duck.ai',
-        live: 'https://thetvappv2.com',
-        movies: 'https://lordflix.org/',
+        live: 'https://tvapp1.com',
+        movies: 'https://cinejoy.to',
         anime: 'https://hianime.ms',
         browselol: 'https://browser.lol/create',
       };
