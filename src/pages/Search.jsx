@@ -30,6 +30,7 @@ import {
   History,
   Monitor,
   Music,
+  NotebookPen,
   Settings,
   ShieldMinus,
   Sparkles,
@@ -45,6 +46,7 @@ import { showConfirm } from '/src/utils/uiDialog';
 import changelogEntries from '/src/data/changelog.json';
 import Discord from '/src/components/Discord';
 import { getLucideIcon } from '/src/components/settings/components/SidebarEditor';
+import { getEffectiveUserAgent } from '/src/data/userAgents';
 
 const SAVED_TABS_KEY = 'ghostSavedTabs';
 const PROFILE_ACTIVE_KEY = 'ghostBrowserActiveProfileId';
@@ -142,6 +144,8 @@ const SidebarButton = ({ label, onClick, children, className = '', iconSize = 16
   const { options } = useOptions();
   const [hovered, setHovered] = useState(false);
   const btnRef = useRef(null);
+  const isLight =
+    options.type === 'light' || options.theme === 'light' || options.themeName === 'lightTheme';
 
   const [coords, setCoords] = useState({ top: 0, left: 0, width: 0, height: 0 });
 
@@ -160,7 +164,7 @@ const SidebarButton = ({ label, onClick, children, className = '', iconSize = 16
       onClick={onClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={() => setHovered(false)}
-      className={`relative w-8 h-8 rounded-lg text-white/82 hover:text-white hover:bg-white/8 transition-all duration-150 flex items-center justify-center shrink-0 ${className}`}
+      className={`relative w-8 h-8 rounded-lg transition-all duration-150 flex items-center justify-center shrink-0 ${isLight ? 'text-[#334155] hover:text-[#0f172a] hover:bg-black/8' : 'text-white/82 hover:text-white hover:bg-white/8'} ${className}`}
     >
       <span className="flex items-center justify-center" style={{ fontSize: iconSize }}>
         {children}
@@ -567,12 +571,15 @@ export default function Loader({ url, ui = true, zoom }) {
   const isLightTheme =
     options.type === 'light' ||
     options.theme === 'light' ||
-    options.themeName === 'light';
+    options.themeName === 'lightTheme';
   const popupSecondaryBg = isLightTheme ? 'rgba(15,23,42,0.08)' : 'rgba(255,255,255,0.12)';
   const popupSecondaryBorder = isLightTheme ? 'rgba(15,23,42,0.16)' : 'rgba(255,255,255,0.22)';
   const popupPrimaryBg = isLightTheme ? '#3d4654' : '#3a3f48';
   const popupPrimaryText = '#f6f8fc';
-  const historySearchStickyBg = options.quickModalBgColor || popupPanelBg;
+  const popupTextColor = options.siteTextColor || (isLightTheme ? '#0f172a' : '#e2e8f0');
+  const historySearchStickyBg = options.liquidGlassEnabled
+    ? 'transparent'
+    : (options.quickModalBgColor || popupPanelBg);
   const historySearchInputBg = isLightTheme ? 'rgba(15,23,42,0.06)' : 'rgba(0,0,0,0.18)';
 
   const runFind = (backwards = false) => {
@@ -681,7 +688,7 @@ export default function Loader({ url, ui = true, zoom }) {
     const requestedRawUrl = String(rawUrl || '').trim();
     let displayUrl = '';
 
-    // intercept ghost://ai then redirect to external provider if one is set
+    // catch ghost://ai then send it to the external provider if there is one
     if (String(rawUrl).toLowerCase() === 'ghost://ai' && options.defaultAiProvider) {
       const providerUrls = {
         stoutchat: 'https://duck.ai',
@@ -716,7 +723,7 @@ export default function Loader({ url, ui = true, zoom }) {
     if (activeTab && activeTab.url === targetUrl) return;
 
     if (options.openLinkInNewTab) {
-      if (store.tabs.length < 20) {
+      if (store.tabs.length < 60) {
         const id = createId();
         addTab({ title: 'New Tab', id, url: targetUrl, displayUrl });
         if (requestedRawUrl.toLowerCase() === 'ghost://home') {
@@ -759,7 +766,7 @@ export default function Loader({ url, ui = true, zoom }) {
 
   const openInGhostNewTab = (rawUrl, config = {}) => {
     const store = loaderStore.getState();
-    if (!rawUrl || store.tabs.length >= 20) return;
+    if (!rawUrl || store.tabs.length >= 60) return;
     const processedUrl = config?.skipProxy
       ? rawUrl
       : process(rawUrl, false, options.prType || 'auto', options.engine || null);
@@ -829,10 +836,8 @@ export default function Loader({ url, ui = true, zoom }) {
     };
     setSitePolicies(next);
     setPolicyTick((v) => v + 1);
-
-    if (current.site.tabId) {
-      loaderStore.getState().refreshTab(current.site.tabId);
-    }
+// the iframe is keyed by its sandbox string so flipping the popup or
+// download flags remounts the tab on its own
   };
 
   useEffect(() => {
@@ -1270,10 +1275,8 @@ export default function Loader({ url, ui = true, zoom }) {
     navigate('.', { replace: true, state: {} });
   }, [location.state, navigate]);
 
-  /* route-url  active-tab effect.
-   * important: `tabs` is not in the dependency array to prevent a cascading
-   * re-render loop (updateurl creates a new tabs reference  effect re-fires).
-   * we read tabs from the store snapshot inside the callback instead. */
+// tabs is left out on purpose. updateUrl hands back a new tabs array every
+// time so depending on it loops this effect. read the store inside instead
   useEffect(() => {
     if (!tabsHydrated) return;
     if (!routeUrl) return;
@@ -1296,7 +1299,7 @@ export default function Loader({ url, ui = true, zoom }) {
       if (lastOpenStateKeyRef.current === stateKey) return;
       lastOpenStateKeyRef.current = stateKey;
 
-      if (storeTabs.length >= 20) return;
+      if (storeTabs.length >= 60) return;
       const id = createId();
       addTab({ title: 'New Tab', id, url: targetUrl, displayUrl: routedDisplayUrl });
       if (location.state?.askDefaultMusicPrompt) {
@@ -1388,7 +1391,7 @@ export default function Loader({ url, ui = true, zoom }) {
 
   useEffect(() => {
     const openGhostBrowserTab = (rawUrl, config = {}) => {
-      if (!rawUrl || loaderStore.getState().tabs.length >= 20) return false;
+      if (!rawUrl || loaderStore.getState().tabs.length >= 60) return false;
       const targetUrl = getStoredTabTarget(rawUrl, !!config?.skipProxy);
       const displayUrl = typeof config?.displayUrl === 'string' ? config.displayUrl.trim() : '';
       const id = createId();
@@ -1523,7 +1526,7 @@ export default function Loader({ url, ui = true, zoom }) {
     return () => window.removeEventListener('ghost-open-changelog', openChangelog);
   }, []);
 
-  // Listen for custom events dispatched by GlobalShortcuts for actions that need local React state
+  // GlobalShortcuts dispatches events for the actions that need local state
   useEffect(() => {
     const handleToggleDevtools = (e) => {
       const { tabId, frame } = e.detail || {};
@@ -1561,7 +1564,7 @@ export default function Loader({ url, ui = true, zoom }) {
       {ui && (
         <aside
           className={clsx(
-            "w-full h-auto md:h-full flex flex-row md:flex-col items-center px-1.5 md:py-2.5 z-[140] border-t md:border-t-0 md:border-r border-white/10 shrink-0 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto hide-scrollbar transition-all duration-300",
+            "ghost-glass w-full h-auto md:h-full flex flex-row md:flex-col items-center px-1.5 md:py-2.5 z-[140] border-t md:border-t-0 md:border-r border-white/10 shrink-0 overflow-x-auto md:overflow-x-hidden md:overflow-y-auto hide-scrollbar transition-all duration-300",
             sidebarCollapsed ? "md:w-0 md:px-0 md:opacity-0 md:pointer-events-none md:border-r-0" : "md:w-[52px] md:opacity-100"
           )}
           style={{ backgroundColor: options.tabBarColor || '#070e15' }}
@@ -1575,7 +1578,7 @@ export default function Loader({ url, ui = true, zoom }) {
             <SidebarButton
               label="Ghost Menu"
               onClick={() => setGhostMenuOpen((prev) => !prev)}
-              className="w-10 h-10 rounded-xl text-white hover:bg-white/10"
+              className={clsx('w-10 h-10 rounded-xl', isLightTheme ? 'text-[#0f172a] hover:bg-black/10' : 'text-white hover:bg-white/10')}
               iconSize={20}
               hideTooltip={true}
             >
@@ -1583,7 +1586,7 @@ export default function Loader({ url, ui = true, zoom }) {
                 src="/ghost.png"
                 alt="Ghost"
                 className="w-6 h-6 object-contain"
-                style={{ filter: 'invert(1) brightness(1.8)' }}
+                style={{ filter: isLightTheme ? 'invert(0) brightness(0.12)' : 'invert(1) brightness(1.8)' }}
                 draggable={false}
               />
             </SidebarButton>
@@ -1591,7 +1594,7 @@ export default function Loader({ url, ui = true, zoom }) {
             {typeof document !== 'undefined' && createPortal(
               <div
                 ref={ghostMenuPortalRef}
-                className={`fixed z-[9999] w-52 rounded-xl border border-white/10 bg-[#0c0f14] p-2 shadow-2xl transition duration-150 origin-bottom-left md:origin-top-left ${ghostMenuOpen ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}`}
+                className={`ghost-glass fixed z-[9999] w-52 rounded-xl border border-white/10 p-2 shadow-2xl transition duration-150 origin-bottom-left md:origin-top-left ${ghostMenuOpen ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}`}
                 style={{
                   top: window.innerWidth < 768 ? Math.max(0, popupCoords.ghost.top - 220) : Math.min(popupCoords.ghost.top, window.innerHeight - 300),
                   bottom: window.innerWidth < 768 ? 'auto' : 'auto',
@@ -1600,7 +1603,7 @@ export default function Loader({ url, ui = true, zoom }) {
                 }}
               >
                 <div className="px-2.5 py-1.5 mb-1 rounded-lg border border-white/10" style={{ backgroundColor: ghostMenuCardBg }}>
-                  <div className="text-[11px] font-semibold tracking-wide text-white/90 flex items-center justify-between">
+                  <div className={clsx('text-[11px] font-semibold tracking-wide flex items-center justify-between', isLightTheme ? 'text-[#0f172a]' : 'text-white/90')}>
                     <span>{menuTimeLabel}</span>
                     {Number.isFinite(batteryInfo.level) && (
                       <span className="inline-flex items-center gap-1 opacity-85">
@@ -1609,7 +1612,7 @@ export default function Loader({ url, ui = true, zoom }) {
                       </span>
                     )}
                   </div>
-                  <div className="mt-1 flex items-center justify-between text-[11px] text-white/80">
+                  <div className={clsx('mt-1 flex items-center justify-between text-[11px]', isLightTheme ? 'text-[#334155]' : 'text-white/80')}>
                     <span className="truncate max-w-[7.2rem]">{options.hideLocation === true ? 'Location Hidden' : (ipMeta.city || 'Location')}</span>
                     {options.hideLocation !== true && (
                       <span className="inline-flex items-center gap-1">
@@ -1633,6 +1636,7 @@ export default function Loader({ url, ui = true, zoom }) {
                   { label: 'Music', action: () => navigateActiveTab('ghost://music') },
                   { label: 'Chat', action: () => navigateActiveTab(getDefaultChatUrl()) },
                   { label: 'Remote Access', action: () => navigateActiveTab('ghost://remote') },
+                  { label: 'Notes', action: () => navigateActiveTab('ghost://notes') },
                   { label: 'Artificial Intelligence', action: () => navigateActiveTab('ghost://ai') },
                   { label: 'Code Runner', action: () => navigateActiveTab('ghost://code') },
                   { label: 'Docs', action: () => navigateActiveTab('ghost://docs') },
@@ -1697,10 +1701,15 @@ export default function Loader({ url, ui = true, zoom }) {
                 <Bot size={16} />
               </SidebarButton>
             )}
+            {options?.sidebarToggles?.showNotes !== false && (
+              <SidebarButton label="Notes" onClick={() => navigateActiveTab('ghost://notes')}>
+                <NotebookPen size={16} />
+              </SidebarButton>
+            )}
 
             {Array.isArray(options?.sidebarCustomApps) && options.sidebarCustomApps.length > 0 && (
               <>
-                <div className="my-2 w-7 h-[2px] rounded-full bg-white/10" />
+                <div className={clsx("my-2 w-7 h-[2px] rounded-full", isLightTheme ? "bg-black/10" : "bg-white/10")} />
                 {options.sidebarCustomApps.map((app) => {
                   const Icon = getLucideIcon(app.icon);
                   return (
@@ -1717,7 +1726,7 @@ export default function Loader({ url, ui = true, zoom }) {
             )}
           </div>
 
-          <div className="shrink-0 mx-2 md:my-6 md:mx-0 w-[2px] md:w-7 h-5 md:h-[2px] rounded-full bg-white/20" />
+          <div className={clsx("shrink-0 mx-2 md:my-6 md:mx-0 w-[2px] md:w-7 h-5 md:h-[2px] rounded-full", isLightTheme ? "bg-black/15" : "bg-white/20")} />
 
           <div className="flex flex-row md:flex-col items-center gap-2 shrink-0">
             {options?.sidebarToggles?.showBookmarks !== false && (
@@ -1741,7 +1750,7 @@ export default function Loader({ url, ui = true, zoom }) {
                 {typeof document !== 'undefined' && createPortal(
                   <div
                     ref={adBlockPortalRef}
-                    className={`fixed z-[9999] w-64 rounded-xl border border-white/10 bg-[#0f141d] p-2.5 shadow-2xl transition duration-200 origin-bottom md:origin-left ${adBlockPopupOpen ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}`}
+                    className={`ghost-glass fixed z-[9999] w-64 rounded-xl border border-white/10 p-2.5 shadow-2xl transition duration-200 origin-bottom md:origin-left ${adBlockPopupOpen ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}`}
                     style={{
                       top: window.innerWidth < 768 ? Math.max(0, popupCoords.adBlock.top - 160) : Math.min(popupCoords.adBlock.top, window.innerHeight - 200),
                       bottom: window.innerWidth < 768 ? 'auto' : 'auto',
@@ -1759,7 +1768,7 @@ export default function Loader({ url, ui = true, zoom }) {
                           }
                         >
                           <span>Ad Block</span>
-                          <span className={currentSitePolicy.adBlock ? 'text-emerald-400' : 'text-white/55'}>
+                          <span className={currentSitePolicy.adBlock ? 'text-emerald-400' : (isLightTheme ? 'text-[#64748b]' : 'text-white/55')}>
                             {currentSitePolicy.adBlock ? 'On' : 'Off'}
                           </span>
                         </button>
@@ -1770,7 +1779,7 @@ export default function Loader({ url, ui = true, zoom }) {
                           }
                         >
                           <span>Popup Blocker</span>
-                          <span className={currentSitePolicy.popupBlock ? 'text-emerald-400' : 'text-white/55'}>
+                          <span className={currentSitePolicy.popupBlock ? 'text-emerald-400' : (isLightTheme ? 'text-[#64748b]' : 'text-white/55')}>
                             {currentSitePolicy.popupBlock ? 'On' : 'Off'}
                           </span>
                         </button>
@@ -1781,7 +1790,7 @@ export default function Loader({ url, ui = true, zoom }) {
                           }
                         >
                           <span>Download Blocker</span>
-                          <span className={currentSitePolicy.downloadBlock ? 'text-emerald-400' : 'text-white/55'}>
+                          <span className={currentSitePolicy.downloadBlock ? 'text-emerald-400' : (isLightTheme ? 'text-[#64748b]' : 'text-white/55')}>
                             {currentSitePolicy.downloadBlock ? 'On' : 'Off'}
                           </span>
                         </button>
@@ -1812,16 +1821,17 @@ export default function Loader({ url, ui = true, zoom }) {
                 {typeof document !== 'undefined' && createPortal(
                   <div
                     ref={devOptionsPortalRef}
-                    className={`fixed z-[9999] w-48 rounded-xl border border-white/10 bg-[#0f141d] p-2 shadow-2xl transition duration-200 origin-bottom-right md:origin-left ${devOptionsOpen ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}`}
+                    className={`ghost-glass fixed z-[9999] w-48 rounded-xl border border-white/10 p-2 shadow-2xl transition duration-200 origin-bottom-right md:origin-left ${devOptionsOpen ? 'opacity-100 scale-100 pointer-events-auto' : 'opacity-0 scale-95 pointer-events-none'}`}
                     style={{
                       top: window.innerWidth < 768 ? Math.max(0, popupCoords.dev.top - 140) : Math.min(popupCoords.dev.top, window.innerHeight - 150),
                       bottom: window.innerWidth < 768 ? 'auto' : 'auto',
                       left: window.innerWidth < 768 ? Math.max(0, popupCoords.dev.left - 50) : popupCoords.dev.right + 8,
                       backgroundColor: popupSurface,
+                      color: popupTextColor,
                     }}
                   >
                     <button
-                      className={`w-full text-left px-2.5 py-2 rounded-lg text-[12px] transition-colors flex items-center gap-2 ${isActiveTabInternalGhost() ? 'opacity-40 cursor-not-allowed' : 'hover:bg-white/10'}`}
+                       className={`w-full text-left px-2.5 py-2 rounded-lg text-[12px] transition-colors flex items-center gap-2 ${isActiveTabInternalGhost() ? 'opacity-40 cursor-not-allowed' : (isLightTheme ? 'hover:bg-black/10' : 'hover:bg-white/10')}`}
                       onClick={() => {
                         if (isActiveTabInternalGhost()) return;
                         openDevToolsForActiveTab();
@@ -1831,7 +1841,7 @@ export default function Loader({ url, ui = true, zoom }) {
                       <Wrench size={14} /> DevTools
                     </button>
                     <button
-                      className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-white/10 text-[12px] transition-colors flex items-center gap-2"
+                       className={`w-full text-left px-2.5 py-2 rounded-lg text-[12px] transition-colors flex items-center gap-2 ${isLightTheme ? 'hover:bg-black/10' : 'hover:bg-white/10'}`}
                       onClick={() => {
                         navigateActiveTab('ghost://code');
                         setDevOptionsOpen(false);
@@ -1840,11 +1850,11 @@ export default function Loader({ url, ui = true, zoom }) {
                       <Code2 size={14} /> Code Runner
                     </button>
                     <button
-                      className="w-full text-left px-2.5 py-2 rounded-lg hover:bg-white/10 text-[12px] transition-colors flex items-center justify-between"
+                       className={`w-full text-left px-2.5 py-2 rounded-lg text-[12px] transition-colors flex items-center justify-between ${isLightTheme ? 'hover:bg-black/10' : 'hover:bg-white/10'}`}
                       onClick={() => updateOption({ debugMode: !options.debugMode })}
                     >
                       <span>Debug Mode</span>
-                      <span className={options.debugMode ? 'text-emerald-400' : 'text-white/60'}>
+                      <span className={options.debugMode ? 'text-emerald-400' : (isLightTheme ? 'text-[#64748b]' : 'text-white/60')}>
                         {options.debugMode ? 'On' : 'Off'}
                       </span>
                     </button>
@@ -1903,7 +1913,7 @@ export default function Loader({ url, ui = true, zoom }) {
         {ui && (
           <>
             <div
-              className="flex flex-col w-full"
+              className="ghost-glass relative z-[141] flex flex-col w-full"
               style={barStyle}
               onClick={() => loaderStore.getState().showMenu && loaderStore.getState().toggleMenu()}
             >
@@ -1934,7 +1944,7 @@ export default function Loader({ url, ui = true, zoom }) {
             }}
           />
           <div
-            className="relative w-full max-w-md rounded-xl border border-white/10 p-5 shadow-2xl"
+            className="ghost-glass relative w-full max-w-md rounded-xl border border-white/10 p-5 shadow-2xl"
             style={{ backgroundColor: popupPanelBg }}
           >
             <h3 className="text-lg font-semibold">Need help setting up Geforce Now?</h3>
@@ -1978,7 +1988,7 @@ export default function Loader({ url, ui = true, zoom }) {
         <div className="fixed inset-0 z-[10004] flex items-center justify-center p-4">
           <div className="fixed inset-0 bg-black/50" onClick={() => setShowDocsPopup(false)} />
           <div
-            className="relative w-full max-w-xl rounded-lg border border-white/10 shadow-lg overflow-hidden"
+            className="ghost-glass relative w-full max-w-xl rounded-lg border border-white/10 shadow-lg overflow-hidden"
             style={{ backgroundColor: popupPanelBg }}
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
@@ -2024,10 +2034,10 @@ export default function Loader({ url, ui = true, zoom }) {
         <div className={"fixed inset-0 z-[10000] flex items-center justify-center p-4 transition-opacity duration-200 " + (historyPopupAnim ? 'opacity-100' : 'opacity-0')}>
           <div className="absolute inset-0 bg-black/50" onClick={() => setHistoryPopupOpen(false)} />
           <div
-            className={"relative w-full max-w-4xl max-h-[80dvh] rounded-xl border border-white/10 overflow-hidden transition-all duration-200 " + (historyPopupAnim ? 'opacity-100 scale-100' : 'opacity-0 scale-95')}
+            className={"ghost-glass relative w-full max-w-4xl max-h-[80dvh] rounded-xl border border-white/10 overflow-hidden flex flex-col transition-all duration-200 " + (historyPopupAnim ? 'opacity-100 scale-100' : 'opacity-0 scale-95')}
             style={{ backgroundColor: options.quickModalBgColor || '#252f3e' }}
           >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
               <h2 className="text-lg font-semibold">History</h2>
               <div className="flex items-center gap-2">
                 {historyPopupItems.length > 0 && (
@@ -2043,23 +2053,22 @@ export default function Loader({ url, ui = true, zoom }) {
                 </button>
               </div>
             </div>
-            <div className="px-4 pb-4 pt-0 overflow-y-auto max-h-[calc(80dvh-4rem)] space-y-2">
-              <div className="sticky top-0 z-10 pb-2 pt-0" style={{ backgroundColor: historySearchStickyBg }}>
-                <div className="h-2" style={{ backgroundColor: historySearchStickyBg }} />
-                <input
-                  value={historyQuery}
-                  onChange={(e) => setHistoryQuery(e.target.value)}
-                  placeholder="Search history"
-                  className="w-full h-9 rounded-md border border-white/10 px-3 text-sm outline-none"
-                  style={{ backgroundColor: historySearchInputBg }}
-                />
-              </div>
+            <div className="px-4 py-3 border-b border-white/10 shrink-0" style={{ backgroundColor: historySearchStickyBg }}>
+              <input
+                value={historyQuery}
+                onChange={(e) => setHistoryQuery(e.target.value)}
+                placeholder="Search history"
+                className="w-full h-9 rounded-md border border-white/10 px-3 text-sm outline-none"
+                style={{ backgroundColor: historySearchInputBg }}
+              />
+            </div>
+            <div className="px-4 py-3 overflow-y-auto min-h-0 flex-1 space-y-2">
               {filteredHistoryItems.length === 0 && <p className="text-sm opacity-70">No matching history entries.</p>}
               {filteredHistoryItems.map((item) => (
                 <div
                   key={item.id || `${item.url}-${item.time}`}
                   onClick={() => openHistoryItem(item)}
-                  className="w-full text-left rounded-lg bg-[#ffffff0d] p-3 hover:bg-[#ffffff14] transition-colors cursor-pointer"
+                  className={clsx("w-full text-left rounded-lg p-3 transition-colors cursor-pointer", isLightTheme ? "bg-black/[0.05] hover:bg-black/[0.09]" : "bg-[#ffffff0d] hover:bg-[#ffffff14]")}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
@@ -2088,7 +2097,7 @@ export default function Loader({ url, ui = true, zoom }) {
 
       {ui && findBarOpen && (
         <div
-          className="fixed top-[84px] left-1/2 -translate-x-1/2 z-[10001] rounded-xl border border-white/10 backdrop-blur px-3 py-2 flex items-center gap-2 shadow-2xl"
+          className="ghost-glass fixed top-[84px] left-1/2 -translate-x-1/2 z-[10001] rounded-xl border border-white/10 px-3 py-2 flex items-center gap-2 shadow-2xl"
           style={{ backgroundColor: popupSurface }}
         >
           <input
@@ -2131,7 +2140,7 @@ export default function Loader({ url, ui = true, zoom }) {
             <div className="fixed inset-0 bg-black/50" onClick={() => setIsChangelogOpen(false)} />
 
             <div
-              className={"relative w-full max-w-2xl max-h-[80dvh] rounded-lg border border-white/10 shadow-lg overflow-hidden transition-all duration-200 " + (changelogAnim ? 'opacity-100 scale-100' : 'opacity-0 scale-95')}
+              className={"ghost-glass relative w-full max-w-2xl max-h-[80dvh] rounded-lg border border-white/10 shadow-lg overflow-hidden transition-all duration-200 " + (changelogAnim ? 'opacity-100 scale-100' : 'opacity-0 scale-95')}
               style={{ backgroundColor: popupPanelBg }}
             >
               <div className="flex items-center justify-between p-4 border-b border-white/10">
@@ -2159,7 +2168,7 @@ export default function Loader({ url, ui = true, zoom }) {
                     <ul className="space-y-2 text-sm">
                       {entry.changes.map((change, index) => (
                         <li key={index} className="flex items-start gap-2">
-                          <span className="text-white/60 mt-0.5">•</span>
+                          <span className={clsx("mt-0.5", isLightTheme ? "text-[#64748b]" : "text-white/60")}>•</span>
                           <span>{change}</span>
                         </li>
                       ))}
@@ -2177,7 +2186,7 @@ export default function Loader({ url, ui = true, zoom }) {
           <div className="fixed inset-0 z-[10004] flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/50" />
             <div
-              className="relative w-full max-w-md rounded-xl border border-white/10 p-5 shadow-2xl"
+              className="ghost-glass relative w-full max-w-md rounded-xl border border-white/10 p-5 shadow-2xl"
               style={{ backgroundColor: popupPanelBg }}
             >
               <h3 className="text-lg font-semibold">Is this your default music provider?</h3>
@@ -2226,7 +2235,7 @@ export default function Loader({ url, ui = true, zoom }) {
         ui && options.debugMode && (
           <div
             className="fixed z-[10004] w-[312px] rounded-lg border border-white/20 bg-[#7c7f85]/35 backdrop-blur-sm px-3 py-2 text-[11px] shadow-2xl"
-            style={{ left: `${debugPanelPos.x}px`, top: `${debugPanelPos.y}px` }}
+             style={{ left: `${debugPanelPos.x}px`, top: `${debugPanelPos.y}px`, color: '#f8fafc' }}
           >
             <div
               className="flex items-center justify-between gap-2 cursor-move select-none"
@@ -2267,7 +2276,8 @@ export default function Loader({ url, ui = true, zoom }) {
             <div className="mt-2 space-y-1 text-white/95">
               <div>FPS: {debugStats.fps}</div>
               <div>RAM Usage: {debugStats.ram || 'N/A'}</div>
-              <div>User Agent: {navigator.userAgent}</div>
+               <div>Configured UA: {getEffectiveUserAgent(options, null) || 'Browser default'}</div>
+               <div>App UA: {navigator.userAgent}</div>
               <div>Resolution: {window.innerWidth}×{window.innerHeight}</div>
               <div>Connection Speed: {debugStats.connection}</div>
             </div>

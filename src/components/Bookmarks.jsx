@@ -126,7 +126,7 @@ const Bookmarks = ({ isOpen, onClose, inLoader = false }) => {
 
       <div
         className={clsx(
-          'relative w-full max-w-2xl max-h-[80dvh] rounded-lg border shadow-lg overflow-hidden transition-all',
+          'ghost-glass relative w-full max-w-2xl max-h-[80dvh] rounded-lg border shadow-lg overflow-hidden transition-all',
           anim ? 'scale-100 opacity-100' : 'scale-95 opacity-0',
         )}
         style={{ backgroundColor: o.menuColor || '#1a252f' }}

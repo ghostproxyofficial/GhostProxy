@@ -3,12 +3,44 @@ import { BareMuxConnection, BareClient } from 'bare-mux-fork';
 import { useOptions } from '/src/utils/optionsContext';
 import { fetchW } from './findWisp';
 import store from './useLoaderStore';
+import { getEffectiveUserAgent, getEffectiveIdentity, YOUTUBE_TV_UA, USER_AGENT_IDENTITY } from '/src/data/userAgents';
 
 export default function useReg() {
   const { options } = useOptions();
-  const defaultWispEndpoint = 'wss://ashburn.edisonlearningcenter.me/connection';
+  const defaultWispEndpoint = 'wss://service.khanacademyy.org/socket/';
   const sws = [{ path: '/uv/ghost-sw.js', scope: '/uv/' }, { path: '/s_sw.js', scope: '/scramjet/' }];
   const setWispStatus = store((s) => s.setWispStatus);
+
+// ua changes only need the proxy workers updated. recreating scramjet here
+// remounts active frames and the settings tab visibly reloads
+  useEffect(() => {
+    let disposed = false;
+    const broadcast = async () => {
+      try {
+        const base = getEffectiveUserAgent(options, null);
+        const identity = getEffectiveIdentity(options, null);
+        const message = {
+          type: 'ghost-ua-config',
+          base: base || null,
+          youtube: YOUTUBE_TV_UA,
+          identity: identity ? {
+            brands: identity.brands || null,
+            mobile: !!identity.mobile,
+            uadPlatform: identity.uadPlatform || null,
+          } : null,
+        };
+        navigator.serviceWorker.controller?.postMessage(message);
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        if (disposed) return;
+        registrations.forEach((registration) => {
+          const worker = registration.active || registration.waiting || registration.installing;
+          worker?.postMessage(message);
+        });
+      } catch { }
+    };
+    broadcast();
+    return () => { disposed = true; };
+  }, [options.userAgentPreset, options.customUserAgent, options.browserIdentity]);
 
   const normalizeWispEndpoint = (value) => {
     if (!value) return null;
@@ -25,7 +57,8 @@ export default function useReg() {
       const host = String(parsed.hostname || '').trim().toLowerCase();
       if (!host || host === 'undefined' || host === 'null') return null;
       const protocol = parsed.protocol === 'https:' || parsed.protocol === 'wss:' ? 'wss:' : 'ws:';
-      const pathname = parsed.pathname && parsed.pathname !== '/' ? parsed.pathname : '/wisp/';
+      // keep the path as given, dont force a /wisp/ suffix on it
+      const pathname = parsed.pathname || '/';
       const trailingSlashPath = pathname.endsWith('/') ? pathname : `${pathname}/`;
 
       return `${protocol}//${parsed.host}${trailingSlashPath}`;
@@ -40,6 +73,7 @@ export default function useReg() {
     let remoteProxyRef = null;
 
     const init = async () => {
+      if (disposed) return;
       if (!window.scr) {
         const script = document.createElement('script');
         script.src = '/scram/scramjet.all.js';
@@ -52,14 +86,47 @@ export default function useReg() {
 
       const { ScramjetController } = $scramjetLoadController();
 
+      // resolve identity before the scramjetcontroller init
+      let effectiveUA = null;
+      let effectivePlatform = null;
+      let effectiveIdentity = null;
+      try {
+        effectiveUA = getEffectiveUserAgent(options, null);
+        effectiveIdentity = getEffectiveIdentity(options, null);
+        const { getSyntheticIdentity } = await import('/src/utils/identity.js');
+        const syn = getSyntheticIdentity(options);
+        if (syn?.platform) effectivePlatform = syn.platform;
+        if (effectiveIdentity && effectivePlatform && !effectiveIdentity.platform) {
+          effectiveIdentity = { ...effectiveIdentity, platform: effectivePlatform };
+        }
+        if (!effectivePlatform && effectiveIdentity?.platform) effectivePlatform = effectiveIdentity.platform;
+      } catch {}
+
       window.scr = new ScramjetController({
         files: {
           wasm: '/scram/scramjet.wasm.wasm',
           all: '/scram/scramjet.all.js',
           sync: '/scram/scramjet.sync.js',
         },
-        flags: { rewriterLogs: false, scramitize: false, cleanErrors: true, sourcemaps: true },
+        flags: {
+          rewriterLogs: !!options.experimentalScramjetLogs,
+          scramitize: !!options.experimentalScramjetScramitize,
+          cleanErrors: true,
+          sourcemaps: options.experimentalScramjetSourcemaps !== false,
+        },
         inject: [
+          // UA / identity spoof, must run before any page JS
+          ...(effectiveIdentity ? [{
+            host: /.*/,
+            injectTo: "head",
+            html: `<script>(function(){try{var I=${JSON.stringify({ ua: effectiveIdentity.ua, platform: effectiveIdentity.platform, vendor: effectiveIdentity.vendor, mobile: !!effectiveIdentity.mobile, uadPlatform: effectiveIdentity.uadPlatform || null, brands: effectiveIdentity.brands || null })};Object.defineProperty(navigator,'userAgent',{get:function(){return I.ua},configurable:true});if(I.platform){try{Object.defineProperty(navigator,'platform',{get:function(){return I.platform},configurable:true});}catch{}}if(typeof I.vendor==='string'){try{Object.defineProperty(navigator,'vendor',{get:function(){return I.vendor},configurable:true});}catch{}}try{if(I.brands){var uad={brands:I.brands,mobile:!!I.mobile,platform:I.uadPlatform||'',getHighEntropyValues:function(){return Promise.resolve({platform:I.uadPlatform||'',mobile:!!I.mobile,model:'',architecture:'',bitness:'',formFactor:I.mobile?'Mobile':'Desktop',fullVersionList:I.brands.map(function(b){return{brand:b.brand,version:b.version+'.0.0.0'}}),wow64:false})}};Object.defineProperty(navigator,'userAgentData',{get:function(){return uad},configurable:true});}else{Object.defineProperty(navigator,'userAgentData',{get:function(){return undefined},configurable:true});}}catch{}}catch{}})();</script>`
+          }] : []),
+          // youtube always gets the tv ua, listed last so it wins over the generic one
+          {
+            host: /(^|\.)(youtube\.com|youtu\.be|m\.youtube\.com)$/,
+            injectTo: "head",
+            html: `<script>(function(){try{var I=${JSON.stringify({ ua: YOUTUBE_TV_UA, ...(USER_AGENT_IDENTITY['tv'] || {}) })};Object.defineProperty(navigator,'userAgent',{get:function(){return I.ua},configurable:true});if(I.platform){try{Object.defineProperty(navigator,'platform',{get:function(){return I.platform},configurable:true});}catch{}}try{var uad={brands:I.brands,mobile:false,platform:I.uadPlatform||'',getHighEntropyValues:function(){return Promise.resolve({platform:I.uadPlatform||'',mobile:false,model:'',architecture:'',bitness:'',formFactor:'Desktop',fullVersionList:(I.brands||[]).map(function(b){return{brand:b.brand,version:b.version+'.0.0.0'}}),wow64:false})}};Object.defineProperty(navigator,'userAgentData',{get:function(){return uad},configurable:true});}catch{}}catch{}})();</script>`
+          },
           {
             host: /.*/,
             injectTo: "head",
@@ -111,21 +178,70 @@ export default function useReg() {
 
       window.scr.init();
 
+      // the sw sets these as real request headers, see public/s_sw.js
+      const sendUaConfig = (worker) => {
+        try {
+          worker?.postMessage({
+            type: 'ghost-ua-config',
+            base: effectiveUA || null,
+            youtube: YOUTUBE_TV_UA,
+            identity: effectiveIdentity ? {
+              brands: effectiveIdentity.brands || null,
+              mobile: !!effectiveIdentity.mobile,
+              uadPlatform: effectiveIdentity.uadPlatform || null,
+            } : null,
+          });
+        } catch { }
+      };
+
       for (const sw of sws) {
         try {
-          await navigator.serviceWorker.register(
+          const registration = await navigator.serviceWorker.register(
             sw.path,
             sw.scope ? { scope: sw.scope } : undefined,
           );
+          // only an active worker takes postMessage
+          sendUaConfig(registration.active || registration.waiting || registration.installing);
         } catch (err) {
           console.warn(`SW reg err (${sw.path}):`, err);
         }
       }
 
+      const broadcastUaConfig = async () => {
+        try {
+          const registrations = await navigator.serviceWorker.getRegistrations();
+          registrations.forEach((registration) => {
+            if (registration.active) sendUaConfig(registration.active);
+          });
+        } catch { }
+      };
+
+      try {
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          sendUaConfig(navigator.serviceWorker.controller);
+        });
+      } catch { }
+
+      // the sw scopes are too narrow for ready to ever resolve, broadcast to all of them
+      broadcastUaConfig();
+      setTimeout(broadcastUaConfig, 1500);
+
       globalThis.__ghostScramjetReady = true;
 
-      const connection = new BareMuxConnection('/baremux/worker.js');
+// baremux runs in a SharedWorker that survives reloads so once its stuck it
+// stays stuck. keep the path around so we can swap in a fresh one on timeout
+      let baremuxPath = '/baremux/worker.js';
+      let connection = new BareMuxConnection(baremuxPath);
       connectionRef = connection;
+
+      const recreateConnection = (reason) => {
+        const bust = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+        baremuxPath = `/baremux/worker.js?ghost=${bust}`;
+        connection = new BareMuxConnection(baremuxPath);
+        connectionRef = connection;
+        console.warn('[proxy] recreated baremux connection with fresh worker', { reason, baremuxPath });
+      };
+
       setWispStatus('init');
       const manualWisp = normalizeWispEndpoint(options.wServer);
       const defaultWisp = normalizeWispEndpoint(defaultWispEndpoint);
@@ -194,19 +310,31 @@ export default function useReg() {
       const remoteProxyUrl = resolveRemoteProxyUrl();
       remoteProxyRef = remoteProxyUrl;
 
+// setTransport can hang forever on a stale worker, so every step is timed out
+      const withTimeout = (promise, ms, label) => Promise.race([
+        promise,
+        new Promise((_, reject) => {
+          window.setTimeout(() => reject(new Error(`[proxy] ${label} timed out after ${ms}ms`)), ms);
+        }),
+      ]);
+
       const setTransportByName = async (name, endpoint) => {
         const modulePath = name === 'epoxy' ? '/epoxy/index.mjs' : '/libcurl/index.mjs';
         const transportConfig = { wisp: endpoint };
         if (remoteProxyUrl) {
           transportConfig.proxy = remoteProxyUrl;
         }
-        await connection.setTransport(modulePath, [transportConfig]);
+        await withTimeout(
+          connection.setTransport(modulePath, [transportConfig]),
+          8000,
+          `setTransport(${name})`,
+        );
         window.__ghostActiveTransport = name;
         window.__ghostActiveRemoteProxy = remoteProxyUrl;
       };
 
       const probeTransport = async () => {
-        const client = new BareClient('/baremux/worker.js');
+        const client = new BareClient(baremuxPath);
         const probeTargets = ['https://example.com/', 'https://duckduckgo.com/'];
         let lastError = null;
 
@@ -223,7 +351,7 @@ export default function useReg() {
               }),
             ]);
 
-            // any http status means upstream connectivity is working through the transport.
+            // any http status at all means the transport is reaching upstream
             if (response && Number.isFinite(response.status)) {
               return;
             }
@@ -237,50 +365,97 @@ export default function useReg() {
 
       let primaryError = null;
 
-      for (const endpoint of uniqueWispCandidates) {
+      const tryTransport = async (transportName, endpoint) => {
         window.__ghostActiveWisp = endpoint;
 
         try {
-          await setTransportByName(preferredTransport, endpoint);
-          await probeTransport();
-          setWispStatus(true);
-          return;
+          await setTransportByName(transportName, endpoint);
         } catch (error) {
           primaryError = error;
+// setTransport itself failed. this is the call that hangs on a stuck worker
+// so put a fresh one in before retrying
+          recreateConnection(`setTransport(${transportName}) failed: ${error?.message || error}`);
+          return false;
         }
 
+        try {
+          await probeTransport();
+          return true;
+        } catch (error) {
+          primaryError = error;
+          return false;
+        }
+      };
+
+// retry the same transport first, libcurl wasm can still be loading on call
+// one. after that try the other transport, then the next endpoint
+      const transportsToTry = [
+        preferredTransport,
+        preferredTransport === 'epoxy' ? 'libcurl' : 'epoxy',
+      ];
+
+      const attemptAllTransports = async () => {
+        for (const endpoint of uniqueWispCandidates) {
+          for (const transportName of transportsToTry) {
+            if (await tryTransport(transportName, endpoint)) {
+              setWispStatus(true);
+              return true;
+            }
+
+            console.warn(
+              `[proxy] ${transportName} transport failed for ${endpoint}; retrying once.`,
+              primaryError,
+            );
+
+            if (await tryTransport(transportName, endpoint)) {
+              setWispStatus(true);
+              return true;
+            }
+          }
+        }
+
+        return false;
+      };
+
+      const ok = await attemptAllTransports();
+      if (!ok) {
+        setWispStatus(false);
+        const endpointPreview = wispUrl || '(none)';
         console.warn(
-          `[proxy] ${preferredTransport} transport failed for ${endpoint}; retrying once.`,
+          `[proxy] unable to initialize transport for ${endpointPreview}; transport=${preferredTransport}.`,
           primaryError,
         );
 
-        try {
-          await setTransportByName(preferredTransport, endpoint);
-          await probeTransport();
-          setWispStatus(true);
-          return;
-        } catch (error) {
-          primaryError = error;
-        }
+        window.__ghostActiveTransport = null;
+        window.__ghostActiveWisp = null;
+        window.__ghostActiveRemoteProxy = remoteProxyUrl;
       }
 
-      setWispStatus(false);
-      const endpointPreview = wispUrl || '(none)';
-      console.warn(
-        `[proxy] unable to initialize transport for ${endpointPreview}; transport=${preferredTransport}.`,
-        primaryError,
-      );
-
-      window.__ghostActiveTransport = null;
-      window.__ghostActiveWisp = null;
-      window.__ghostActiveRemoteProxy = remoteProxyUrl;
+// viewer calls this when a frame keeps failing on transport errors
+      let reinitInFlight = null;
+      window.__ghostReinitTransport = async () => {
+        if (reinitInFlight) return reinitInFlight;
+        reinitInFlight = (async () => {
+          setWispStatus('init');
+          const recovered = await attemptAllTransports();
+          setWispStatus(recovered);
+          return recovered;
+        })();
+        try {
+          return await reinitInFlight;
+        } finally {
+          reinitInFlight = null;
+        }
+      };
     };
 
-    init();
+// debounce it so fast ua toggles dont spin up a controller per change
+    const initTimer = setTimeout(init, 250);
 
     return () => {
       disposed = true;
+      clearTimeout(initTimer);
       connectionRef = null;
     };
-  }, [options.wServer, options.transport, options.proxyRouting, options.remoteProxyServer, options.remoteProxyType]);
+  }, [options.wServer, options.transport, options.proxyRouting, options.remoteProxyServer, options.remoteProxyType, options.experimentalScramjetLogs, options.experimentalScramjetSourcemaps, options.experimentalScramjetScramitize, options.userAgentPreset, options.customUserAgent, options.browserIdentity]);
 }

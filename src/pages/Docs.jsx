@@ -134,9 +134,11 @@ const Docs = memo(() => {
   const isLightTheme =
     options.type === 'light' ||
     options.theme === 'light' ||
-    options.themeName === 'light';
+    options.themeName === 'lightTheme';
   const popupPrimaryBg = isLightTheme ? '#3d4654' : '#3a3f48';
   const popupPrimaryText = '#f6f8fc';
+  const docBorder = isLightTheme ? 'rgba(15,23,42,0.14)' : 'rgba(255,255,255,0.1)';
+  const docButtonBg = isLightTheme ? 'rgba(15,23,42,0.06)' : 'rgba(255,255,255,0.07)';
 
   const categories = useMemo(() => (Array.isArray(docsCatalog) ? docsCatalog : []), []);
 
@@ -250,12 +252,13 @@ const Docs = memo(() => {
               }
               navigate('/docs');
             }}
-            className="h-9 px-3 rounded-md bg-[#ffffff12] hover:bg-[#ffffff1f] text-sm inline-flex items-center gap-2"
+             className="h-9 px-3 rounded-md text-sm inline-flex items-center gap-2"
+             style={{ backgroundColor: docButtonBg }}
           >
             <ArrowLeft size={15} /> Back
           </button>
 
-          <div className="mt-4 rounded-xl border border-white/10 p-5" style={{ backgroundColor: panelBg }}>
+           <div className="mt-4 rounded-xl border p-5" style={{ backgroundColor: panelBg, borderColor: docBorder }}>
             <div className="mb-3 text-xs opacity-70 inline-flex items-center gap-2">
               <BookOpen size={13} />
               <span>{activeCategory?.title || 'Docs'}</span>
@@ -276,8 +279,8 @@ const Docs = memo(() => {
           .ghost-doc-markdown p { margin: 0.45rem 0; opacity: 0.96; }
           .ghost-doc-markdown ul { margin: 0.5rem 0 0.6rem 1.2rem; list-style: disc; }
           .ghost-doc-markdown li { margin: 0.25rem 0; }
-          .ghost-doc-markdown code { background: rgba(255,255,255,0.12); padding: 0.1rem 0.3rem; border-radius: 0.28rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
-          .ghost-doc-markdown pre { background: rgba(0,0,0,0.32); padding: 0.7rem; border-radius: 0.5rem; overflow-x: auto; }
+           .ghost-doc-markdown code { background: ${isLightTheme ? 'rgba(15,23,42,0.08)' : 'rgba(255,255,255,0.12)'}; padding: 0.1rem 0.3rem; border-radius: 0.28rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+           .ghost-doc-markdown pre { background: ${isLightTheme ? 'rgba(15,23,42,0.08)' : 'rgba(0,0,0,0.32)'}; padding: 0.7rem; border-radius: 0.5rem; overflow-x: auto; }
           .ghost-doc-markdown pre code { background: transparent; padding: 0; }
           .ghost-doc-markdown a { text-decoration: underline; text-underline-offset: 2px; }
           .ghost-doc-markdown .spacer { height: 0.3rem; }
@@ -290,20 +293,21 @@ const Docs = memo(() => {
     <div className="h-[100dvh] overflow-y-auto relative" style={{ color: textColor }}>
       {!inGhostBrowserMode && (
         <div
-          className="sticky top-0 z-50 border-b border-white/10 backdrop-blur"
-          style={{ backgroundColor: options.barColor || 'rgba(0, 0, 0, 0.07)' }}
+           className="sticky top-0 z-50 border-b backdrop-blur"
+           style={{ backgroundColor: options.barColor || (isLightTheme ? 'rgba(255,255,255,0.72)' : 'rgba(0, 0, 0, 0.07)'), borderColor: docBorder }}
         >
           <div className="h-20 px-4 md:px-8 flex items-center justify-center gap-4">
             <button
               onClick={() => navigate('/')}
-              className="h-9 px-3 rounded-md bg-[#ffffff12] hover:bg-[#ffffff1f] text-sm flex items-center gap-2"
+              className="h-9 px-3 rounded-md text-sm flex items-center gap-2"
+              style={{ backgroundColor: docButtonBg }}
             >
               <ArrowLeft size={15} /> Return to Ghost
             </button>
 
             <div
-              className="h-9 w-[360px] max-w-[58vw] rounded-md border border-white/12 px-3 flex items-center gap-2"
-              style={{ backgroundColor: inputBg }}
+              className="h-9 w-[360px] max-w-[58vw] rounded-md border px-3 flex items-center gap-2"
+              style={{ backgroundColor: inputBg, borderColor: docBorder }}
             >
               <Search size={15} className="opacity-70" />
               <input
@@ -313,23 +317,23 @@ const Docs = memo(() => {
                 placeholder="Search docs"
                 className="w-full bg-transparent outline-none text-sm"
               />
-              <span className="text-[11px] px-1.5 py-0.5 rounded border border-white/20 opacity-70">{shortcutLabel}</span>
+              <span className="text-[11px] px-1.5 py-0.5 rounded border opacity-70" style={{ borderColor: docBorder }}>{shortcutLabel}</span>
             </div>
           </div>
         </div>
       )}
 
       <div className="mx-auto max-w-7xl px-4 md:px-8 py-8 relative">
-        <div className="relative overflow-hidden rounded-2xl border border-white/10 p-8 mb-7" style={{ backgroundColor: cardBg }}>
-          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'repeating-linear-gradient(135deg, #ffffff0c, #ffffff0c 2px, transparent 2px, transparent 16px)' }} />
-          <div className="absolute inset-0 opacity-12" style={{ backgroundImage: 'radial-gradient(circle at 20% 15%, #ffffff18 0 2px, transparent 3px), radial-gradient(circle at 70% 60%, #ffffff16 0 2px, transparent 3px)' }} />
+        <div className="relative overflow-hidden rounded-2xl border p-8 mb-7" style={{ backgroundColor: cardBg, borderColor: docBorder }}>
+          <div className="absolute inset-0 opacity-20" style={{ backgroundImage: `repeating-linear-gradient(135deg, ${isLightTheme ? '#0f172a0a' : '#ffffff0c'}, ${isLightTheme ? '#0f172a0a' : '#ffffff0c'} 2px, transparent 2px, transparent 16px)` }} />
+          <div className="absolute inset-0 opacity-12" style={{ backgroundImage: `radial-gradient(circle at 20% 15%, ${isLightTheme ? '#0f172a10' : '#ffffff18'} 0 2px, transparent 3px), radial-gradient(circle at 70% 60%, ${isLightTheme ? '#0f172a0d' : '#ffffff16'} 0 2px, transparent 3px)` }} />
           <div className="relative z-10">
             <div className="mb-3">
               <img
                 src="/ghost.png"
                 alt="Ghost"
                 className="w-9 h-9 object-contain"
-                style={{ filter: 'invert(1) brightness(2)' }}
+                style={{ filter: isLightTheme ? 'invert(0) brightness(0.18)' : 'invert(1) brightness(2)' }}
               />
             </div>
             <h1 className="text-4xl md:text-5xl font-semibold tracking-tight">Ghost Docs</h1>
@@ -339,7 +343,7 @@ const Docs = memo(() => {
 
         <div className="mt-8 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredSections.map((section) => (
-            <div key={section.id} className="rounded-xl border border-white/10 p-4" style={{ backgroundColor: panelBg }}>
+            <div key={section.id} className="rounded-xl border p-4" style={{ backgroundColor: panelBg, borderColor: docBorder }}>
               <h2 className="text-xl font-semibold mb-3">{section.title}</h2>
               <ul className="space-y-2.5 text-sm opacity-90">
                 {(section.topics || []).map((item, index) => (
@@ -347,9 +351,9 @@ const Docs = memo(() => {
                     <button
                       type="button"
                       onClick={() => openTopic(section.id, item.id)}
-                      className="w-full text-left flex items-start gap-2 rounded-md px-1 py-1 hover:bg-white/8"
+                       className={`w-full text-left flex items-start gap-2 rounded-md px-1 py-1 ${isLightTheme ? 'hover:bg-black/5' : 'hover:bg-white/8'}`}
                     >
-                      <span className="mt-[2px] inline-flex w-5 h-5 items-center justify-center rounded-full bg-white/8 text-[11px]">{index + 1}</span>
+                       <span className="mt-[2px] inline-flex w-5 h-5 items-center justify-center rounded-full text-[11px]" style={{ backgroundColor: docButtonBg }}>{index + 1}</span>
                       <span>{item.title}</span>
                     </button>
                   </li>
@@ -359,7 +363,7 @@ const Docs = memo(() => {
           ))}
         </div>
 
-        <div className="mt-5 rounded-xl border border-white/10 p-5 flex items-center justify-between gap-4" style={{ backgroundColor: panelBg }}>
+         <div className="mt-5 rounded-xl border p-5 flex items-center justify-between gap-4" style={{ backgroundColor: panelBg, borderColor: docBorder }}>
           <div>
             <h3 className="text-xl font-semibold">Dictionary</h3>
             <p className="text-sm opacity-80 mt-1">Learn what terms for Ghost and proxying mean</p>
@@ -367,7 +371,8 @@ const Docs = memo(() => {
           <button
             type="button"
             onClick={() => setDictionaryOpen(true)}
-            className="h-10 px-4 rounded-md bg-white/10 hover:bg-white/18 text-sm flex items-center"
+             className="h-10 px-4 rounded-md text-sm flex items-center"
+             style={{ backgroundColor: docButtonBg }}
           >
             View
           </button>

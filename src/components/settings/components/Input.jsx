@@ -17,7 +17,7 @@ const TextInput = ({
   backgroundColor,
 }) => {
   const { options } = useOptions();
-  const isLightMode = mode ? mode === 'light' : options?.type === 'light';
+  const isLightMode = mode ? mode === 'light' : options?.type === 'light' || options?.theme === 'light' || options?.themeName === 'lightTheme';
   const [value, setValue] = useState(defValue ?? '');
 
   // sync with defvalue if it changes from outside

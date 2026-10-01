@@ -22,7 +22,7 @@ const ComboBox = ({
   backgroundColor,
 }) => {
   const { options } = useOptions();
-  const isLightMode = mode ? mode === 'light' : options?.type === 'light';
+  const isLightMode = mode ? mode === 'light' : options?.type === 'light' || options?.theme === 'light' || options?.themeName === 'lightTheme';
 
   const unwrap = (val) => (val && typeof val === 'object' && 'value' in val ? val.value : val);
 
@@ -58,7 +58,7 @@ const ComboBox = ({
 
   return (
     <Combobox
-      value={selectedValue ?? null}
+      value={resolvedSelected ? resolvedSelected.value : (selectedValue ?? null)}
       onChange={action}
       by={(a, b) => getOptionId(a) === getOptionId(b)}
       disabled={disabled}

@@ -30,7 +30,8 @@ export const resetInstance = () => {
   }
   localStorage.clear();
   sessionStorage.clear();
-  location.href = '/';
+  const rootWindow = window.top || window;
+  rootWindow.location.href = rootWindow.location.origin + '/';
 };
 
 export const ckOff = () => {

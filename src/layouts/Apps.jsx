@@ -603,7 +603,7 @@ const Apps = memo(() => {
   const isLightTheme =
     options.type === 'light' ||
     options.theme === 'light' ||
-    options.themeName === 'light';
+    options.themeName === 'lightTheme';
   const formCanSave = customName.trim().length > 0 && customUrl.trim().length > 0;
   const modalSurfaceStyle = useMemo(
     () => ({

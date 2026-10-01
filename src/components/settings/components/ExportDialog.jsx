@@ -6,6 +6,7 @@ import { showAlert } from '/src/utils/uiDialog';
 
 export default function ExportDialog({ open, onClose }) {
     const { options } = useOptions();
+    const isLight = options?.type === 'light' || options?.theme === 'light' || options?.themeName === 'lightTheme';
     const [render, setRender] = useState(false);
     const [anim, setAnim] = useState(false);
     const [toggles, setToggles] = useState({
@@ -110,14 +111,14 @@ export default function ExportDialog({ open, onClose }) {
             <div className="absolute inset-0 bg-black/50" onClick={onClose} />
             <div
                 className={clsx(
-                    'relative w-full max-w-lg rounded-xl border border-white/10 overflow-hidden transition-all duration-300 ease-out',
+                    clsx('ghost-glass relative w-full max-w-lg rounded-xl border overflow-hidden transition-all duration-300 ease-out', isLight ? 'border-black/10' : 'border-white/10'),
                     anim ? 'scale-100 translate-y-0' : 'scale-[0.95] translate-y-4'
                 )}
                 style={{ backgroundColor: options.quickModalBgColor || options.menuColor || '#1a252f' }}
             >
-                <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                <div className={clsx("flex items-center justify-between px-4 py-3 border-b", isLight ? "border-black/10" : "border-white/10")}>
                     <h2 className="text-lg font-semibold">Export Ghost Data</h2>
-                    <button onClick={onClose} className="p-1 rounded-md hover:bg-[#ffffff12]">
+                    <button onClick={onClose} className={clsx("p-1 rounded-md", isLight ? "hover:bg-black/[0.06]" : "hover:bg-[#ffffff12]")}>
                         <X size={18} />
                     </button>
                 </div>
@@ -125,14 +126,14 @@ export default function ExportDialog({ open, onClose }) {
                 <div className="p-4 space-y-4">
                     <p className="text-sm opacity-80">Select which data categories to include in your backup. You can export as `.ghost` or `.json`.</p>
 
-                    <div className="rounded-lg bg-[#ffffff0a] p-3 border border-white/10">
+                    <div className={clsx("rounded-lg p-3 border", isLight ? "bg-black/[0.04] border-black/10" : "bg-[#ffffff0a] border-white/10")}>
                         <p className="text-sm font-medium mb-2">File Format</p>
                         <div className="flex items-center gap-2">
                             <button
                                 type="button"
                                 className={clsx(
                                     'px-3 py-1.5 rounded-md text-sm border',
-                                    exportFormat === 'ghost' ? 'bg-[#22c55e]/20 border-[#22c55e]/40 text-[#22c55e]' : 'border-white/15 hover:bg-[#ffffff10]'
+                                    exportFormat === 'ghost' ? 'bg-[#22c55e]/20 border-[#22c55e]/40 text-[#22c55e]' : isLight ? 'border-black/15 hover:bg-black/[0.05]' : 'border-white/15 hover:bg-[#ffffff10]'
                                 )}
                                 onClick={() => setExportFormat('ghost')}
                             >
@@ -142,7 +143,7 @@ export default function ExportDialog({ open, onClose }) {
                                 type="button"
                                 className={clsx(
                                     'px-3 py-1.5 rounded-md text-sm border',
-                                    exportFormat === 'json' ? 'bg-[#22c55e]/20 border-[#22c55e]/40 text-[#22c55e]' : 'border-white/15 hover:bg-[#ffffff10]'
+                                    exportFormat === 'json' ? 'bg-[#22c55e]/20 border-[#22c55e]/40 text-[#22c55e]' : isLight ? 'border-black/15 hover:bg-black/[0.05]' : 'border-white/15 hover:bg-[#ffffff10]'
                                 )}
                                 onClick={() => setExportFormat('json')}
                             >
@@ -163,7 +164,7 @@ export default function ExportDialog({ open, onClose }) {
                             <div
                                 key={item.id}
                                 onClick={() => toggle(item.id)}
-                                className="flex items-center justify-between p-3 rounded-lg bg-[#ffffff0a] hover:bg-[#ffffff10] cursor-pointer transition-colors"
+                                className={clsx("flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors", isLight ? "bg-black/[0.04] hover:bg-black/[0.08]" : "bg-[#ffffff0a] hover:bg-[#ffffff10]")}
                             >
                                 <div>
                                     <div className="text-sm font-medium">{item.label}</div>
@@ -187,8 +188,8 @@ export default function ExportDialog({ open, onClose }) {
                     </div>
 
                     <div className="pt-2 flex justify-end gap-2">
-                        <button onClick={onClose} className="px-4 py-2 rounded-md hover:bg-[#ffffff10] text-sm">Cancel</button>
-                        <button onClick={handleExport} className="px-4 py-2 rounded-md bg-[#ffffff15] hover:bg-[#ffffff25] text-sm flex items-center gap-2">
+                        <button onClick={onClose} className={clsx("px-4 py-2 rounded-md text-sm", isLight ? "hover:bg-black/[0.06]" : "hover:bg-[#ffffff10]")}>Cancel</button>
+                        <button onClick={handleExport} className={clsx("px-4 py-2 rounded-md text-sm flex items-center gap-2", isLight ? "bg-black/[0.08] hover:bg-black/[0.12]" : "bg-[#ffffff15] hover:bg-[#ffffff25]")}>
                             <Save size={16} /> Download Backup
                         </button>
                     </div>

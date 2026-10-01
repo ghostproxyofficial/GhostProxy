@@ -208,8 +208,8 @@
     "url": "/breakingthebank/index.html"
   },
   {
-    "name": "Btd",
-    "url": "/btd/index.html"
+    "name": "Btd/btd",
+    "url": "/btd/btd/index.html"
   },
   {
     "name": "Bubblespinner",
@@ -654,5 +654,1325 @@
   {
     "name": "Fnaf 4",
     "url": "/fnaf-4/index.html"
+  },
+  {
+    "name": "Fnf",
+    "url": "/fnf/index.html"
+  },
+  {
+    "name": "Fnfmidfight",
+    "url": "/fnfmidfight/index.html"
+  },
+  {
+    "name": "Fortnite",
+    "url": "/fortnite/index.html"
+  },
+  {
+    "name": "Frostbite",
+    "url": "/frostbite/index.html"
+  },
+  {
+    "name": "Frostbite 2",
+    "url": "/frostbite2/index.html"
+  },
+  {
+    "name": "Fruitninja",
+    "url": "/fruitninja/index.html"
+  },
+  {
+    "name": "Funnymadracing",
+    "url": "/funnymadracing/index.html"
+  },
+  {
+    "name": "Funnyshooter 2",
+    "url": "/funnyshooter2/index.html"
+  },
+  {
+    "name": "Fzero",
+    "url": "/fzero/index.html"
+  },
+  {
+    "name": "Fzerox",
+    "url": "/fzerox/index.html"
+  },
+  {
+    "name": "Garfieldgetsreal",
+    "url": "/garfieldgetsreal/index.html"
+  },
+  {
+    "name": "Gdlite",
+    "url": "/gdlite/index.html"
+  },
+  {
+    "name": "Geometrydashsky",
+    "url": "/geometrydashsky/index.html"
+  },
+  {
+    "name": "Geometryrash",
+    "url": "/geometryrash/index.html"
+  },
+  {
+    "name": "Getawayshootout",
+    "url": "/getawayshootout/index.html"
+  },
+  {
+    "name": "Gex 64",
+    "url": "/gex64/index.html"
+  },
+  {
+    "name": "Goball",
+    "url": "/goball/index.html"
+  },
+  {
+    "name": "Golddiggerfrvr",
+    "url": "/golddiggerfrvr/index.html"
+  },
+  {
+    "name": "Goldenaxe",
+    "url": "/goldenaxe/index.html"
+  },
+  {
+    "name": "Goldeneye 007",
+    "url": "/goldeneye007/index.html"
+  },
+  {
+    "name": "Goldensun",
+    "url": "/goldensun/index.html"
+  },
+  {
+    "name": "Grandtheftgrotto",
+    "url": "/grandtheftgrotto/index.html"
+  },
+  {
+    "name": "Gunfest",
+    "url": "/gunfest/index.html"
+  },
+  {
+    "name": "Gunmayhem",
+    "url": "/gunmayhem/index.html"
+  },
+  {
+    "name": "Gunmayhem 2",
+    "url": "/gunmayhem2/index.html"
+  },
+  {
+    "name": "Gunmayhemredux",
+    "url": "/gunmayhemredux/index.html"
+  },
+  {
+    "name": "Gunstarheroes",
+    "url": "/gunstarheroes/index.html"
+  },
+  {
+    "name": "Happywheels",
+    "url": "/happywheels/index.html"
+  },
+  {
+    "name": "Harvestmoon",
+    "url": "/harvestmoon/index.html"
+  },
+  {
+    "name": "Harvestmoon 64",
+    "url": "/harvestmoon64/index.html"
+  },
+  {
+    "name": "Helixjump",
+    "url": "/helixjump/index.html"
+  },
+  {
+    "name": "Hexgl",
+    "url": "/hexgl/index.html"
+  },
+  {
+    "name": "Holeio",
+    "url": "/holeio/index.html"
+  },
+  {
+    "name": "Houseofhazards",
+    "url": "/houseofhazards/index.html"
+  },
+  {
+    "name": "Icebreaker",
+    "url": "/icebreaker/index.html"
+  },
+  {
+    "name": "Iceclimber",
+    "url": "/iceclimber/index.html"
+  },
+  {
+    "name": "Illusionofgaia",
+    "url": "/illusionofgaia/index.html"
+  },
+  {
+    "name": "Infiltratingtheairship",
+    "url": "/infiltratingtheairship/index.html"
+  },
+  {
+    "name": "Infinitecraft",
+    "url": "/infinitecraft/index.html"
+  },
+  {
+    "name": "Jetforcegemini",
+    "url": "/jetforcegemini/index.html"
+  },
+  {
+    "name": "Jetpackjoyride",
+    "url": "/jetpackjoyride/index.html"
+  },
+  {
+    "name": "Justfalllol",
+    "url": "/justfalllol/index.html"
+  },
+  {
+    "name": "Kidicarus",
+    "url": "/kidicarus/index.html"
+  },
+  {
+    "name": "Kirby 64",
+    "url": "/kirby64/index.html"
+  },
+  {
+    "name": "Kirbyamazingmirror",
+    "url": "/kirbyamazingmirror/index.html"
+  },
+  {
+    "name": "Kirbymassattack",
+    "url": "/kirbymassattack/index.html"
+  },
+  {
+    "name": "Kirbypowerpaintbrush",
+    "url": "/kirbypowerpaintbrush/index.html"
+  },
+  {
+    "name": "Kirbysdreamland",
+    "url": "/kirbysdreamland/index.html"
+  },
+  {
+    "name": "Kirbysdreamland 2",
+    "url": "/kirbysdreamland2/index.html"
+  },
+  {
+    "name": "Knifehit",
+    "url": "/knifehit/index.html"
+  },
+  {
+    "name": "Lazyjump 3 D",
+    "url": "/lazyjump3d/index.html"
+  },
+  {
+    "name": "Learntofly",
+    "url": "/learntofly/index.html"
+  },
+  {
+    "name": "Learntofly 2",
+    "url": "/learntofly2/index.html"
+  },
+  {
+    "name": "Learntofly 3",
+    "url": "/learntofly3/index.html"
+  },
+  {
+    "name": "Legobatman",
+    "url": "/legobatman/index.html"
+  },
+  {
+    "name": "Linerider",
+    "url": "/linerider/index.html"
+  },
+  {
+    "name": "Linksawakeningdx",
+    "url": "/linksawakeningdx/index.html"
+  },
+  {
+    "name": "Linktothepast",
+    "url": "/linktothepast/index.html"
+  },
+  {
+    "name": "Lowsadventures 2",
+    "url": "/lowsadventures2/index.html"
+  },
+  {
+    "name": "Majorasmask",
+    "url": "/majorasmask/index.html"
+  },
+  {
+    "name": "Marioandluigipartnersintime",
+    "url": "/marioandluigipartnersintime/index.html"
+  },
+  {
+    "name": "Mariocombat",
+    "url": "/mariocombat/index.html"
+  },
+  {
+    "name": "Mariogolf",
+    "url": "/mariogolf/index.html"
+  },
+  {
+    "name": "Mariokart 64",
+    "url": "/mariokart64/index.html"
+  },
+  {
+    "name": "Mariokartds",
+    "url": "/mariokartds/index.html"
+  },
+  {
+    "name": "Mariokartsupercircuit",
+    "url": "/mariokartsupercircuit/index.html"
+  },
+  {
+    "name": "Mariopaint",
+    "url": "/mariopaint/index.html"
+  },
+  {
+    "name": "Marioparty",
+    "url": "/marioparty/index.html"
+  },
+  {
+    "name": "Marioparty 2",
+    "url": "/marioparty2/index.html"
+  },
+  {
+    "name": "Marioparty 3",
+    "url": "/marioparty3/index.html"
+  },
+  {
+    "name": "Mariopartyadvance",
+    "url": "/mariopartyadvance/index.html"
+  },
+  {
+    "name": "Mariopartyds",
+    "url": "/mariopartyds/index.html"
+  },
+  {
+    "name": "Mariopinballland",
+    "url": "/mariopinballland/index.html"
+  },
+  {
+    "name": "Mariotennis",
+    "url": "/mariotennis/index.html"
+  },
+  {
+    "name": "Mc",
+    "url": "/mc/index.html"
+  },
+  {
+    "name": "Mcclassic",
+    "url": "/mcclassic/index.html"
+  },
+  {
+    "name": "Mctowerdefence 2",
+    "url": "/mctowerdefence2/index.html"
+  },
+  {
+    "name": "Megaman 2",
+    "url": "/megaman2/index.html"
+  },
+  {
+    "name": "Megamanx",
+    "url": "/megamanx/index.html"
+  },
+  {
+    "name": "Megamanzero",
+    "url": "/megamanzero/index.html"
+  },
+  {
+    "name": "Metalgearsolid",
+    "url": "/metalgearsolid/index.html"
+  },
+  {
+    "name": "Metroid",
+    "url": "/metroid/index.html"
+  },
+  {
+    "name": "Metroidfusion",
+    "url": "/metroidfusion/index.html"
+  },
+  {
+    "name": "Metroidii",
+    "url": "/metroidii/index.html"
+  },
+  {
+    "name": "Minesweeper",
+    "url": "/minesweeper/index.html"
+  },
+  {
+    "name": "Monkeymart",
+    "url": "/monkeymart/index.html"
+  },
+  {
+    "name": "Monopoly",
+    "url": "/monopoly/index.html"
+  },
+  {
+    "name": "Monsterbrawl",
+    "url": "/monsterbrawl/index.html"
+  },
+  {
+    "name": "Mortalkombat 4",
+    "url": "/mortalkombat4/index.html"
+  },
+  {
+    "name": "Mother 3",
+    "url": "/mother3/index.html"
+  },
+  {
+    "name": "Motox 3 M",
+    "url": "/motox3m/index.html"
+  },
+  {
+    "name": "Motox 3 Mpool",
+    "url": "/motox3mpool/index.html"
+  },
+  {
+    "name": "Motox 3 Mspooky",
+    "url": "/motox3mspooky/index.html"
+  },
+  {
+    "name": "Motox 3 Mwinter",
+    "url": "/motox3mwinter/index.html"
+  },
+  {
+    "name": "Multitask",
+    "url": "/multitask/index.html"
+  },
+  {
+    "name": "Mutiny",
+    "url": "/mutiny/index.html"
+  },
+  {
+    "name": "Mysticalninja",
+    "url": "/mysticalninja/index.html"
+  },
+  {
+    "name": "Neonrider",
+    "url": "/neonrider/index.html"
+  },
+  {
+    "name": "Newsupermariobros",
+    "url": "/newsupermariobros/index.html"
+  },
+  {
+    "name": "Ngon",
+    "url": "/ngon/index.html"
+  },
+  {
+    "name": "Ninjagaiden",
+    "url": "/ninjagaiden/index.html"
+  },
+  {
+    "name": "Nintendogs",
+    "url": "/nintendogs/index.html"
+  },
+  {
+    "name": "Nitromemustdie",
+    "url": "/nitromemustdie/index.html"
+  },
+  {
+    "name": "Ocarinaoftime",
+    "url": "/ocarinaoftime/index.html"
+  },
+  {
+    "name": "Offlineparadise",
+    "url": "/offlineparadise/index.html"
+  },
+  {
+    "name": "Oodlegobs",
+    "url": "/oodlegobs/index.html"
+  },
+  {
+    "name": "Osumania",
+    "url": "/osumania/index.html"
+  },
+  {
+    "name": "Ovo",
+    "url": "/ovo/index.html"
+  },
+  {
+    "name": "Pacman",
+    "url": "/pacman/index.html"
+  },
+  {
+    "name": "Pacmanworld",
+    "url": "/pacmanworld/index.html"
+  },
+  {
+    "name": "Pakohighway",
+    "url": "/pakohighway/index.html"
+  },
+  {
+    "name": "Pandemic 2",
+    "url": "/pandemic2/index.html"
+  },
+  {
+    "name": "Papalouie",
+    "url": "/papalouie/index.html"
+  },
+  {
+    "name": "Papalouie 2",
+    "url": "/papalouie2/index.html"
+  },
+  {
+    "name": "Papalouie 3",
+    "url": "/papalouie3/index.html"
+  },
+  {
+    "name": "Papasbakeria",
+    "url": "/papasbakeria/index.html"
+  },
+  {
+    "name": "Papasburgeria",
+    "url": "/papasburgeria/index.html"
+  },
+  {
+    "name": "Papascheeseria",
+    "url": "/papascheeseria/index.html"
+  },
+  {
+    "name": "Papascupcakeria",
+    "url": "/papascupcakeria/index.html"
+  },
+  {
+    "name": "Papasdonuteria",
+    "url": "/papasdonuteria/index.html"
+  },
+  {
+    "name": "Papasfreezeria",
+    "url": "/papasfreezeria/index.html"
+  },
+  {
+    "name": "Papashotdoggeria",
+    "url": "/papashotdoggeria/index.html"
+  },
+  {
+    "name": "Papaspancakeria",
+    "url": "/papaspancakeria/index.html"
+  },
+  {
+    "name": "Papaspastaria",
+    "url": "/papaspastaria/index.html"
+  },
+  {
+    "name": "Papaspizzaria",
+    "url": "/papaspizzaria/index.html"
+  },
+  {
+    "name": "Papasscooperia",
+    "url": "/papasscooperia/index.html"
+  },
+  {
+    "name": "Papassushiria",
+    "url": "/papassushiria/index.html"
+  },
+  {
+    "name": "Papastacomia",
+    "url": "/papastacomia/index.html"
+  },
+  {
+    "name": "Papaswingeria",
+    "url": "/papaswingeria/index.html"
+  },
+  {
+    "name": "Paperio 2",
+    "url": "/paperio2/index.html"
+  },
+  {
+    "name": "Paperio 3 D",
+    "url": "/paperio3d/index.html"
+  },
+  {
+    "name": "Papermario",
+    "url": "/papermario/index.html"
+  },
+  {
+    "name": "Phantasystariv",
+    "url": "/phantasystariv/index.html"
+  },
+  {
+    "name": "Pickcrafter",
+    "url": "/pickcrafter/index.html"
+  },
+  {
+    "name": "Picrossds",
+    "url": "/picrossds/index.html"
+  },
+  {
+    "name": "Pizzatower",
+    "url": "/pizzatower/index.html"
+  },
+  {
+    "name": "Pokemondiamond",
+    "url": "/pokemondiamond/index.html"
+  },
+  {
+    "name": "Pokemonemerald",
+    "url": "/pokemonemerald/index.html"
+  },
+  {
+    "name": "Pokemonfirered",
+    "url": "/pokemonfirered/index.html"
+  },
+  {
+    "name": "Pokemonleafgreen",
+    "url": "/pokemonleafgreen/index.html"
+  },
+  {
+    "name": "Pokemonmysterydungeon",
+    "url": "/pokemonmysterydungeon/index.html"
+  },
+  {
+    "name": "Pokemonplatinum",
+    "url": "/pokemonplatinum/index.html"
+  },
+  {
+    "name": "Pokemonruby",
+    "url": "/pokemonruby/index.html"
+  },
+  {
+    "name": "Pokemonsapphire",
+    "url": "/pokemonsapphire/index.html"
+  },
+  {
+    "name": "Pokemonsnap",
+    "url": "/pokemonsnap/index.html"
+  },
+  {
+    "name": "Pokemonsoulsilver",
+    "url": "/pokemonsoulsilver/index.html"
+  },
+  {
+    "name": "Pokemonstadium",
+    "url": "/pokemonstadium/index.html"
+  },
+  {
+    "name": "Pokemonunbound",
+    "url": "/pokemonunbound/index.html"
+  },
+  {
+    "name": "Pokemonyellow",
+    "url": "/pokemonyellow/index.html"
+  },
+  {
+    "name": "Pool",
+    "url": "/pool/index.html"
+  },
+  {
+    "name": "Portal",
+    "url": "/portal/index.html"
+  },
+  {
+    "name": "Portal 2",
+    "url": "/portal2/index.html"
+  },
+  {
+    "name": "Precisionclient",
+    "url": "/precisionclient/index.html"
+  },
+  {
+    "name": "Professorlayton",
+    "url": "/professorlayton/index.html"
+  },
+  {
+    "name": "Punchout",
+    "url": "/punchout/index.html"
+  },
+  {
+    "name": "Quest 64",
+    "url": "/quest64/index.html"
+  },
+  {
+    "name": "Rabbitsamurai",
+    "url": "/rabbitsamurai/index.html"
+  },
+  {
+    "name": "Raftwars",
+    "url": "/raftwars/index.html"
+  },
+  {
+    "name": "Raftwars 2",
+    "url": "/raftwars2/index.html"
+  },
+  {
+    "name": "Rangerx",
+    "url": "/rangerx/index.html"
+  },
+  {
+    "name": "Rayman 3",
+    "url": "/rayman3/index.html"
+  },
+  {
+    "name": "Recoil",
+    "url": "/recoil/index.html"
+  },
+  {
+    "name": "Redball 1",
+    "url": "/redball1/index.html"
+  },
+  {
+    "name": "Redball 3",
+    "url": "/redball3/index.html"
+  },
+  {
+    "name": "Redball 4",
+    "url": "/redball4/index.html"
+  },
+  {
+    "name": "Redballv 2",
+    "url": "/redballv2/index.html"
+  },
+  {
+    "name": "Redballv 3",
+    "url": "/redballv3/index.html"
+  },
+  {
+    "name": "Retrobowl",
+    "url": "/retrobowl/index.html"
+  },
+  {
+    "name": "Riddleschool/riddleschool 1",
+    "url": "/riddleschool/riddleschool1/index.html"
+  },
+  {
+    "name": "Risehigher",
+    "url": "/risehigher/index.html"
+  },
+  {
+    "name": "Ristar",
+    "url": "/ristar/index.html"
+  },
+  {
+    "name": "Roblox",
+    "url": "/roblox/index.html"
+  },
+  {
+    "name": "Rocketsoccer",
+    "url": "/rocketsoccer/index.html"
+  },
+  {
+    "name": "Rooftop",
+    "url": "/rooftop/index.html"
+  },
+  {
+    "name": "Rooftop 2",
+    "url": "/rooftop2/index.html"
+  },
+  {
+    "name": "Roughdino",
+    "url": "/roughdino/index.html"
+  },
+  {
+    "name": "Run",
+    "url": "/run/index.html"
+  },
+  {
+    "name": "Run 2",
+    "url": "/run2/index.html"
+  },
+  {
+    "name": "Run 3",
+    "url": "/run3/index.html"
+  },
+  {
+    "name": "Run 3 Plus",
+    "url": "/run3plus/index.html"
+  },
+  {
+    "name": "Sandtrix",
+    "url": "/sandtrix/index.html"
+  },
+  {
+    "name": "Scribblenauts",
+    "url": "/scribblenauts/index.html"
+  },
+  {
+    "name": "Shapeshipper",
+    "url": "/shapeshipper/index.html"
+  },
+  {
+    "name": "Shift",
+    "url": "/shift/index.html"
+  },
+  {
+    "name": "Shift 2",
+    "url": "/shift2/index.html"
+  },
+  {
+    "name": "Shift 3",
+    "url": "/shift3/index.html"
+  },
+  {
+    "name": "Shift 4",
+    "url": "/shift4/index.html"
+  },
+  {
+    "name": "Shiningforce",
+    "url": "/shiningforce/index.html"
+  },
+  {
+    "name": "Shinobiiii",
+    "url": "/shinobiiii/index.html"
+  },
+  {
+    "name": "Shopempire",
+    "url": "/shopempire/index.html"
+  },
+  {
+    "name": "Shopempirefable",
+    "url": "/shopempirefable/index.html"
+  },
+  {
+    "name": "Shrek 2",
+    "url": "/shrek2/index.html"
+  },
+  {
+    "name": "Simcity",
+    "url": "/simcity/index.html"
+  },
+  {
+    "name": "Simpsonsroadrage",
+    "url": "/simpsonsroadrage/index.html"
+  },
+  {
+    "name": "Skibidi 1 V 100",
+    "url": "/skibidi1v100/index.html"
+  },
+  {
+    "name": "Skibiditoiletattack",
+    "url": "/skibiditoiletattack/index.html"
+  },
+  {
+    "name": "Skywire",
+    "url": "/skywire/index.html"
+  },
+  {
+    "name": "Skywire 2",
+    "url": "/skywire2/index.html"
+  },
+  {
+    "name": "Slope",
+    "url": "/slope/index.html"
+  },
+  {
+    "name": "Slope 2",
+    "url": "/slope2/index.html"
+  },
+  {
+    "name": "Slopeball",
+    "url": "/slopeball/index.html"
+  },
+  {
+    "name": "Slopecity",
+    "url": "/slopecity/index.html"
+  },
+  {
+    "name": "Sm 64",
+    "url": "/sm64/index.html"
+  },
+  {
+    "name": "Sm 64 Ds",
+    "url": "/sm64ds/index.html"
+  },
+  {
+    "name": "Snake",
+    "url": "/snake/index.html"
+  },
+  {
+    "name": "Snowbattleio",
+    "url": "/snowbattleio/index.html"
+  },
+  {
+    "name": "Snowrider 3 D",
+    "url": "/snowrider3d/index.html"
+  },
+  {
+    "name": "Soccerrandom",
+    "url": "/soccerrandom/index.html"
+  },
+  {
+    "name": "Solitaire",
+    "url": "/solitaire/index.html"
+  },
+  {
+    "name": "Sonicadvance",
+    "url": "/sonicadvance/index.html"
+  },
+  {
+    "name": "Sonicadvance 2",
+    "url": "/sonicadvance2/index.html"
+  },
+  {
+    "name": "Sonicandknuckles",
+    "url": "/sonicandknuckles/index.html"
+  },
+  {
+    "name": "Sonicrush",
+    "url": "/sonicrush/index.html"
+  },
+  {
+    "name": "Sonicspinball",
+    "url": "/sonicspinball/index.html"
+  },
+  {
+    "name": "Sonicthehedgehog",
+    "url": "/sonicthehedgehog/index.html"
+  },
+  {
+    "name": "Sonicthehedgehog 2",
+    "url": "/sonicthehedgehog2/index.html"
+  },
+  {
+    "name": "Sonicthehedgehog 3",
+    "url": "/sonicthehedgehog3/index.html"
+  },
+  {
+    "name": "Sortthecourt",
+    "url": "/sortthecourt/index.html"
+  },
+  {
+    "name": "Spaceinvaders",
+    "url": "/spaceinvaders/index.html"
+  },
+  {
+    "name": "Spirittracks",
+    "url": "/spirittracks/index.html"
+  },
+  {
+    "name": "Sprinter",
+    "url": "/sprinter/index.html"
+  },
+  {
+    "name": "Stack",
+    "url": "/stack/index.html"
+  },
+  {
+    "name": "Stairrace 3 D",
+    "url": "/stairrace3d/index.html"
+  },
+  {
+    "name": "Starfox 64",
+    "url": "/starfox64/index.html"
+  },
+  {
+    "name": "Stateio",
+    "url": "/stateio/index.html"
+  },
+  {
+    "name": "Steakandjake",
+    "url": "/steakandjake/index.html"
+  },
+  {
+    "name": "Steakandjakemidnightmarch",
+    "url": "/steakandjakemidnightmarch/index.html"
+  },
+  {
+    "name": "Stealingthediamond",
+    "url": "/stealingthediamond/index.html"
+  },
+  {
+    "name": "Stickmanboost",
+    "url": "/stickmanboost/index.html"
+  },
+  {
+    "name": "Stickmanclimb",
+    "url": "/stickmanclimb/index.html"
+  },
+  {
+    "name": "Stickmangolf",
+    "url": "/stickmangolf/index.html"
+  },
+  {
+    "name": "Stickmanhook",
+    "url": "/stickmanhook/index.html"
+  },
+  {
+    "name": "Stickwar",
+    "url": "/stickwar/index.html"
+  },
+  {
+    "name": "Stickwar 2",
+    "url": "/stickwar2/index.html"
+  },
+  {
+    "name": "Streetfighter 2",
+    "url": "/streetfighter2/index.html"
+  },
+  {
+    "name": "Streetsofrage",
+    "url": "/streetsofrage/index.html"
+  },
+  {
+    "name": "Streetsofrage 2",
+    "url": "/streetsofrage2/index.html"
+  },
+  {
+    "name": "Subwayrunner",
+    "url": "/subwayrunner/index.html"
+  },
+  {
+    "name": "Subwaysurfers",
+    "url": "/subwaysurfers/index.html"
+  },
+  {
+    "name": "Sudoku",
+    "url": "/sudoku/index.html"
+  },
+  {
+    "name": "Superbomberman",
+    "url": "/superbomberman/index.html"
+  },
+  {
+    "name": "Superherodrop",
+    "url": "/superherodrop/index.html"
+  },
+  {
+    "name": "Superhot",
+    "url": "/superhot/index.html"
+  },
+  {
+    "name": "Supermariobros",
+    "url": "/supermariobros/index.html"
+  },
+  {
+    "name": "Supermariobros 2",
+    "url": "/supermariobros2/index.html"
+  },
+  {
+    "name": "Supermariobros 3",
+    "url": "/supermariobros3/index.html"
+  },
+  {
+    "name": "Supermarioconstruct",
+    "url": "/supermarioconstruct/index.html"
+  },
+  {
+    "name": "Supermarioflash",
+    "url": "/supermarioflash/index.html"
+  },
+  {
+    "name": "Supermarioflash 2",
+    "url": "/supermarioflash2/index.html"
+  },
+  {
+    "name": "Supermariokart",
+    "url": "/supermariokart/index.html"
+  },
+  {
+    "name": "Supermarioland",
+    "url": "/supermarioland/index.html"
+  },
+  {
+    "name": "Supermarioland 2",
+    "url": "/supermarioland2/index.html"
+  },
+  {
+    "name": "Supermariorpg",
+    "url": "/supermariorpg/index.html"
+  },
+  {
+    "name": "Supermarioworld",
+    "url": "/supermarioworld/index.html"
+  },
+  {
+    "name": "Supermeatboy",
+    "url": "/supermeatboy/index.html"
+  },
+  {
+    "name": "Supermetroid",
+    "url": "/supermetroid/index.html"
+  },
+  {
+    "name": "Supermonkeyballjr",
+    "url": "/supermonkeyballjr/index.html"
+  },
+  {
+    "name": "Superprincesspeach",
+    "url": "/superprincesspeach/index.html"
+  },
+  {
+    "name": "Supersmashbros",
+    "url": "/supersmashbros/index.html"
+  },
+  {
+    "name": "Supersmashflash",
+    "url": "/supersmashflash/index.html"
+  },
+  {
+    "name": "Superstarsaga",
+    "url": "/superstarsaga/index.html"
+  },
+  {
+    "name": "Supertennis",
+    "url": "/supertennis/index.html"
+  },
+  {
+    "name": "Supertreadmill",
+    "url": "/supertreadmill/index.html"
+  },
+  {
+    "name": "Surf",
+    "url": "/surf/index.html"
+  },
+  {
+    "name": "Swindler",
+    "url": "/swindler/index.html"
+  },
+  {
+    "name": "Swordsandsandals",
+    "url": "/swordsandsandals/index.html"
+  },
+  {
+    "name": "Swordsandsandals 2",
+    "url": "/swordsandsandals2/index.html"
+  },
+  {
+    "name": "Tabs",
+    "url": "/tabs/index.html"
+  },
+  {
+    "name": "Tanukisunset",
+    "url": "/tanukisunset/index.html"
+  },
+  {
+    "name": "Templerun 2",
+    "url": "/templerun2/index.html"
+  },
+  {
+    "name": "Territorialio",
+    "url": "/territorialio/index.html"
+  },
+  {
+    "name": "Testsubjectarena",
+    "url": "/testsubjectarena/index.html"
+  },
+  {
+    "name": "Testsubjectcomplete",
+    "url": "/testsubjectcomplete/index.html"
+  },
+  {
+    "name": "Tetris",
+    "url": "/tetris/index.html"
+  },
+  {
+    "name": "Tetrisds",
+    "url": "/tetrisds/index.html"
+  },
+  {
+    "name": "Thebindingofisaac",
+    "url": "/thebindingofisaac/index.html"
+  },
+  {
+    "name": "Theimpossiblequiz",
+    "url": "/theimpossiblequiz/index.html"
+  },
+  {
+    "name": "Theimpossiblequiz 2",
+    "url": "/theimpossiblequiz2/index.html"
+  },
+  {
+    "name": "Thelegendofzelda",
+    "url": "/thelegendofzelda/index.html"
+  },
+  {
+    "name": "Themehotel",
+    "url": "/themehotel/index.html"
+  },
+  {
+    "name": "Thereisnogame",
+    "url": "/thereisnogame/index.html"
+  },
+  {
+    "name": "Thesims 2",
+    "url": "/thesims2/index.html"
+  },
+  {
+    "name": "Thesims 3",
+    "url": "/thesims3/index.html"
+  },
+  {
+    "name": "Thisistheonlylevel",
+    "url": "/thisistheonlylevel/index.html"
+  },
+  {
+    "name": "Thumbfighter",
+    "url": "/thumbfighter/index.html"
+  },
+  {
+    "name": "Timeshooter 1",
+    "url": "/timeshooter1/index.html"
+  },
+  {
+    "name": "Timeshooter 2",
+    "url": "/timeshooter2/index.html"
+  },
+  {
+    "name": "Timeshooter 3",
+    "url": "/timeshooter3/index.html"
+  },
+  {
+    "name": "Tinyfishing",
+    "url": "/tinyfishing/index.html"
+  },
+  {
+    "name": "Townscaper",
+    "url": "/townscaper/index.html"
+  },
+  {
+    "name": "Tron",
+    "url": "/tron/index.html"
+  },
+  {
+    "name": "Tubejumpers",
+    "url": "/tubejumpers/index.html"
+  },
+  {
+    "name": "Tunnelrush",
+    "url": "/tunnelrush/index.html"
+  },
+  {
+    "name": "Turokdinosaurhunter",
+    "url": "/turokdinosaurhunter/index.html"
+  },
+  {
+    "name": "Twinshot",
+    "url": "/twinshot/index.html"
+  },
+  {
+    "name": "Twinshot 2",
+    "url": "/twinshot2/index.html"
+  },
+  {
+    "name": "Ultimateflashsonic",
+    "url": "/ultimateflashsonic/index.html"
+  },
+  {
+    "name": "Unfairmario",
+    "url": "/unfairmario/index.html"
+  },
+  {
+    "name": "Vectorman",
+    "url": "/vectorman/index.html"
+  },
+  {
+    "name": "Vectorman 2",
+    "url": "/vectorman2/index.html"
+  },
+  {
+    "name": "Vex",
+    "url": "/vex/index.html"
+  },
+  {
+    "name": "Vex 2",
+    "url": "/vex2/index.html"
+  },
+  {
+    "name": "Vex 3",
+    "url": "/vex3/index.html"
+  },
+  {
+    "name": "Vex 4",
+    "url": "/vex4/index.html"
+  },
+  {
+    "name": "Vex 5",
+    "url": "/vex5/index.html"
+  },
+  {
+    "name": "Vex 6",
+    "url": "/vex6/index.html"
+  },
+  {
+    "name": "Vex 7",
+    "url": "/vex7/index.html"
+  },
+  {
+    "name": "Volleyrandom",
+    "url": "/volleyrandom/index.html"
+  },
+  {
+    "name": "Wallsmash",
+    "url": "/wallsmash/index.html"
+  },
+  {
+    "name": "Warioland 4",
+    "url": "/warioland4/index.html"
+  },
+  {
+    "name": "Wariolandii",
+    "url": "/wariolandii/index.html"
+  },
+  {
+    "name": "Warioswoods",
+    "url": "/warioswoods/index.html"
+  },
+  {
+    "name": "Warioware",
+    "url": "/warioware/index.html"
+  },
+  {
+    "name": "Wariowarediy",
+    "url": "/wariowarediy/index.html"
+  },
+  {
+    "name": "Wariowaretouched",
+    "url": "/wariowaretouched/index.html"
+  },
+  {
+    "name": "Watermelongame",
+    "url": "/watermelongame/index.html"
+  },
+  {
+    "name": "Waterworks",
+    "url": "/waterworks/index.html"
+  },
+  {
+    "name": "Waverace 64",
+    "url": "/waverace64/index.html"
+  },
+  {
+    "name": "Wordle",
+    "url": "/wordle/index.html"
+  },
+  {
+    "name": "Worldshardestgame",
+    "url": "/worldshardestgame/index.html"
+  },
+  {
+    "name": "Worldshardestgame 2",
+    "url": "/worldshardestgame2/index.html"
+  },
+  {
+    "name": "Wormsworldparty",
+    "url": "/wormsworldparty/index.html"
+  },
+  {
+    "name": "Wubzzysamazingadventure",
+    "url": "/wubzzysamazingadventure/index.html"
+  },
+  {
+    "name": "Xx 142 B 2.exe",
+    "url": "/xx142-b2.exe/index.html"
+  },
+  {
+    "name": "Yohoho",
+    "url": "/yohoho/index.html"
+  },
+  {
+    "name": "Yoshisisland",
+    "url": "/yoshisisland/index.html"
+  },
+  {
+    "name": "Yoshisstory",
+    "url": "/yoshisstory/index.html"
+  },
+  {
+    "name": "Zombocalypse",
+    "url": "/zombocalypse/index.html"
+  },
+  {
+    "name": "Zombotron",
+    "url": "/zombotron/index.html"
+  },
+  {
+    "name": "Zombotron 2",
+    "url": "/zombotron2/index.html"
   }
 ]

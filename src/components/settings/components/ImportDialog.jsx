@@ -23,6 +23,7 @@ const isValidBackupShape = (parsed) => {
 
 export default function ImportDialog({ open, onClose }) {
     const { options } = useOptions();
+    const isLight = options?.type === 'light' || options?.theme === 'light' || options?.themeName === 'lightTheme';
     const [render, setRender] = useState(false);
     const [anim, setAnim] = useState(false);
     const fileInputRef = useRef(null);
@@ -167,14 +168,14 @@ export default function ImportDialog({ open, onClose }) {
             <div className="absolute inset-0 bg-black/50" onClick={onClose} />
             <div
                 className={clsx(
-                    'relative w-full max-w-lg rounded-xl border border-white/10 overflow-hidden transition-all duration-300 ease-out',
+                    clsx('ghost-glass relative w-full max-w-lg rounded-xl border overflow-hidden transition-all duration-300 ease-out', isLight ? 'border-black/10' : 'border-white/10'),
                     anim ? 'scale-100 translate-y-0' : 'scale-[0.95] translate-y-4'
                 )}
                 style={{ backgroundColor: options.quickModalBgColor || options.menuColor || '#1a252f' }}
             >
-                <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                <div className={clsx("flex items-center justify-between px-4 py-3 border-b", isLight ? "border-black/10" : "border-white/10")}>
                     <h2 className="text-lg font-semibold">Import Ghost Data</h2>
-                    <button onClick={onClose} className="p-1 rounded-md hover:bg-[#ffffff12]">
+                    <button onClick={onClose} className={clsx("p-1 rounded-md", isLight ? "hover:bg-black/[0.06]" : "hover:bg-[#ffffff12]")}>
                         <X size={18} />
                     </button>
                 </div>
@@ -187,7 +188,7 @@ export default function ImportDialog({ open, onClose }) {
                             <div
                                 className={clsx(
                                     "w-full h-32 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-colors gap-2",
-                                    isDragging ? "border-[#22c55e] bg-[#22c55e]/10" : "border-white/20 hover:bg-white/5"
+                                    isDragging ? "border-[#22c55e] bg-[#22c55e]/10" : (isLight ? "border-black/20 hover:bg-black/[0.04]" : "border-white/20 hover:bg-white/5")
                                 )}
                                 onClick={() => fileInputRef.current?.click()}
                                 onDragOver={handleDragOver}
@@ -207,7 +208,7 @@ export default function ImportDialog({ open, onClose }) {
                         </>
                     ) : (
                         <>
-                            <div className="flex items-center gap-3 p-3 rounded-lg bg-[#ffffff0a] border border-white/10">
+                            <div className={clsx("flex items-center gap-3 p-3 rounded-lg border", isLight ? "bg-black/[0.04] border-black/10" : "bg-[#ffffff0a] border-white/10")}>
                                 <FileJson size={20} className="text-[#22c55e]" />
                                 <div className="min-w-0">
                                     <p className="text-sm font-medium truncate">{selectedFile.name}</p>
@@ -243,7 +244,7 @@ export default function ImportDialog({ open, onClose }) {
                                             onClick={() => hasData && toggle(item.id)}
                                             className={clsx(
                                                 "flex items-center justify-between p-3 rounded-lg transition-colors duration-200",
-                                                hasData ? "bg-[#ffffff0a] hover:bg-[#ffffff10] cursor-pointer" : "bg-[#ffffff04] opacity-50 cursor-not-allowed"
+                                                hasData ? (isLight ? "bg-black/[0.04] hover:bg-black/[0.08] cursor-pointer" : "bg-[#ffffff0a] hover:bg-[#ffffff10] cursor-pointer") : (isLight ? "bg-black/[0.02] opacity-50 cursor-not-allowed" : "bg-[#ffffff04] opacity-50 cursor-not-allowed")
                                             )}
                                         >
                                             <div>
@@ -272,7 +273,7 @@ export default function ImportDialog({ open, onClose }) {
                             </div>
 
                             <div className="pt-2 flex justify-end gap-2">
-                                <button onClick={() => { setSelectedFile(null); setParsedData(null); }} className="px-4 py-2 rounded-md hover:bg-[#ffffff10] text-sm">Cancel</button>
+                                <button onClick={() => { setSelectedFile(null); setParsedData(null); }} className={clsx("px-4 py-2 rounded-md text-sm", isLight ? "hover:bg-black/[0.06]" : "hover:bg-[#ffffff10]")}>Cancel</button>
                                 <button
                                     onClick={executeImport}
                                     className="px-4 py-2 rounded-md bg-[#22c55e]/20 text-[#22c55e] hover:bg-[#22c55e]/30 text-sm font-medium flex items-center gap-2 transition-colors"

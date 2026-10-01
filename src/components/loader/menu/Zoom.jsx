@@ -12,9 +12,7 @@ const Zoom = () => {
   const actab = tabs.find((tab) => tab.active);
   const currentz = actab ? zoomLevels[actab.id] || 100 : 100;
   const isNewTab = actab?.url === 'tabs://new';
-  // allow zoom for all tabs, including ghost://home (newtab). when on the home
-  // page there is no iframe, so we pass null as the frame ref  the viewer reads
-  // zoomlevels and applies a css transform to the newtab wrapper instead.
+  // newtab has no iframe, so it gets a null frame ref and viewer zooms the wrapper
   const canZoom = !!actab;
   const frameRef = isNewTab ? null : activeFrameRef;
 
@@ -40,7 +38,7 @@ const Zoom = () => {
           disabled={!canZoom || currentz <= 50}
           className={clsx(
             'w-6 h-6 rounded flex items-center justify-center',
-            options.type === 'light' ? 'hover:bg-gray-100' : 'hover:bg-[#ffffff0c]',
+            (options.type === 'light' || options.theme === 'light' || options.themeName === 'lightTheme') ? 'hover:bg-gray-100' : 'hover:bg-[#ffffff0c]',
             !canZoom || currentz <= 50 ? 'opacity-50 cursor-not-allowed' : '',
           )}
         >
@@ -52,7 +50,7 @@ const Zoom = () => {
           disabled={!canZoom}
           className={clsx(
             'text-[0.75rem] min-w-[3rem] text-center px-2 py-0.5 rounded',
-            options.type === 'light' ? 'hover:bg-gray-100' : 'hover:bg-[#ffffff0c]',
+            (options.type === 'light' || options.theme === 'light' || options.themeName === 'lightTheme') ? 'hover:bg-gray-100' : 'hover:bg-[#ffffff0c]',
             !canZoom ? 'opacity-50 cursor-not-allowed' : '',
           )}
         >
@@ -64,7 +62,7 @@ const Zoom = () => {
           disabled={!canZoom || currentz >= 200}
           className={clsx(
             'w-6 h-6 rounded flex items-center justify-center',
-            options.type === 'light' ? 'hover:bg-gray-100' : 'hover:bg-[#ffffff0c]',
+            (options.type === 'light' || options.theme === 'light' || options.themeName === 'lightTheme') ? 'hover:bg-gray-100' : 'hover:bg-[#ffffff0c]',
             !canZoom || currentz >= 200 ? 'opacity-50 cursor-not-allowed' : '',
           )}
         >

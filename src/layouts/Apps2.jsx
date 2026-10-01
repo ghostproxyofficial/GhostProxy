@@ -106,6 +106,87 @@ const ensureAnyScriptLoaded = async (srcList, globalName) => {
   return false;
 };
 
+// luminsdk lifecycle.
+// the sdk keeps one shared connection and destroy() kills it for everyone, so
+// every later getImageUrl/getGameUrl threw "SDK not initialized" and icons
+// never loaded. init once, reuse it, only destroy on a real teardown
+const LUMIN_INIT_TIMEOUT_MS = 20000;
+let luminInitPromise = null;
+
+const withTimeout = (promise, ms, label) =>
+  Promise.race([
+    promise,
+    new Promise((_, reject) => {
+      window.setTimeout(() => reject(new Error(`[lumin] ${label} timed out`)), ms);
+    }),
+  ]);
+
+const isLuminUsable = () =>
+  typeof window !== 'undefined' &&
+  typeof window.Lumin?.init === 'function' &&
+  typeof window.Lumin?.getGames === 'function';
+
+const ensureLuminReady = async () => {
+  if (typeof window === 'undefined') return false;
+  if (!isLuminUsable()) {
+    const loaded = await ensureAnyScriptLoaded(LUMIN_SDK_SCRIPT_SRCS, 'Lumin');
+    if (!loaded || !isLuminUsable()) return false;
+  }
+
+  if (!luminInitPromise) {
+    luminInitPromise = (async () => {
+      try {
+        await withTimeout(window.Lumin.init({ headless: true, theme: 'dark' }), LUMIN_INIT_TIMEOUT_MS, 'init');
+        return true;
+      } catch (error) {
+        console.error('[lumin] init failed', error);
+        return false;
+      }
+    })();
+  }
+
+  const ready = await luminInitPromise;
+  if (!ready) luminInitPromise = null;
+  return ready;
+};
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('pagehide', () => {
+    try { window.Lumin?.destroy?.(); } catch { }
+    luminInitPromise = null;
+  });
+}
+
+// self-healing wrapper for the lumin calls.
+// the shared worker can drop silently and calls then reject with "SDK not
+// initialized". the cached init promise meant it never recovered, so drop it
+// and retry once
+const luminNotInitialized = (error) =>
+  /not initialized|call .*init|destroyed|worker/i.test(String(error?.message || error));
+
+const callLumin = async (method, args = [], timeoutMs = 20000, label = method) => {
+  if (typeof window === 'undefined') return null;
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const ready = await ensureLuminReady();
+    if (!ready || typeof window.Lumin?.[method] !== 'function') return null;
+
+    try {
+      return await withTimeout(window.Lumin[method](...args), timeoutMs, label);
+    } catch (error) {
+      if (luminNotInitialized(error)) {
+        // drop cached init so the next loop tries again
+        luminInitPromise = null;
+        await wait(250 * (attempt + 1));
+        continue;
+      }
+      if (attempt === 1) return null;
+    }
+  }
+
+  return null;
+};
+
 const readCachedLuminGames = () => {
   try {
     const raw = localStorage.getItem(LUMIN_GAMES_CACHE_KEY);
@@ -150,19 +231,22 @@ const writeCachedLuminGames = (games) => {
   } catch { }
 };
 
+// turn one image token into a url, '' if it fails
+const resolveLuminImageUrl = async (token) => {
+  const trimmed = String(token || '').trim();
+  if (!trimmed) return '';
+  const result = await callLumin('getImageUrl', [trimmed], 15000, 'getImageUrl');
+  return result ? String(result).trim() : '';
+};
+
 const fetchLuminSdkGames = async () => {
   if (typeof window === 'undefined') return [];
 
-  const ready = await ensureAnyScriptLoaded(LUMIN_SDK_SCRIPT_SRCS, 'Lumin');
-  if (!ready || typeof window.Lumin?.init !== 'function' || typeof window.Lumin?.getGames !== 'function') return [];
+  const ready = await ensureLuminReady();
+  if (!ready || typeof window.Lumin?.getGames !== 'function') return [];
 
   for (let attempt = 0; attempt < 3; attempt += 1) {
     try {
-      await window.Lumin.init({
-        headless: true,
-        theme: 'dark',
-      });
-
       const pageLimit = 1000;
       let page = 1;
       const aggregate = [];
@@ -173,7 +257,7 @@ const fetchLuminSdkGames = async () => {
         let response = null;
         for (let pageAttempt = 0; pageAttempt < 3; pageAttempt += 1) {
           try {
-            response = await window.Lumin.getGames({ page, limit: pageLimit, q: '' });
+            response = await callLumin('getGames', [{ page, limit: pageLimit, q: '' }], 20000, 'getGames');
             if (Array.isArray(response?.games)) break;
           } catch { }
 
@@ -225,33 +309,23 @@ const fetchLuminSdkGames = async () => {
 
       writeCachedLuminGames(dedupedGames);
 
-      // resolve only the first set of icons to avoid overloading the sdk/network.
+      // only preload the first visible icons, the rest hydrate in the grid
       const hydratedGames = dedupedGames.map((game) => ({ ...game }));
-      if (typeof window.Lumin?.getImageUrl === 'function') {
-        const preloadCount = Math.min(LUMIN_ICON_PRELOAD_LIMIT, hydratedGames.length);
-        await Promise.all(
-          hydratedGames.slice(0, preloadCount).map(async (game) => {
-            const token = String(game.luminImageToken || '').trim();
-            if (!token) return;
-            try {
-              const blobUrl = String(await window.Lumin.getImageUrl(token)).trim();
-              if (blobUrl) {
-                game.icon = blobUrl;
-                game.noIcon = false;
-              }
-            } catch { }
-          }),
-        );
-      }
+      const preloadCount = Math.min(LUMIN_ICON_PRELOAD_LIMIT, hydratedGames.length);
+      await Promise.all(
+        hydratedGames.slice(0, preloadCount).map(async (game) => {
+          const blobUrl = await resolveLuminImageUrl(game.luminImageToken);
+          if (blobUrl) {
+            game.icon = blobUrl;
+            game.noIcon = false;
+          }
+        }),
+      );
 
       return hydratedGames;
     } catch {
       if (attempt === 2) return [];
       await wait(350 * (attempt + 1));
-    } finally {
-      try {
-        window.Lumin.destroy?.();
-      } catch { }
     }
   }
 
@@ -281,53 +355,34 @@ const resolveLuminGameUrl = async (gameId) => {
   const trimmedId = String(gameId || '').trim();
   if (!trimmedId || typeof window === 'undefined') return '';
 
-  const ready = await ensureAnyScriptLoaded(LUMIN_SDK_SCRIPT_SRCS, 'Lumin');
-  if (!ready || typeof window.Lumin?.init !== 'function' || typeof window.Lumin?.getGameUrl !== 'function') {
-    return '';
-  }
-
   const query = trimmedId.replace(/[-_]+/g, ' ').trim();
 
+  const readUrl = (result) => {
+    if (typeof result === 'string') return result.trim();
+    return String(result?.url || '').trim();
+  };
+
   for (let attempt = 0; attempt < 3; attempt += 1) {
-    try {
-      await window.Lumin.init({ headless: true, theme: 'dark' });
+    // direct id
+    for (let directTry = 0; directTry < 2; directTry += 1) {
+      const url = readUrl(await callLumin('getGameUrl', [trimmedId], 20000, 'getGameUrl'));
+      if (url) return url;
+    }
 
-      for (let directTry = 0; directTry < 2; directTry += 1) {
-        try {
-          const result = await window.Lumin.getGameUrl(trimmedId);
-          const url = String(result?.url || '').trim();
-          if (url) return url;
-        } catch { }
-      }
+    // search by name, then resolve the matched id
+    const searchPayload = await callLumin('search', [query || trimmedId], 15000, 'search');
+    const searchedId = findLuminGameIdFromPayload(searchPayload, trimmedId);
+    if (searchedId) {
+      const url = readUrl(await callLumin('getGameUrl', [searchedId], 20000, 'getGameUrl'));
+      if (url) return url;
+    }
 
-      if (typeof window.Lumin?.search === 'function') {
-        try {
-          const searchPayload = await window.Lumin.search(query || trimmedId);
-          const searchedId = findLuminGameIdFromPayload(searchPayload, trimmedId);
-          if (searchedId) {
-            const result = await window.Lumin.getGameUrl(searchedId);
-            const url = String(result?.url || '').trim();
-            if (url) return url;
-          }
-        } catch { }
-      }
-
-      if (typeof window.Lumin?.getGames === 'function') {
-        try {
-          const pagePayload = await window.Lumin.getGames({ page: 1, limit: 40, q: query || trimmedId });
-          const fetchedId = findLuminGameIdFromPayload(pagePayload, trimmedId);
-          if (fetchedId) {
-            const result = await window.Lumin.getGameUrl(fetchedId);
-            const url = String(result?.url || '').trim();
-            if (url) return url;
-          }
-        } catch { }
-      }
-    } catch { }
-    finally {
-      try {
-        window.Lumin.destroy?.();
-      } catch { }
+    // last resort: page through a query
+    const pagePayload = await callLumin('getGames', [{ page: 1, limit: 40, q: query || trimmedId }], 15000, 'getGames');
+    const fetchedId = findLuminGameIdFromPayload(pagePayload, trimmedId);
+    if (fetchedId) {
+      const url = readUrl(await callLumin('getGameUrl', [fetchedId], 20000, 'getGameUrl'));
+      if (url) return url;
     }
 
     await wait(250 * (attempt + 1));
@@ -610,6 +665,8 @@ const normalizeSourceGames = (source) => {
 const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false }) => {
   const nav = useNavigate();
   const { options } = useOptions();
+  const isLight =
+    options?.type === 'light' || options?.theme === 'light' || options?.themeName === 'lightTheme';
   const [sourceKey, setSourceKey] = useState(initialSourceKey || 'gnmath');
   const [showAllGames, setShowAllGames] = useState(false);
   const [sortBy, setSortBy] = useState('name-asc');
@@ -871,42 +928,31 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
     let cancelled = false;
 
     const hydrateVisibleLuminIcons = async () => {
-      const ready = await ensureAnyScriptLoaded(LUMIN_SDK_SCRIPT_SRCS, 'Lumin');
-      if (!ready || typeof window.Lumin?.init !== 'function' || typeof window.Lumin?.getImageUrl !== 'function') {
-        return;
-      }
+      const ready = await ensureLuminReady();
+      if (!ready || typeof window.Lumin?.getImageUrl !== 'function') return;
 
-      try {
-        await window.Lumin.init({ headless: true, theme: 'dark' });
-
-        for (const { token } of candidates) {
-          if (cancelled) break;
-          luminIconPendingRef.current.add(token);
-          try {
-            const blobUrl = String(await window.Lumin.getImageUrl(token)).trim();
-            if (!blobUrl || cancelled) {
-              luminIconFailedRef.current.add(token);
-              continue;
-            }
-
-            setLuminGames((prev) =>
-              prev.map((game) =>
-                String(game?.luminImageToken || '').trim() === token
-                  ? { ...game, icon: blobUrl, noIcon: false }
-                  : game,
-              ),
-            );
-          } catch {
-            luminIconFailedRef.current.add(token);
-          } finally {
-            luminIconPendingRef.current.delete(token);
-          }
-        }
-      } catch { }
-      finally {
+      for (const { token } of candidates) {
+        if (cancelled) break;
+        luminIconPendingRef.current.add(token);
         try {
-          window.Lumin.destroy?.();
-        } catch { }
+          const blobUrl = await resolveLuminImageUrl(token);
+          if (!blobUrl || cancelled) {
+            luminIconFailedRef.current.add(token);
+            continue;
+          }
+
+          setLuminGames((prev) =>
+            prev.map((game) =>
+              String(game?.luminImageToken || '').trim() === token
+                ? { ...game, icon: blobUrl, noIcon: false }
+                : game,
+            ),
+          );
+        } catch {
+          luminIconFailedRef.current.add(token);
+        } finally {
+          luminIconPendingRef.current.delete(token);
+        }
       }
     };
 
@@ -992,7 +1038,10 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
 
         const resolvedUrl = await resolveLuminGameUrl(gameId);
 
-        if (!resolvedUrl) return;
+        if (!resolvedUrl) {
+          console.error('[lumin] no playable URL for', gameId);
+          return;
+        }
 
         const sourceForReturn = game.sourceKey || sourceKey;
         nav('/discover/r/', {
@@ -1002,26 +1051,6 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
               desc: game.desc,
               icon: game.icon,
               url: resolvedUrl,
-              renderAsHtml: false,
-              prType: 'scr',
-              sourceKey: sourceForReturn,
-              returnTo: buildReturnTo(sourceForReturn),
-            },
-          },
-        });
-        return;
-      }
-
-      const opensInViewer = new Set(['gnmath', 'gnports', 'luminsdk']);
-      if (opensInViewer.has(String(game.sourceKey || '').toLowerCase())) {
-        const sourceForReturn = game.sourceKey || sourceKey;
-        nav('/discover/r/', {
-          state: {
-            app: {
-              appName: game.appName,
-              desc: game.desc,
-              icon: game.icon,
-              url: game.url,
               renderAsHtml: true,
               prType: 'scr',
               sourceKey: sourceForReturn,
@@ -1032,40 +1061,24 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
         return;
       }
 
-      const topWin = (() => {
-        try {
-          return window.top && window.top !== window ? window.top : window;
-        } catch {
-          return window;
-        }
-      })();
-
-      const opener = topWin.__ghostOpenBrowserTab;
-      const updater = topWin.__ghostUpdateBrowserTabUrl;
-
-      const openFallback = (url, skipProxy = false) => {
-        nav('/search', {
-          state: {
-            url,
-            openInGhostNewTab: true,
-            skipProxy,
+// all remote sources open in the shared viewer so they play the same.
+// renderAsHtml lets the player fetch the page itself, needed for
+// self-contained game html
+      const sourceForReturn = game.sourceKey || sourceKey;
+      nav('/discover/r/', {
+        state: {
+          app: {
+            appName: game.appName,
+            desc: game.desc,
+            icon: game.icon,
+            url: game.url,
+            renderAsHtml: true,
+            prType: 'scr',
+            sourceKey: sourceForReturn,
+            returnTo: buildReturnTo(sourceForReturn),
           },
-        });
-      };
-
-      const isNowGG = game.sourceKey === 'nowgg';
-
-      const tabId = typeof opener === 'function'
-        ? opener(game.url, {
-          title: game.appName || 'New Tab',
-          skipProxy: isNowGG,
-        })
-        : null;
-      if (tabId && typeof updater === 'function') {
-        updater(tabId, game.url, { skipProxy: isNowGG });
-      } else {
-        openFallback(game.url, isNowGG);
-      }
+        },
+      });
     },
     [nav, sourceKey, buildReturnTo],
   );
@@ -1083,11 +1096,11 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
         )}
         <div
           ref={controlsRef}
-          className="flex items-center gap-2 p-2 rounded-2xl border border-white/10 bg-[#0a0a0c]/95 backdrop-blur-md shadow-[0_12px_28px_rgba(0,0,0,0.38)]"
+          className={clsx("flex items-center gap-2 p-2 rounded-2xl border backdrop-blur-md shadow-[0_12px_28px_rgba(0,0,0,0.38)]", isLight ? "border-black/10 bg-white/80" : "border-white/10 bg-[#0a0a0c]/95")}
         >
           <div
             className={clsx(
-              'relative flex items-center gap-2.5 rounded-[10px] px-3 w-[420px] h-11 border border-white/10 bg-[#111114]',
+              clsx('relative flex items-center gap-2.5 rounded-[10px] px-3 w-[420px] h-11 border', isLight ? 'border-black/10 bg-[#f1f5f9] text-[#0f172a]' : 'border-white/10 bg-[#111114]'),
             )}
           >
             <Search className="w-4 h-4 shrink-0" />
@@ -1118,8 +1131,8 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
                 setSortOpen(false);
               }}
               className={clsx(
-                'h-11 min-w-[180px] rounded-[10px] px-3 bg-[#141418] border border-white/10 text-sm transition-colors',
-                showAllGames ? 'flex items-center justify-center text-center hover:bg-[#1f2731]' : 'flex items-center justify-between gap-3 hover:bg-[#1b1b21]',
+                clsx('h-11 min-w-[180px] rounded-[10px] px-3 border text-sm transition-colors', isLight ? 'bg-white border-black/10 text-[#0f172a]' : 'bg-[#141418] border-white/10'),
+                showAllGames ? (isLight ? 'flex items-center justify-center text-center hover:bg-black/[0.06]' : 'flex items-center justify-center text-center hover:bg-[#1f2731]') : (isLight ? 'flex items-center justify-between gap-3 hover:bg-black/[0.06]' : 'flex items-center justify-between gap-3 hover:bg-[#1b1b21]'),
               )}
             >
               <span className={clsx(showAllGames && 'w-full text-center')}>{showAllGames ? 'Press to go back' : selectedSource.label}</span>
@@ -1129,7 +1142,7 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
             {sourcePopup.rendered && (
               <div
                 className={clsx(
-                  'absolute right-0 top-12 w-[440px] rounded-2xl border border-white/10 bg-[#111117] z-[80] overflow-hidden shadow-[0_14px_30px_rgba(0,0,0,0.4)] p-1.5 origin-top-right transform-gpu transition-all duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
+                  clsx('absolute right-0 top-12 w-[440px] rounded-2xl border z-[80] overflow-hidden shadow-[0_14px_30px_rgba(0,0,0,0.4)] p-1.5 origin-top-right transform-gpu transition-all duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)]', isLight ? 'border-black/10 bg-white text-[#0f172a]' : 'border-white/10 bg-[#111117]'),
                   sourcePopup.visible ? 'opacity-100 translate-y-0 scale-100' : 'pointer-events-none opacity-0 -translate-y-3 scale-95',
                 )}
               >
@@ -1191,7 +1204,7 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
                         }}
                         className={clsx(
                           'w-full h-10 rounded-lg px-2.5 text-sm flex items-center justify-between transition-colors',
-                          active ? 'bg-[#ffffff18]' : 'hover:bg-[#ffffff10]',
+                          active ? (isLight ? 'bg-black/[0.08]' : 'bg-[#ffffff18]') : (isLight ? 'hover:bg-black/[0.05]' : 'hover:bg-[#ffffff10]'),
                         )}
                       >
                         <span>{source.label}</span>
@@ -1211,7 +1224,7 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
                   setSortOpen((prev) => !prev);
                   setSourceOpen(false);
                 }}
-                className="h-11 w-11 rounded-[10px] bg-[#141418] border border-white/10 flex items-center justify-center hover:bg-[#1b1b21] transition-colors"
+                className={clsx("h-11 w-11 rounded-[10px] border flex items-center justify-center transition-colors", isLight ? "bg-white border-black/10 text-[#0f172a] hover:bg-black/[0.06]" : "bg-[#141418] border-white/10 hover:bg-[#1b1b21]")}
                 title="Sort"
               >
                 <Menu size={17} />
@@ -1219,7 +1232,7 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
               {sortPopup.rendered && (
                 <div
                   className={clsx(
-                    'absolute right-0 top-12 w-52 rounded-md border border-white/10 bg-[#111117] z-[80] overflow-hidden origin-top-right transform-gpu transition-all duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)]',
+                    clsx('absolute right-0 top-12 w-52 rounded-md border z-[80] overflow-hidden origin-top-right transform-gpu transition-all duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)]', isLight ? 'border-black/10 bg-white text-[#0f172a]' : 'border-white/10 bg-[#111117]'),
                     sortPopup.visible ? 'opacity-100 translate-y-0 scale-100' : 'pointer-events-none opacity-0 -translate-y-3 scale-95',
                   )}
                 >
@@ -1233,12 +1246,12 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
                       setPage(1);
                       setSortOpen(false);
                     }}
-                    className="w-full text-left px-3 py-2 text-sm hover:bg-[#ffffff12] flex items-center justify-between"
+                    className={clsx("w-full text-left px-3 py-2 text-sm flex items-center justify-between", isLight ? "hover:bg-black/[0.05]" : "hover:bg-[#ffffff12]")}
                   >
                     <span>Show all games</span>
                     <span className={showAllGames ? 'text-emerald-300' : 'opacity-70'}>{showAllGames ? 'On' : 'Off'}</span>
                   </button>
-                  <div className="h-px bg-white/10" />
+                  <div className={clsx("h-px", isLight ? "bg-black/10" : "bg-white/10")} />
                   {[
                     { key: 'name-asc', label: 'Name (A-Z)' },
                     { key: 'name-desc', label: 'Name (Z-A)' },

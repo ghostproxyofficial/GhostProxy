@@ -23,6 +23,7 @@ export function getLucideIcon(iconName) {
 
 export default function SidebarEditor({ open, onClose }) {
     const { options, updateOption } = useOptions();
+    const isLight = options?.type === 'light' || options?.theme === 'light' || options?.themeName === 'lightTheme';
     const [editingApp, setEditingApp] = useState(null);
     const [visible, setVisible] = useState(false);
     const [render, setRender] = useState(false);
@@ -54,6 +55,7 @@ export default function SidebarEditor({ open, onClose }) {
         { id: 'showMusic', label: 'Music', default: true },
         { id: 'showRemote', label: 'Remote Access', default: true },
         { id: 'showAI', label: 'AI', default: true },
+        { id: 'showNotes', label: 'Notes', default: true },
         { id: 'showBookmarks', label: 'Bookmarks', default: true },
         { id: 'showAdBlock', label: 'Ad Block', default: true },
         { id: 'showDevOptions', label: 'Dev Options', default: true },
@@ -128,14 +130,14 @@ export default function SidebarEditor({ open, onClose }) {
             />
             <div
                 className={clsx(
-                    "relative w-full max-w-2xl max-h-[85dvh] rounded-xl border border-white/10 overflow-hidden flex flex-col transition-all duration-200",
+                    clsx("ghost-glass relative w-full max-w-2xl max-h-[85dvh] rounded-xl border overflow-hidden flex flex-col transition-all duration-200", isLight ? "border-black/10" : "border-white/10"),
                     visible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-[0.965] translate-y-2'
                 )}
                 style={{ backgroundColor: options.quickModalBgColor || options.menuColor || '#1a252f' }}
             >
-                <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+                <div className={clsx("flex items-center justify-between px-4 py-3 border-b", isLight ? "border-black/10" : "border-white/10")}>
                     <h2 className="text-lg font-semibold">Sidebar Editor</h2>
-                    <button onClick={onClose} className="p-1 rounded-md hover:bg-[#ffffff12]">
+                    <button onClick={onClose} className={clsx("p-1 rounded-md", isLight ? "hover:bg-black/[0.06]" : "hover:bg-[#ffffff12]")}>
                         <X size={18} />
                     </button>
                 </div>
@@ -151,14 +153,14 @@ export default function SidebarEditor({ open, onClose }) {
                                     {totalActiveItems < MAX_ITEMS && (
                                         <button
                                             onClick={() => setEditingApp({ name: '', url: '', icon: '' })}
-                                            className="flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-md bg-[#ffffff14] hover:bg-[#ffffff22]"
+                                            className={clsx("flex items-center gap-1 text-xs px-2.5 py-1.5 rounded-md", isLight ? "bg-black/[0.06] hover:bg-black/[0.10]" : "bg-[#ffffff14] hover:bg-[#ffffff22]")}
                                         >
                                             <Plus size={14} /> Add App
                                         </button>
                                     )}
                                 </div>
                                 {sidebarCustomApps.length === 0 ? (
-                                    <div className="text-sm opacity-60 p-4 border border-white/10 border-dashed rounded-lg text-center">
+                                    <div className={clsx("text-sm opacity-60 p-4 border border-dashed rounded-lg text-center", isLight ? "border-black/15" : "border-white/10")}>
                                         No custom apps added yet.
                                     </div>
                                 ) : (
@@ -166,7 +168,7 @@ export default function SidebarEditor({ open, onClose }) {
                                         {sidebarCustomApps.map((app) => {
                                             const Icon = getLucideIcon(app.icon);
                                             return (
-                                                <div key={app.id} className="flex items-center justify-between p-3 rounded-lg bg-[#ffffff0d] border border-white/5">
+                                                <div key={app.id} className={clsx("flex items-center justify-between p-3 rounded-lg border", isLight ? "bg-black/[0.04] border-black/[0.06]" : "bg-[#ffffff0d] border-white/5")}>
                                                     <div className="flex items-center gap-3 overflow-hidden">
                                                         <Icon size={18} className="shrink-0" />
                                                         <div className="truncate text-sm">
@@ -175,10 +177,10 @@ export default function SidebarEditor({ open, onClose }) {
                                                         </div>
                                                     </div>
                                                     <div className="flex items-center gap-1 shrink-0">
-                                                        <button onClick={() => setEditingApp(app)} className="p-1.5 rounded-md hover:bg-[#ffffff14]">
+                                                        <button onClick={() => setEditingApp(app)} className={clsx("p-1.5 rounded-md", isLight ? "hover:bg-black/[0.06]" : "hover:bg-[#ffffff14]")}>
                                                             <Pencil size={14} />
                                                         </button>
-                                                        <button onClick={() => handleDeleteApp(app.id)} className="p-1.5 rounded-md hover:bg-[#ffffff14] text-red-400">
+                                                        <button onClick={() => handleDeleteApp(app.id)} className={clsx("p-1.5 rounded-md text-red-400", isLight ? "hover:bg-black/[0.06]" : "hover:bg-[#ffffff14]")}>
                                                             <Trash2 size={14} />
                                                         </button>
                                                     </div>
@@ -203,7 +205,7 @@ export default function SidebarEditor({ open, onClose }) {
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     {predefinedToggles.map((item) => (
-                                        <div key={item.id} className="flex items-center justify-between p-3 rounded-lg bg-[#ffffff0d] border border-white/5">
+                                        <div key={item.id} className={clsx("flex items-center justify-between p-3 rounded-lg border", isLight ? "bg-black/[0.04] border-black/[0.06]" : "bg-[#ffffff0d] border-white/5")}>
                                             <span className={clsx("text-sm font-medium", item.disabled && "opacity-50")}>{item.label}</span>
                                             <button
                                                 type="button"
@@ -211,7 +213,7 @@ export default function SidebarEditor({ open, onClose }) {
                                                 disabled={item.disabled}
                                                 className={clsx(
                                                     "relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none",
-                                                    isToggled(item.id) ? "bg-[#2f7fff]" : "bg-[#ffffff20]",
+                                                    isToggled(item.id) ? "bg-[#2f7fff]" : (isLight ? "bg-black/[0.12]" : "bg-[#ffffff20]"),
                                                     item.disabled && "opacity-50 cursor-not-allowed"
                                                 )}
                                             >
@@ -235,6 +237,8 @@ export default function SidebarEditor({ open, onClose }) {
 }
 
 function AppForm({ app, onSave, onCancel }) {
+    const { options } = useOptions();
+    const isLight = options?.type === 'light' || options?.theme === 'light' || options?.themeName === 'lightTheme';
     const [name, setName] = useState(app.name || '');
     const [url, setUrl] = useState(app.url || '');
     const [icon, setIcon] = useState(app.icon || '');
@@ -263,7 +267,7 @@ function AppForm({ app, onSave, onCancel }) {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. My Link"
-                    className="w-full h-10 rounded-md border border-white/10 bg-[#00000030] px-3 text-sm outline-none placeholder-white/30"
+                    className={clsx("w-full h-10 rounded-md border px-3 text-sm outline-none", isLight ? "border-black/15 bg-black/[0.04] text-[#0f172a] placeholder:text-[#64748b]" : "border-white/10 bg-[#00000030] placeholder-white/30")}
                 />
             </div>
 
@@ -275,7 +279,7 @@ function AppForm({ app, onSave, onCancel }) {
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
                     placeholder="e.g. google.com"
-                    className="w-full h-10 rounded-md border border-white/10 bg-[#00000030] px-3 text-sm outline-none placeholder-white/30"
+                    className={clsx("w-full h-10 rounded-md border px-3 text-sm outline-none", isLight ? "border-black/15 bg-black/[0.04] text-[#0f172a] placeholder:text-[#64748b]" : "border-white/10 bg-[#00000030] placeholder-white/30")}
                 />
             </div>
 
@@ -286,7 +290,7 @@ function AppForm({ app, onSave, onCancel }) {
                     value={icon}
                     onChange={(e) => setIcon(e.target.value)}
                     placeholder="e.g. MessageSquare"
-                    className="w-full h-10 rounded-md border border-white/10 bg-[#00000030] px-3 text-sm outline-none placeholder-white/30"
+                    className={clsx("w-full h-10 rounded-md border px-3 text-sm outline-none", isLight ? "border-black/15 bg-black/[0.04] text-[#0f172a] placeholder:text-[#64748b]" : "border-white/10 bg-[#00000030] placeholder-white/30")}
                 />
                 <p className="text-xs opacity-60 mt-1">Must be an exact Lucide React icon name (like Globe, Gamepad2). Defaults to Link.</p>
             </div>
@@ -295,7 +299,7 @@ function AppForm({ app, onSave, onCancel }) {
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="flex-1 h-10 rounded-md border border-white/15 hover:bg-[#ffffff10] text-sm"
+                    className={clsx("flex-1 h-10 rounded-md border text-sm", isLight ? "border-black/15 hover:bg-black/[0.05]" : "border-white/15 hover:bg-[#ffffff10]")}
                 >
                     Cancel
                 </button>

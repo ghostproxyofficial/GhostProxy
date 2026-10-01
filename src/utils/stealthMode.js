@@ -28,7 +28,7 @@ export const obfuscateStr = (str, level) => {
   let count = 0;
   for (let i = 0; i < str.length; i++) {
     const char = str[i];
-    // convert back to original first if its already obfuscated (to prevent double mapping issues if any)
+    // convert back to the original first in case its already obfuscated, stops double mapping
     const baseChar = reverseMap[char] || char;
 
     if (charMap[baseChar]) {

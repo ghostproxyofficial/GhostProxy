@@ -29,7 +29,10 @@ logging.set_level(logging.NONE);
 
 Object.assign(wisp.options, {
   dns_method: "resolve",
-  dns_servers: ["1.1.1.3", "1.0.0.3"],
+// 1.1.1.3 / 1.0.0.3 are cloudflare's malware and adult content blocking
+// resolvers. they sinkhole streaming and video domains to 0.0.0.0 and the wisp
+// server then refuses to connect. keep these on the neutral resolvers
+  dns_servers: ["1.1.1.1", "1.0.0.1"],
   dns_result_order: "ipv4first"
 });
 

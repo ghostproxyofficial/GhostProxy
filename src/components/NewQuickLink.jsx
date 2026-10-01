@@ -54,7 +54,7 @@ const NewQuickLink = ({ state, set, update }) => {
       <Dialog open={state} onClose={() => set(false)} className="fixed inset-0 bg-black/40 z-50">
         <div className="flex justify-center items-center h-full">
           <DialogPanel
-            className="w-[30rem] h-[20.8rem] p-5 rounded-xl relative flex flex-col gap-3 shadow-2xl"
+            className="ghost-glass w-[30rem] h-[20.8rem] p-5 rounded-xl relative flex flex-col gap-3 shadow-2xl"
             style={{ backgroundColor: options.quickModalBgColor || '#252f3e' }}
           >
             <DialogTitle className="text-[1rem] mb-1">Add shortcut</DialogTitle>

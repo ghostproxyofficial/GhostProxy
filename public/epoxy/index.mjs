@@ -1,20 +1,8 @@
-/*
- * Epoxy transport wrapper for bare-mux v2 compatibility.
- *
- * This file lives in public/ so it is NOT processed by the obfuscator.
- * It is loaded by bare-mux's SharedWorker via dynamic import().
- *
- * Issues fixed:
- * 1. bare-mux v2 sends request headers as a plain object {key: value}.
- *    epoxy-transport v3 iterates with  for (let [k,v] of headers)  which
- *    requires an iterable — plain objects are not iterable.
- *
- * 2. epoxy returns response headers as [[key, value], ...] (array of pairs).
- *    bare-mux / scramjet expect {key: [values]} (object with value arrays).
- *
- * 3. epoxy preserves original HTTP header casing (e.g. "Location").
- *    scramjet accesses headers by lowercase name (e.g. "location").
- */
+// epoxy wrapper for bare-mux v2. lives in public/ so the obfuscator skips it
+// and baremux's SharedWorker picks it up via dynamic import().
+// three header shape mismatches get fixed here: baremux sends {k: v} but epoxy
+// wants an iterable, epoxy hands back [[k, v]] but baremux wants {k: [v]}, and
+// epoxy keeps the original casing while scramjet looks up lowercase names.
 import EpoxyTransport from "../epoxy-raw/index.mjs";
 
 function toIterable(headers) {
@@ -38,12 +26,8 @@ function pairsToObj(headers) {
   return obj;
 }
 
-/*
- * HTTP/2 GOAWAY recovery:
- * Remote servers routinely send GOAWAY (NO_ERROR) to recycle connections.
- * Epoxy's WASM Hyper client surfaces this as a fatal error instead of
- * retrying on a fresh connection.  We catch this and retry once.
- */
+// servers send GOAWAY to recycle connections and epoxy treats it as fatal
+// instead of retrying, so catch that and try a fresh connection
 var GOAWAY_RE = /GoAway|GOAWAY|Http2/i;
 var MAX_RETRIES = 2;
 
@@ -58,7 +42,7 @@ class PatchedEpoxyTransport extends EpoxyTransport {
       } catch (err) {
         var msg = String(err && err.message || err);
         if (attempt < MAX_RETRIES && GOAWAY_RE.test(msg)) {
-          /* brief pause to let the WASM transport recycle the connection */
+          /* short pause so the wasm transport can recycle the connection */
           await new Promise(function (r) { setTimeout(r, 150 * (attempt + 1)); });
           continue;
         }

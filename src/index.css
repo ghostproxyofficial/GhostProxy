@@ -74,20 +74,15 @@ body {
   -webkit-appearance: none;
   appearance: none;
   height: 6px;
-  background: rgba(255, 255, 255, 0.1);
+  background: var(--ghost-control-track, rgba(255, 255, 255, 0.1));
   border-radius: 6px;
   outline: none;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
 }
 
 .elastic-slider:hover {
-  transform: scale(1.02);
-  background: rgba(255, 255, 255, 0.15);
-}
-
-.elastic-slider:active {
-  transform: scale(0.98);
+  background: var(--ghost-control-track, rgba(255, 255, 255, 0.1));
+  filter: brightness(1.18);
 }
 
 .elastic-slider::-webkit-slider-thumb {
@@ -96,17 +91,54 @@ body {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: #fff;
+  background: var(--ghost-control-thumb, #fff);
   cursor: pointer;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
   box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-.elastic-slider::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+.media-seek-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--ghost-control-track, rgba(255, 255, 255, 0.12));
+  outline: none;
 }
 
-.elastic-slider::-webkit-slider-thumb:active {
-  transform: scale(0.9);
+.media-seek-slider::-webkit-slider-runnable-track {
+  height: 5px;
+  border-radius: 999px;
+  background: var(--ghost-control-track, rgba(255, 255, 255, 0.12));
+}
+
+.media-seek-slider::-moz-range-track {
+  height: 5px;
+  border-radius: 999px;
+  background: var(--ghost-control-track, rgba(255, 255, 255, 0.12));
+}
+
+.media-seek-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  margin-top: -4px;
+  border: 2px solid var(--ghost-control-thumb, #fff);
+  border-radius: 50%;
+  background: var(--ghost-glass-surface-strong, #20242c);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.38);
+}
+
+.media-seek-slider::-moz-range-thumb {
+  width: 9px;
+  height: 9px;
+  border: 2px solid var(--ghost-control-thumb, #fff);
+  border-radius: 50%;
+  background: var(--ghost-glass-surface-strong, #20242c);
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.38);
+}
+
+.media-seek-slider:hover,
+.media-seek-slider:hover::-webkit-slider-runnable-track {
+  filter: brightness(1.18);
 }

@@ -11,6 +11,7 @@ import { useOptions } from '/src/utils/optionsContext';
 
 const ShortcutsDialog = ({ open, onClose, shortcuts, onSave }) => {
   const { options } = useOptions();
+  const isLight = options?.type === 'light' || options?.theme === 'light' || options?.themeName === 'lightTheme';
   const grouped = useMemo(() => groupShortcutDefinitions(), []);
   const [draft, setDraft] = useState(() => getEffectiveShortcuts({ shortcuts }));
   const [capturing, setCapturing] = useState(null);
@@ -33,12 +34,12 @@ const ShortcutsDialog = ({ open, onClose, shortcuts, onSave }) => {
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div
-        className="relative w-full max-w-5xl max-h-[85dvh] rounded-xl border border-white/10 overflow-hidden"
+        className={clsx("ghost-glass relative w-full max-w-5xl max-h-[85dvh] rounded-xl border overflow-hidden", isLight ? "border-black/10" : "border-white/10")}
         style={{ backgroundColor: options.quickModalBgColor || '#252f3e' }}
       >
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+        <div className={clsx("flex items-center justify-between px-4 py-3 border-b", isLight ? "border-black/10" : "border-white/10")}>
           <h2 className="text-lg font-semibold">Keyboard Shortcuts</h2>
-          <button onClick={onClose} className="p-1 rounded-md hover:bg-[#ffffff12]">
+          <button onClick={onClose} className={clsx("p-1 rounded-md", isLight ? "hover:bg-black/[0.06]" : "hover:bg-[#ffffff12]")}>
             <X size={18} />
           </button>
         </div>
@@ -53,7 +54,7 @@ const ShortcutsDialog = ({ open, onClose, shortcuts, onSave }) => {
                   return (
                     <div
                       key={item.id}
-                      className="grid grid-cols-12 gap-3 items-center rounded-lg px-3 py-2 bg-[#ffffff0d]"
+                      className={clsx("grid grid-cols-12 gap-3 items-center rounded-lg px-3 py-2", isLight ? "bg-black/[0.04]" : "bg-[#ffffff0d]")}
                     >
                       <div className="col-span-6 text-sm">{item.label}</div>
 
@@ -66,7 +67,7 @@ const ShortcutsDialog = ({ open, onClose, shortcuts, onSave }) => {
                         }
                         className={clsx(
                           'col-span-2 h-8 rounded-md text-xs',
-                          cfg.enabled ? 'bg-[#4c6c91]' : 'bg-[#ffffff14]',
+                          cfg.enabled ? 'bg-[#4c6c91] text-white' : (isLight ? 'bg-black/[0.08]' : 'bg-[#ffffff14]'),
                         )}
                       >
                         {cfg.enabled ? 'Enabled' : 'Disabled'}
@@ -74,7 +75,7 @@ const ShortcutsDialog = ({ open, onClose, shortcuts, onSave }) => {
 
                       <input
                         className={clsx(
-                          'col-span-4 h-8 rounded-md px-2 text-sm bg-[#0000002a] outline-none border border-white/10',
+                          clsx('col-span-4 h-8 rounded-md px-2 text-sm outline-none border', isLight ? 'bg-black/[0.04] border-black/10 text-[#0f172a]' : 'bg-[#0000002a] border-white/10'),
                           capturing === item.id && 'border-[#75b3e8]',
                         )}
                         value={cfg.key}
@@ -105,8 +106,8 @@ const ShortcutsDialog = ({ open, onClose, shortcuts, onSave }) => {
           ))}
         </div>
 
-        <div className="px-4 py-3 border-t border-white/10 flex items-center justify-end gap-2">
-          <button onClick={onClose} className="h-9 px-4 rounded-md bg-[#ffffff14] hover:bg-[#ffffff1f]">
+        <div className={clsx("px-4 py-3 border-t flex items-center justify-end gap-2", isLight ? "border-black/10" : "border-white/10")}>
+          <button onClick={onClose} className={clsx("h-9 px-4 rounded-md", isLight ? "bg-black/[0.06] hover:bg-black/[0.10]" : "bg-[#ffffff14] hover:bg-[#ffffff1f]")}>
             Cancel
           </button>
           <button onClick={save} className="h-9 px-4 rounded-md bg-[#4c6c91] hover:opacity-90">

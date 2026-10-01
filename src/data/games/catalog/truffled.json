@@ -1,15 +1,19 @@
 [
   {
-    "name": "1 .lol",
-    "url": "/1v1.lol/index.html"
-  },
-  {
     "name": "1 On 1 Soccer",
-    "url": "/1 on 1 Soccer/index.html"
+    "url": "/1on1soccer/index.html"
   },
   {
-    "name": "10 Minutes Till Dawn",
-    "url": "/10 Minutes Till Dawn/index.html"
+    "name": "1 V 1 Lol",
+    "url": "/1v1lol/1v1.html"
+  },
+  {
+    "name": "10 Minutestilldawn",
+    "url": "/10minutestilldawn/index.html"
+  },
+  {
+    "name": "20 Minutestilldawn",
+    "url": "/20minutestilldawn/index.html"
   },
   {
     "name": "2048",
@@ -17,1710 +21,1994 @@
   },
   {
     "name": "3",
-    "url": "/-3/index.html"
+    "url": "/3/index.html"
   },
   {
     "name": "30",
     "url": "/30/index.html"
   },
   {
-    "name": "A Difficult Game About Climbing",
-    "url": "/A Difficult Game About Climbing_ Webport/index.html"
+    "name": "Academytalewebport",
+    "url": "/academytalewebport/index.html"
   },
   {
-    "name": "A Game About Feeding A Blackhole",
-    "url": "/A Game About Feeding A Blackhole/index.html"
+    "name": "Achievementunlocked",
+    "url": "/achievementunlocked/index.html"
   },
   {
-    "name": "A Small World Cup",
-    "url": "/A Small World Cup/index.html"
-  },
-  {
-    "name": "Academytale",
-    "url": "/Academytale_ Webport/index.html"
-  },
-  {
-    "name": "Achievement Unlocked",
-    "url": "/Achievement Unlocked/index.html"
+    "name": "Adifficultgameaboutclimbingwebport",
+    "url": "/adifficultgameaboutclimbingwebport/adgac.html"
   },
   {
     "name": "Adofai",
-    "url": "/ADOFAI/index.html"
+    "url": "/adofai/index.html"
   },
   {
-    "name": "Adventure Capitalist",
-    "url": "/Adventure Capitalist/index.html"
+    "name": "Adventurecapitalist",
+    "url": "/adventurecapitalist/index.html"
   },
   {
-    "name": "Amanda The Adventurer",
-    "url": "/Amanda the adventurer_ Webport/index.html"
+    "name": "Agameaboutfeedingablackhole",
+    "url": "/agameaboutfeedingablackhole/blackhole.html"
+  },
+  {
+    "name": "Amandatheadventurerwebport",
+    "url": "/amandatheadventurerwebport/index.html"
   },
   {
     "name": "Amaze",
-    "url": "/Amaze/index.html"
+    "url": "/amaze/index.html"
   },
   {
-    "name": "Among Us",
-    "url": "/Among us/index.html"
+    "name": "Amongus",
+    "url": "/amongus/index.html"
   },
   {
-    "name": "Angry Birds",
-    "url": "/Angry Birds/index.html"
+    "name": "Angrybirds",
+    "url": "/angrybirds/Angrybirds.html"
   },
   {
-    "name": "Angry Birds Epic",
-    "url": "/Angry Birds Epic_ Webport/index.html"
+    "name": "Angrybirdsepicwebport",
+    "url": "/angrybirdsepicwebport/index.html"
   },
   {
-    "name": "Angry Birds Online",
-    "url": "/Angry Birds Online/index.html"
+    "name": "Angrybirdsonline",
+    "url": "/angrybirdsonline/angrybirdsonline.html"
+  },
+  {
+    "name": "Animalcrossingpopulationgrowingwebport",
+    "url": "/animalcrossingpopulationgrowingwebport/index.html"
+  },
+  {
+    "name": "Animalcrossingwildworld",
+    "url": "/animalcrossingwildworld/acww.html"
   },
   {
     "name": "Antonblast",
-    "url": "/Antonblast/index.html"
+    "url": "/antonblast/anton.html"
   },
   {
-    "name": "Apes Vs Helium",
-    "url": "/Apes Vs Helium_ Webport/index.html"
+    "name": "Apesvsheliumwebport",
+    "url": "/apesvsheliumwebport/index.html"
   },
   {
-    "name": "Arthur S Nightmare",
-    "url": "/Arthur_s Nightmare_ Webport/index.html"
+    "name": "Arthursnightmarewebport",
+    "url": "/arthursnightmarewebport/arthur.html"
   },
   {
-    "name": "Bad Icecream 1",
-    "url": "/Bad Icecream 1/index.html"
+    "name": "Asmallworldcup",
+    "url": "/asmallworldcup/aswc.html"
   },
   {
-    "name": "Bad Icecream 2",
-    "url": "/Bad Icecream 2/index.html"
+    "name": "B",
+    "url": "/b/index.html"
   },
   {
-    "name": "Bad Icecream 3",
-    "url": "/Bad Icecream 3/index.html"
+    "name": "Badicecream 1",
+    "url": "/badicecream1/badice1.html"
   },
   {
-    "name": "Bad Parenting",
-    "url": "/Bad Parenting_ Webport/index.html"
+    "name": "Badicecream 2",
+    "url": "/badicecream2/badice2.html"
   },
   {
-    "name": "Bad Piggies",
-    "url": "/Bad Piggies/index.html"
+    "name": "Badicecream 3",
+    "url": "/badicecream3/badice3.html"
   },
   {
-    "name": "Bad Time Simulator",
-    "url": "/Bad time Simulator/index.html"
+    "name": "Badparentingwebport",
+    "url": "/badparentingwebport/index.html"
   },
   {
-    "name": "Balatro",
-    "url": "/Balatro_ Webport/index.html"
+    "name": "Badpiggies",
+    "url": "/badpiggies/piggies.html"
   },
   {
-    "name": "Baldi S Basics",
-    "url": "/Baldi_s Basics/index.html"
+    "name": "Badtimesimulator",
+    "url": "/badtimesimulator/index.html"
   },
   {
-    "name": "Baldi S Basics Birthday Bash",
-    "url": "/Baldi_s Basics Birthday Bash_ Webport/index.html"
+    "name": "Balatrowebport",
+    "url": "/balatrowebport/index.html"
   },
   {
-    "name": "Baldi S Basics Classic Remastered",
-    "url": "/Baldi_s Basics Classic Remastered_ Webport/index.html"
+    "name": "Baldisbasics",
+    "url": "/baldisbasics/index.html"
   },
   {
-    "name": "Baldi S Basics Plus",
-    "url": "/Baldi_s Basics Plus_ Webport/index.html"
+    "name": "Baldisbasicsbirthdaybashwebport",
+    "url": "/baldisbasicsbirthdaybashwebport/index.html"
   },
   {
-    "name": "Baldi S Fun New School Plus Ultimate Edition",
-    "url": "/Baldi_s Fun New School Plus Ultimate Edition/index.html"
+    "name": "Baldisbasicsclassicremasteredwebport",
+    "url": "/baldisbasicsclassicremasteredwebport/index.html"
   },
   {
-    "name": "Baldurs Gate 2",
-    "url": "/Baldurs Gate 2_ Webport/index.html"
+    "name": "Baldisbasicspluswebport",
+    "url": "/baldisbasicspluswebport/bbp.html"
   },
   {
-    "name": "Banjo Kazooie",
-    "url": "/Banjo Kazooie/index.html"
+    "name": "Baldisbasicsultradecompile",
+    "url": "/baldisbasicsultradecompile/baldidecomp.html"
   },
   {
-    "name": "Bart Bash",
-    "url": "/Bart Bash/index.html"
+    "name": "Baldisfunnewschoolplusultimateedition",
+    "url": "/baldisfunnewschoolplusultimateedition/index.html"
   },
   {
-    "name": "Bart Blast",
-    "url": "/Bart Blast/index.html"
+    "name": "Baldursgate 2 Webport",
+    "url": "/baldursgate2webport/index.html"
   },
   {
-    "name": "Baseball Bros",
-    "url": "/Baseball Bros/index.html"
+    "name": "Banjokazooie",
+    "url": "/banjokazooie/banjokazooie.html"
   },
   {
-    "name": "Basket Bros",
-    "url": "/Basket Bros/index.html"
+    "name": "Bartbash",
+    "url": "/bartbash/bartbash.html"
   },
   {
-    "name": "Basket Random",
-    "url": "/Basket Random/index.html"
+    "name": "Bartblast",
+    "url": "/bartblast/bart.html"
   },
   {
-    "name": "Basketball Stars",
-    "url": "/Basketball stars/index.html"
+    "name": "Baseballbros",
+    "url": "/baseballbros/index.html"
   },
   {
-    "name": "Beatblock",
-    "url": "/Beatblock_ Webport/index.html"
+    "name": "Basketballstars",
+    "url": "/basketballstars/index.html"
   },
   {
-    "name": "Bendy And The Ink Machine",
-    "url": "/Bendy And The Ink Machine_ Webport/index.html"
+    "name": "Basketbros",
+    "url": "/basketbros/basket.html"
   },
   {
-    "name": "Bergentruck",
-    "url": "/Bergentruck_ Webport/index.html"
+    "name": "Basketrandom",
+    "url": "/basketrandom/index.html"
   },
   {
-    "name": "Bfdia 5b",
-    "url": "/Bfdia 5b/index.html"
+    "name": "Beatblockwebport",
+    "url": "/beatblockwebport/index.html"
+  },
+  {
+    "name": "Beemoviegame",
+    "url": "/beemoviegame/index.html"
+  },
+  {
+    "name": "Bendyandtheinkmachinewebport",
+    "url": "/bendyandtheinkmachinewebport/index.html"
+  },
+  {
+    "name": "Bergentruckwebport",
+    "url": "/bergentruckwebport/index.html"
+  },
+  {
+    "name": "Bfdia 5 B",
+    "url": "/bfdia5b/index.html"
   },
   {
     "name": "Bitlife",
-    "url": "/Bitlife/index.html"
+    "url": "/bitlife/index.html"
   },
   {
-    "name": "Black Jack",
-    "url": "/Black Jack/index.html"
+    "name": "Blackjack",
+    "url": "/blackjack/BlackJack.html"
   },
   {
-    "name": "Block Blast",
-    "url": "/Block Blast/index.html"
+    "name": "Blockblast",
+    "url": "/blockblast/index.html"
   },
   {
-    "name": "Bloodmoney",
-    "url": "/Bloodmoney_ Webport/index.html"
+    "name": "Bloodmoneywebport",
+    "url": "/bloodmoneywebport/index.html"
   },
   {
-    "name": "Bloon T",
-    "url": "/Bloon TD1/index.html"
+    "name": "Bloonstd 5",
+    "url": "/bloonstd5/index.html"
   },
   {
-    "name": "Bloons T",
-    "url": "/Bloons TD5/index.html"
+    "name": "Bloonstd 6",
+    "url": "/bloonstd6/index.html"
+  },
+  {
+    "name": "Bloontd 1",
+    "url": "/bloontd1/index.html"
+  },
+  {
+    "name": "Bloontd 2",
+    "url": "/bloontd2/index.html"
+  },
+  {
+    "name": "Bloontd 3",
+    "url": "/bloontd3/index.html"
+  },
+  {
+    "name": "Bloontd 4",
+    "url": "/bloontd4/bloonstd4.html"
   },
   {
     "name": "Bloxors",
-    "url": "/Bloxors/index.html"
+    "url": "/bloxors/index.html"
   },
   {
     "name": "Bombmerman",
-    "url": "/Bombmerman/index.html"
+    "url": "/bombmerman/bomberman.html"
   },
   {
     "name": "Bombmerman 2",
-    "url": "/Bombmerman 2/index.html"
+    "url": "/bombmerman2/bomberman2.html"
   },
   {
-    "name": "Boxing Random",
-    "url": "/Boxing Random/index.html"
+    "name": "Boxingrandom",
+    "url": "/boxingrandom/boxing.html"
   },
   {
-    "name": "Brotato Paws And Claws",
-    "url": "/Brotato Paws And Claws_ Webport/index.html"
+    "name": "Brotatopawsandclawswebport",
+    "url": "/brotatopawsandclawswebport/index.html"
   },
   {
-    "name": "Buckshot Roulette",
-    "url": "/Buckshot Roulette_ Webport/index.html"
+    "name": "Buckshotroulettewebport",
+    "url": "/buckshotroulettewebport/index.html"
   },
   {
-    "name": "Burrito Bison",
-    "url": "/Burrito Bison/index.html"
+    "name": "Burritobison",
+    "url": "/burritobison/index.html"
   },
   {
-    "name": "Burrito Bison Revenge",
-    "url": "/Burrito Bison Revenge/index.html"
+    "name": "Burritobisonrevenge",
+    "url": "/burritobisonrevenge/bbe.html"
   },
   {
-    "name": "Capuchin",
-    "url": "/Capuchin_ Webport/index.html"
+    "name": "Capuchinwebport",
+    "url": "/capuchinwebport/index.html"
   },
   {
-    "name": "Cas Hs Basics In Eating And Fast Food",
-    "url": "/CaseOhs Basics in Eating and Fast Food_ Webport/index.html"
+    "name": "Caseohsbasicsineatingandfastfoodwebport",
+    "url": "/caseohsbasicsineatingandfastfoodwebport/caseoh.html"
   },
   {
-    "name": "Celeste",
-    "url": "/Celeste_ Webport/index.html"
+    "name": "Celestewebport",
+    "url": "/celestewebport/index.html"
   },
   {
-    "name": "Cheese Rolling",
-    "url": "/Cheese Rolling_ Webport/index.html"
+    "name": "Cheeserollingwebport",
+    "url": "/cheeserollingwebport/cheese.html"
   },
   {
-    "name": "Christmas Massacre",
-    "url": "/Christmas Massacre_ Webport/index.html"
+    "name": "Christmasmassacrewebport",
+    "url": "/christmasmassacrewebport/christmas.html"
   },
   {
-    "name": "Class Of 09",
-    "url": "/Class Of 09_ Webport/index.html"
+    "name": "Classof 09 Flipsidewebport",
+    "url": "/classof09flipsidewebport/index.html"
   },
   {
-    "name": "Class Of 09 Flipside",
-    "url": "/Class Of 09 Flipside_ Webport/index.html"
+    "name": "Classof 09 Reupwebport",
+    "url": "/classof09reupwebport/index.html"
   },
   {
-    "name": "Class Of 09 Re Up",
-    "url": "/Class Of 09 Re-Up_ Webport/index.html"
+    "name": "Classof 09 Webport",
+    "url": "/classof09webport/index.html"
   },
   {
-    "name": "Clover Pit",
-    "url": "/Clover Pit/index.html"
+    "name": "Cloverpit",
+    "url": "/cloverpit/cloverpit.html"
   },
   {
-    "name": "Cluster Rush",
-    "url": "/Cluster Rush/index.html"
+    "name": "Clusterrush",
+    "url": "/clusterrush/index.html"
   },
   {
-    "name": "Coffee Talk",
-    "url": "/Coffee Talk/index.html"
+    "name": "Coffeetalk",
+    "url": "/coffeetalk/index.html"
   },
   {
-    "name": "Cookie Clicker",
-    "url": "/Cookie Clicker/index.html"
+    "name": "Cookieclicker",
+    "url": "/cookieclicker/index.html"
   },
   {
-    "name": "Cooking Mama",
-    "url": "/Cooking Mama/index.html"
+    "name": "Cookingmama",
+    "url": "/cookingmama/cookingmama.html"
   },
   {
-    "name": "Cooking Mama 2",
-    "url": "/Cooking Mama 2/index.html"
+    "name": "Cookingmama 2",
+    "url": "/cookingmama2/cookingmama2.html"
   },
   {
-    "name": "Cooking Mama 3",
-    "url": "/Cooking Mama 3/index.html"
+    "name": "Cookingmama 3",
+    "url": "/cookingmama3/cookingmama3.html"
   },
   {
-    "name": "Counter Stike 0.8",
-    "url": "/Counter Stike 0.8/index.html"
+    "name": "Counterstike 08",
+    "url": "/counterstike08/index.html"
   },
   {
-    "name": "Crash Bandicoot 1",
-    "url": "/Crash Bandicoot 1/index.html"
+    "name": "Crashbandicoot 1",
+    "url": "/crashbandicoot1/crash1.html"
   },
   {
-    "name": "Crash Bandicoot 2",
-    "url": "/Crash Bandicoot 2/index.html"
+    "name": "Crashbandicoot 2",
+    "url": "/crashbandicoot2/crash2.html"
   },
   {
-    "name": "Crash Bandicoot 3",
-    "url": "/Crash Bandicoot 3/index.html"
+    "name": "Crashbandicoot 3",
+    "url": "/crashbandicoot3/crash3.html"
   },
   {
-    "name": "Craz Attl D",
-    "url": "/CrazyCattle3D_ Webport/index.html"
+    "name": "Crazyballs",
+    "url": "/crazyballs/balls.html"
   },
   {
-    "name": "Crazy Balls",
-    "url": "/Crazy Balls/index.html"
+    "name": "Crazycattle 3 Dwebport",
+    "url": "/crazycattle3dwebport/index.html"
   },
   {
-    "name": "Crossy Roads",
-    "url": "/Crossy Roads/index.html"
+    "name": "Crossyroads",
+    "url": "/crossyroads/crossy.html"
   },
   {
-    "name": "Cruelty Squad",
-    "url": "/Cruelty Squad_ Webport/index.html"
+    "name": "Crueltysquadwebport",
+    "url": "/crueltysquadwebport/index.html"
   },
   {
-    "name": "Csgo Clicker",
-    "url": "/Csgo Clicker/index.html"
+    "name": "Csgoclicker",
+    "url": "/csgoclicker/index.html"
   },
   {
-    "name": "Cuphead",
-    "url": "/Cuphead_ Webport/index.html"
+    "name": "Cupheadwebport",
+    "url": "/cupheadwebport/index.html"
   },
   {
-    "name": "Customer Support",
-    "url": "/Customer Support_ Webport/index.html"
+    "name": "Customersupportwebport",
+    "url": "/customersupportwebport/index.html"
   },
   {
-    "name": "Cut The Rope",
-    "url": "/Cut The Rope/index.html"
+    "name": "Cuttherope",
+    "url": "/cuttherope/cut.html"
   },
   {
-    "name": "Cut The Rope Holiday",
-    "url": "/Cut The Rope Holiday/index.html"
+    "name": "Cuttheropeholiday",
+    "url": "/cuttheropeholiday/hol.html"
   },
   {
-    "name": "Cut The Rope Time Travel",
-    "url": "/Cut The Rope _ Time Travel/index.html"
+    "name": "Cuttheropetimetravel",
+    "url": "/cuttheropetimetravel/time.html"
   },
   {
     "name": "Dadish",
-    "url": "/Dadish/index.html"
+    "url": "/dadish/dadish.html"
   },
   {
     "name": "Dadish 2",
-    "url": "/Dadish 2/index.html"
+    "url": "/dadish2/dadish2.html"
   },
   {
     "name": "Dadish 3",
-    "url": "/Dadish 3/index.html"
+    "url": "/dadish3/dadish3.html"
   },
   {
-    "name": "Dadish 3d",
-    "url": "/Dadish 3d/index.html"
+    "name": "Dadish 3 D",
+    "url": "/dadish3d/dadish3d.html"
   },
   {
-    "name": "Dadish Daily",
-    "url": "/Dadish Daily/index.html"
+    "name": "Dadishdaily",
+    "url": "/dadishdaily/daily.html"
   },
   {
     "name": "Danganronpa",
-    "url": "/Danganronpa/index.html"
+    "url": "/danganronpa/index.html"
   },
   {
-    "name": "Dead Plate",
-    "url": "/DEAD PLATE_ Webport/index.html"
+    "name": "Deadplatewebport",
+    "url": "/deadplatewebport/dead.html"
   },
   {
-    "name": "Dead Tapes",
-    "url": "/Dead Tapes/index.html"
+    "name": "Deadseatwebport",
+    "url": "/deadseatwebport/index.html"
   },
   {
-    "name": "Deadseat",
-    "url": "/Deadseat_ Webport/index.html"
+    "name": "Deadtapes",
+    "url": "/deadtapes/index.html"
   },
   {
-    "name": "Death Run 3d",
-    "url": "/Death Run 3D/index.html"
+    "name": "Deathrun 3 D",
+    "url": "/deathrun3d/index.html"
   },
   {
-    "name": "Deltarune",
-    "url": "/Deltarune_ Webport/index.html"
+    "name": "Deltarunewebport",
+    "url": "/deltarunewebport/index.html"
   },
   {
-    "name": "Deltatraveler",
-    "url": "/Deltatraveler_ Webport/index.html"
+    "name": "Deltatravelerwebport",
+    "url": "/deltatravelerwebport/deltatr.html"
   },
   {
     "name": "Diablo",
-    "url": "/Diablo/index.html"
+    "url": "/diablo/index.html"
   },
   {
-    "name": "Dice A Million",
-    "url": "/Dice A Million_ Webport/index.html"
+    "name": "Diceamillionwebport",
+    "url": "/diceamillionwebport/diceamillion.html"
   },
   {
     "name": "Dinosaur",
-    "url": "/Dinosaur/index.html"
+    "url": "/dinosaur/index.html"
   },
   {
-    "name": "Do Not Take This Cat Home",
-    "url": "/Do Not Take This Cat Home_ Webport/index.html"
+    "name": "Dogeminer",
+    "url": "/dogeminer/Doge Miner.html"
   },
   {
-    "name": "Doge Miner",
-    "url": "/Doge Miner/index.html"
+    "name": "Dogeminer 2",
+    "url": "/dogeminer2/dm2.html"
   },
   {
-    "name": "Doge Miner 2",
-    "url": "/Doge Miner 2/index.html"
+    "name": "Domekeeperwebport",
+    "url": "/domekeeperwebport/index.html"
   },
   {
-    "name": "Dome Keeper",
-    "url": "/Dome Keeper_ Webport/index.html"
+    "name": "Donottakethiscathomewebport",
+    "url": "/donottakethiscathomewebport/index.html"
   },
   {
-    "name": "Doodle Jump",
-    "url": "/Doodle Jump/index.html"
+    "name": "Doodlejump",
+    "url": "/doodlejump/Doodle Jump.html"
   },
   {
     "name": "Doom",
-    "url": "/Doom/index.html"
+    "url": "/doom/index.html"
   },
   {
     "name": "Doom 2",
-    "url": "/Doom 2/index.html"
+    "url": "/doom2/doom2.html"
   },
   {
     "name": "Doom 3",
-    "url": "/Doom 3/index.html"
+    "url": "/doom3/index.html"
   },
   {
     "name": "Doom 64",
-    "url": "/Doom 64/index.html"
+    "url": "/doom64/doom64.html"
   },
   {
-    "name": "Dr. Mario",
-    "url": "/Dr. Mario/index.html"
+    "name": "Dreadheadparkour",
+    "url": "/dreadheadparkour/dread.html"
   },
   {
-    "name": "Dreadhead Parkour",
-    "url": "/Dreadhead Parkour/index.html"
+    "name": "Driftboss",
+    "url": "/driftboss/index.html"
   },
   {
-    "name": "Drift Boss",
-    "url": "/Drift Boss/index.html"
+    "name": "Drifthunter",
+    "url": "/drifthunter/drift.html"
   },
   {
-    "name": "Drift Hunter",
-    "url": "/Drift Hunter/index.html"
+    "name": "Drivemad",
+    "url": "/drivemad/index.html"
   },
   {
-    "name": "Drive Mad",
-    "url": "/Drive Mad/index.html"
+    "name": "Drmario",
+    "url": "/drmario/drmario.html"
   },
   {
-    "name": "Duck Life 1",
-    "url": "/Duck Life 1/index.html"
+    "name": "Ducklife 1",
+    "url": "/ducklife1/index.html"
   },
   {
-    "name": "Duck Life 2",
-    "url": "/Duck Life 2/index.html"
+    "name": "Ducklife 2",
+    "url": "/ducklife2/index.html"
   },
   {
-    "name": "Duck Life 3",
-    "url": "/Duck Life 3/index.html"
+    "name": "Ducklife 3",
+    "url": "/ducklife3/index.html"
   },
   {
-    "name": "Duck Life 4",
-    "url": "/Duck Life 4/index.html"
+    "name": "Ducklife 4",
+    "url": "/ducklife4/index.html"
   },
   {
-    "name": "Duck Life 5",
-    "url": "/Duck Life 5/index.html"
+    "name": "Ducklife 5",
+    "url": "/ducklife5/index.html"
   },
   {
-    "name": "Duck Life 6",
-    "url": "/Duck Life 6/index.html"
+    "name": "Ducklife 6",
+    "url": "/ducklife6/index.html"
   },
   {
-    "name": "Duck Life 7",
-    "url": "/Duck Life 7/index.html"
+    "name": "Ducklife 7",
+    "url": "/ducklife7/index.html"
   },
   {
-    "name": "Duck Life 8",
-    "url": "/Duck Life 8_ Webport/index.html"
+    "name": "Ducklife 8 Webport",
+    "url": "/ducklife8webport/index.html"
   },
   {
-    "name": "Dumb Ways To Die",
-    "url": "/Dumb Ways To Die/index.html"
+    "name": "Dumbwaystodie",
+    "url": "/dumbwaystodie/index.html"
   },
   {
-    "name": "Eggy Car",
-    "url": "/Eggy Car/index.html"
+    "name": "Eggycar",
+    "url": "/eggycar/eggycar.html"
   },
   {
-    "name": "Escape Road",
-    "url": "/Escape Road/index.html"
+    "name": "Escaperoad",
+    "url": "/escaperoad/escape.html"
   },
   {
-    "name": "Escape Road 2",
-    "url": "/Escape Road 2/index.html"
+    "name": "Escaperoad 2",
+    "url": "/escaperoad2/road2.html"
   },
   {
-    "name": "Escape Road City 2",
-    "url": "/Escape Road City 2/index.html"
+    "name": "Escaperoad 3",
+    "url": "/escaperoad3/escape3.html"
   },
   {
-    "name": "Falling Fred",
-    "url": "/Falling Fred/index.html"
+    "name": "Escaperoadcity 2",
+    "url": "/escaperoadcity2/roadcity2.html"
+  },
+  {
+    "name": "Fallingfred",
+    "url": "/fallingfred/index.html"
   },
   {
     "name": "Fallout",
-    "url": "/Fallout/index.html"
+    "url": "/fallout/falloutt.html"
   },
   {
-    "name": "Fallout 2",
-    "url": "/Fallout 2_ Webport/index.html"
+    "name": "Fallout 2 Webport",
+    "url": "/fallout2webport/index.html"
   },
   {
-    "name": "Fancy Pants Adventures",
-    "url": "/Fancy Pants Adventures/index.html"
+    "name": "Fancypantsadventures",
+    "url": "/fancypantsadventures/index.html"
   },
   {
-    "name": "Fancy Pants Adventures 2",
-    "url": "/Fancy Pants Adventures 2/index.html"
+    "name": "Fancypantsadventures 2",
+    "url": "/fancypantsadventures2/index.html"
   },
   {
-    "name": "Fancy Pants Adventures 3",
-    "url": "/Fancy Pants Adventures 3/index.html"
+    "name": "Fancypantsadventures 3",
+    "url": "/fancypantsadventures3/fpa3.html"
   },
   {
-    "name": "Fears To Fathom Home Alone",
-    "url": "/Fears To Fathom_ Home Alone_ Webport/index.html"
+    "name": "Fearstofathomhomealonewebport",
+    "url": "/fearstofathomhomealonewebport/index.html"
   },
   {
-    "name": "Final Fantasy Vii",
-    "url": "/Final Fantasy VII/index.html"
+    "name": "Fezwebport",
+    "url": "/fezwebport/index.html"
   },
   {
-    "name": "Fireboy And Watergirl",
-    "url": "/Fireboy and Watergirl/index.html"
+    "name": "Finalfantasyvii",
+    "url": "/finalfantasyvii/ffvii.html"
   },
   {
-    "name": "Fireboy And Watergirl 2",
-    "url": "/Fireboy and Watergirl 2/index.html"
+    "name": "Fireboyandwatergirl",
+    "url": "/fireboyandwatergirl/index.html"
   },
   {
-    "name": "Fireboy And Watergirl 3",
-    "url": "/Fireboy and Watergirl 3/index.html"
+    "name": "Fireboyandwatergirl 2",
+    "url": "/fireboyandwatergirl2/index.html"
   },
   {
-    "name": "Fireboy And Watergirl 4",
-    "url": "/Fireboy and Watergirl 4/index.html"
+    "name": "Fireboyandwatergirl 3",
+    "url": "/fireboyandwatergirl3/index.html"
   },
   {
-    "name": "Fish",
-    "url": "/FISH_ Webport/index.html"
+    "name": "Fireboyandwatergirl 4",
+    "url": "/fireboyandwatergirl4/index.html"
   },
   {
-    "name": "Five Nights At Candys",
-    "url": "/Five Nights At Candys/index.html"
+    "name": "Fishwebport",
+    "url": "/fishwebport/fish.html"
   },
   {
-    "name": "Five Nights At Candys 2",
-    "url": "/Five Nights At Candys 2/index.html"
+    "name": "Fivenightsatcandys",
+    "url": "/fivenightsatcandys/fnac.html"
   },
   {
-    "name": "Five Nights At Epsteins",
-    "url": "/Five Nights At Epsteins_ Webport/index.html"
+    "name": "Fivenightsatcandys 2",
+    "url": "/fivenightsatcandys2/fnac2.html"
   },
   {
-    "name": "Five Nights At Last Breath",
-    "url": "/Five Nights At Last Breath_ Webport/index.html"
+    "name": "Fivenightsatepsteinswebport",
+    "url": "/fivenightsatepsteinswebport/fnae.html"
   },
   {
-    "name": "Flappy Bird",
-    "url": "/Flappy bird/index.html"
+    "name": "Fivenightsatfrickbears 3 Webport",
+    "url": "/fivenightsatfrickbears3webport/index.html"
   },
   {
-    "name": "Flying Gorilla",
-    "url": "/Flying Gorilla_ Webport/index.html"
+    "name": "Fivenightsatlastbreathwebport",
+    "url": "/fivenightsatlastbreathwebport/breath.html"
   },
   {
-    "name": "Fna",
-    "url": "/FNAF2/index.html"
+    "name": "Flappybird",
+    "url": "/flappybird/index.html"
   },
   {
-    "name": "Fna Halloween",
-    "url": "/FNAF4 Halloween/index.html"
+    "name": "Flyinggorillawebport",
+    "url": "/flyinggorillawebport/gorilla.html"
   },
   {
     "name": "Fnaf",
-    "url": "/FNAF/index.html"
+    "url": "/fnaf/index.html"
   },
   {
-    "name": "Fnaf Sisters Location",
-    "url": "/FNAF Sisters Location/index.html"
+    "name": "Fnaf 2",
+    "url": "/fnaf2/index.html"
   },
   {
-    "name": "Fnaf Ultimate Custom Night",
-    "url": "/FNAF Ultimate Custom Night/index.html"
+    "name": "Fnaf 3",
+    "url": "/fnaf3/index.html"
   },
   {
-    "name": "Fnaf World",
-    "url": "/FNAF World/index.html"
+    "name": "Fnaf 4",
+    "url": "/fnaf4/index.html"
   },
   {
-    "name": "Fnaf World Refreshed",
-    "url": "/FNAF World Refreshed/index.html"
+    "name": "Fnaf 4 Halloween",
+    "url": "/fnaf4halloween/ween.html"
+  },
+  {
+    "name": "Fnafsisterslocation",
+    "url": "/fnafsisterslocation/fnafs.html"
+  },
+  {
+    "name": "Fnafultimatecustomnight",
+    "url": "/fnafultimatecustomnight/fnafu.html"
+  },
+  {
+    "name": "Fnafworld",
+    "url": "/fnafworld/fnafw.html"
+  },
+  {
+    "name": "Fnafworldrefreshed",
+    "url": "/fnafworldrefreshed/index.html"
   },
   {
     "name": "Fnaw",
-    "url": "/FNAW/index.html"
+    "url": "/fnaw/fnaw.html"
   },
   {
-    "name": "Fnf",
-    "url": "/fnf/index.html"
+    "name": "Fnffridaynightfunkin",
+    "url": "/fnffridaynightfunkin/fnfog.html"
   },
   {
-    "name": "Fnf Friday Night Funkin",
-    "url": "/FNF_ Friday Night Funkin/index.html"
+    "name": "Footballbros",
+    "url": "/footballbros/index.html"
   },
   {
-    "name": "Football Bros",
-    "url": "/Football Bros/index.html"
+    "name": "Fridaynightfunkinaethos",
+    "url": "/fridaynightfunkinaethos/aethos.html"
   },
   {
-    "name": "Friday Night Funkin Bop City",
-    "url": "/Friday Night Funkin Bop City/index.html"
+    "name": "Fridaynightfunkinatrocity",
+    "url": "/fridaynightfunkinatrocity/atrocity.html"
   },
   {
-    "name": "Fruit Ninja",
-    "url": "/Fruit Ninja/index.html"
+    "name": "Fridaynightfunkinbfdi 26",
+    "url": "/fridaynightfunkinbfdi26/bfdi26.html"
   },
   {
-    "name": "Fuse 40",
-    "url": "/Fused240/index.html"
+    "name": "Fridaynightfunkinbopcity",
+    "url": "/fridaynightfunkinbopcity/bopcity.html"
   },
   {
-    "name": "Gabriel S Awesome Schoolhouse",
-    "url": "/Gabriel_s Awesome Schoolhouse_ Webport/index.html"
+    "name": "Fridaynightfunkinforabfdi",
+    "url": "/fridaynightfunkinforabfdi/ffabfdi.html"
   },
   {
-    "name": "Gacha Life",
-    "url": "/Gacha Life/index.html"
+    "name": "Fridaynightfunkingarcello",
+    "url": "/fridaynightfunkingarcello/garcello.html"
   },
   {
-    "name": "Gacha Verse",
-    "url": "/Gacha Verse/index.html"
+    "name": "Fridaynightfunkingetdigging",
+    "url": "/fridaynightfunkingetdigging/getdigging.html"
   },
   {
-    "name": "Geometry Dash",
-    "url": "/Geometry Dash_ Webport/index.html"
+    "name": "Fridaynightfunkingoldenapple",
+    "url": "/fridaynightfunkingoldenapple/goldenapple.html"
   },
   {
-    "name": "Getaway Shootout",
-    "url": "/Getaway Shootout/index.html"
+    "name": "Fridaynightfunkinhatsunemiku",
+    "url": "/fridaynightfunkinhatsunemiku/miku.html"
   },
   {
-    "name": "Getting Over It",
-    "url": "/Getting Over It_ Webport/index.html"
+    "name": "Fridaynightfunkinhex",
+    "url": "/fridaynightfunkinhex/hex.html"
+  },
+  {
+    "name": "Fridaynightfunkinhorkglorpgloop",
+    "url": "/fridaynightfunkinhorkglorpgloop/horkglorpgloop.html"
+  },
+  {
+    "name": "Fridaynightfunkininfiniteirida",
+    "url": "/fridaynightfunkininfiniteirida/infiniteiridra.html"
+  },
+  {
+    "name": "Fridaynightfunkinkapi",
+    "url": "/fridaynightfunkinkapi/kapi.html"
+  },
+  {
+    "name": "Fridaynightfunkinmariomadness",
+    "url": "/fridaynightfunkinmariomadness/mariomadness.html"
+  },
+  {
+    "name": "Fridaynightfunkinnonsense",
+    "url": "/fridaynightfunkinnonsense/nonsense.html"
+  },
+  {
+    "name": "Fridaynightfunkinrewrite",
+    "url": "/fridaynightfunkinrewrite/rewrite.html"
+  },
+  {
+    "name": "Fridaynightfunkinrewrite 2",
+    "url": "/fridaynightfunkinrewrite2/rewrite2.html"
+  },
+  {
+    "name": "Fridaynightfunkinron",
+    "url": "/fridaynightfunkinron/ron.html"
+  },
+  {
+    "name": "Fridaynightfunkinshaggy",
+    "url": "/fridaynightfunkinshaggy/shaggy.html"
+  },
+  {
+    "name": "Fridaynightfunkinshaggyxmatt",
+    "url": "/fridaynightfunkinshaggyxmatt/shaggyxmatt.html"
+  },
+  {
+    "name": "Fridaynightfunkinshucksv 2",
+    "url": "/fridaynightfunkinshucksv2/shucksv2.html"
+  },
+  {
+    "name": "Fridaynightfunkintricky",
+    "url": "/fridaynightfunkintricky/tricky.html"
+  },
+  {
+    "name": "Fridaynightfunkintwiddlefinger",
+    "url": "/fridaynightfunkintwiddlefinger/TWIDDLEFINGER.html"
+  },
+  {
+    "name": "Fridaynightfunkinvstord",
+    "url": "/fridaynightfunkinvstord/tord.html"
+  },
+  {
+    "name": "Fridaynightfunkinwhitty",
+    "url": "/fridaynightfunkinwhitty/whitty.html"
+  },
+  {
+    "name": "Fridaynightfunkinzardy",
+    "url": "/fridaynightfunkinzardy/zardy.html"
+  },
+  {
+    "name": "Fruitninja",
+    "url": "/fruitninja/index.html"
+  },
+  {
+    "name": "Fused 240",
+    "url": "/fused240/index.html"
+  },
+  {
+    "name": "Gabrielsawesomeschoolhousewebport",
+    "url": "/gabrielsawesomeschoolhousewebport/gash.html"
+  },
+  {
+    "name": "Gachalife",
+    "url": "/gachalife/life.html"
+  },
+  {
+    "name": "Gachaverse",
+    "url": "/gachaverse/verse.html"
+  },
+  {
+    "name": "Geometrydashwebport",
+    "url": "/geometrydashwebport/gd.html"
+  },
+  {
+    "name": "Getawayshootout",
+    "url": "/getawayshootout/index.html"
+  },
+  {
+    "name": "Gettingoveritwebport",
+    "url": "/gettingoveritwebport/goi.html"
   },
   {
     "name": "Gladihoppers",
-    "url": "/Gladihoppers/index.html"
+    "url": "/gladihoppers/Gladihoppers.html"
   },
   {
-    "name": "Go To Bed",
-    "url": "/Go to bed_ Webport/index.html"
+    "name": "Googlebaseball",
+    "url": "/googlebaseball/gbase.html"
   },
   {
-    "name": "Google Baseball",
-    "url": "/Google Baseball/index.html"
+    "name": "Gorillatagwebport",
+    "url": "/gorillatagwebport/index.html"
   },
   {
-    "name": "Gorilla Tag",
-    "url": "/Gorilla Tag_ Webport/index.html"
+    "name": "Gotobedwebport",
+    "url": "/gotobedwebport/index.html"
   },
   {
     "name": "Granny",
-    "url": "/Granny/index.html"
+    "url": "/granny/granny.html"
   },
   {
     "name": "Granny 2",
-    "url": "/Granny 2/index.html"
+    "url": "/granny2/Granny 2.html"
   },
   {
     "name": "Granny 3",
-    "url": "/Granny 3/index.html"
+    "url": "/granny3/Granny 3.html"
   },
   {
-    "name": "Gravity Run",
-    "url": "/Gravity run/index.html"
+    "name": "Gravityrun",
+    "url": "/gravityrun/index.html"
   },
   {
     "name": "Greybox",
-    "url": "/Greybox/index.html"
+    "url": "/greybox/index.html"
   },
   {
-    "name": "Gta I",
-    "url": "/GTA I/index.html"
+    "name": "Gtai",
+    "url": "/gtai/index.html"
   },
   {
-    "name": "Gta Ii",
-    "url": "/GTA II/index.html"
+    "name": "Gtaii",
+    "url": "/gtaii/index.html"
   },
   {
-    "name": "Gta Iii",
-    "url": "/GTA III/index.html"
+    "name": "Gtaiii",
+    "url": "/gtaiii/index.html"
   },
   {
-    "name": "Gta San Andreas",
-    "url": "/GTA San Andreas/index.html"
+    "name": "Gtasanandreas",
+    "url": "/gtasanandreas/index.html"
   },
   {
-    "name": "Gta Vice City",
-    "url": "/GTA Vice City_ Webport/index.html"
+    "name": "Gtavicecitywebport",
+    "url": "/gtavicecitywebport/index.html"
   },
   {
-    "name": "Gun Mayhem",
-    "url": "/Gun Mayhem/index.html"
+    "name": "Gunmayhem",
+    "url": "/gunmayhem/index.html"
   },
   {
-    "name": "Gun Mayhem 2",
-    "url": "/Gun Mayhem 2/index.html"
+    "name": "Gunmayhem 2",
+    "url": "/gunmayhem2/index.html"
   },
   {
-    "name": "Gun Mayhem Redux",
-    "url": "/Gun Mayhem Redux/index.html"
+    "name": "Gunmayhemredux",
+    "url": "/gunmayhemredux/index.html"
   },
   {
     "name": "Gunspin",
-    "url": "/Gunspin/index.html"
+    "url": "/gunspin/index.html"
   },
   {
-    "name": "Half Life",
-    "url": "/Half life/index.html"
+    "name": "Halflife",
+    "url": "/halflife/index.html"
   },
   {
-    "name": "Half Life Opposing Force",
-    "url": "/Half life_ Opposing Force/index.html"
+    "name": "Halflife 2",
+    "url": "/halflife2/index.html"
   },
   {
-    "name": "Happy Wheels",
-    "url": "/Happy Wheels/index.html"
+    "name": "Halflifeopposingforce",
+    "url": "/halflifeopposingforce/hlof.html"
   },
   {
-    "name": "Hollow Knight",
-    "url": "/Hollow Knight_ Webport/index.html"
+    "name": "Happywheels",
+    "url": "/happywheels/index.html"
   },
   {
-    "name": "Hotline Miami",
-    "url": "/Hotline Miami_ Webport/index.html"
+    "name": "Helltakerwebport",
+    "url": "/helltakerwebport/helltaker.html"
   },
   {
-    "name": "House Of Hazards",
-    "url": "/House Of Hazards/index.html"
+    "name": "Hobo 1",
+    "url": "/hobo1/hobo1.html"
   },
   {
-    "name": "Human Expenditure Program",
-    "url": "/HUMAN EXPENDITURE PROGRAM_ Webport/index.html"
+    "name": "Hobo 2",
+    "url": "/hobo2/hobo2.html"
   },
   {
-    "name": "Ice Baby Quest 2",
-    "url": "/Ice Baby Quest 2/index.html"
+    "name": "Hobo 3",
+    "url": "/hobo3/hobo3.html"
   },
   {
-    "name": "Idle Breakout",
-    "url": "/Idle Breakout/index.html"
+    "name": "Hobo 4",
+    "url": "/hobo4/hobo4.html"
   },
   {
-    "name": "Iron Lung",
-    "url": "/Iron Lung_ Webport/index.html"
+    "name": "Hobo 5",
+    "url": "/hobo5/hobo5.html"
   },
   {
-    "name": "Jeffrey Epstein Basics In Education And Kidnapping",
-    "url": "/Jeffrey Epstein Basics In Education And Kidnapping_ Webport/index.html"
+    "name": "Hobo 6",
+    "url": "/hobo6/hobo6.html"
   },
   {
-    "name": "Jeffys Basics",
-    "url": "/Jeffys Basics_ Webport/index.html"
+    "name": "Hobo 7",
+    "url": "/hobo7/hobo7.html"
   },
   {
-    "name": "Jelly Drift",
-    "url": "/Jelly Drift/index.html"
+    "name": "Hollowknightwebport",
+    "url": "/hollowknightwebport/index.html"
   },
   {
-    "name": "Jetpack Joyride",
-    "url": "/Jetpack Joyride/index.html"
+    "name": "Hotlinemiamiwebport",
+    "url": "/hotlinemiamiwebport/index.html"
   },
   {
-    "name": "Jumbo Mario",
-    "url": "/Jumbo Mario/index.html"
+    "name": "Houseofhazards",
+    "url": "/houseofhazards/index.html"
   },
   {
-    "name": "Karlso D",
-    "url": "/Karlson2D_ Webport/index.html"
+    "name": "Humanexpenditureprogramwebport",
+    "url": "/humanexpenditureprogramwebport/human.html"
   },
   {
-    "name": "Karlson",
-    "url": "/Karlson_ Webport/index.html"
+    "name": "Icebabyquest 2",
+    "url": "/icebabyquest2/index.html"
   },
   {
-    "name": "Kindergarten 1",
-    "url": "/Kindergarten 1_ Webport/index.html"
+    "name": "Idlebreakout",
+    "url": "/idlebreakout/index.html"
   },
   {
-    "name": "Kindergarten 2",
-    "url": "/Kindergarten 2_ Webport/index.html"
+    "name": "Ironlungwebport",
+    "url": "/ironlungwebport/index.html"
   },
   {
-    "name": "Kindergarten 3",
-    "url": "/Kindergarten 3_ Webport/index.html"
+    "name": "Jeffreyepsteinbasicsineducationandkidnappingwebport",
+    "url": "/jeffreyepsteinbasicsineducationandkidnappingwebport/jeb.html"
   },
   {
-    "name": "Kirby Soft And Wet",
-    "url": "/Kirby Soft And Wet_ Webport/index.html"
+    "name": "Jeffysbasicswebport",
+    "url": "/jeffysbasicswebport/index.html"
+  },
+  {
+    "name": "Jellydrift",
+    "url": "/jellydrift/jelly.html"
+  },
+  {
+    "name": "Jetpackjoyride",
+    "url": "/jetpackjoyride/index.html"
+  },
+  {
+    "name": "Jumbomario",
+    "url": "/jumbomario/index.html"
+  },
+  {
+    "name": "Karlson 2 Dwebport",
+    "url": "/karlson2dwebport/index.html"
+  },
+  {
+    "name": "Karlsonwebport",
+    "url": "/karlsonwebport/Karlson.html"
+  },
+  {
+    "name": "Kickthebuddywebport",
+    "url": "/kickthebuddywebport/index.html"
+  },
+  {
+    "name": "Kindergarten 1 Webport",
+    "url": "/kindergarten1webport/index.html"
+  },
+  {
+    "name": "Kindergarten 2 Webport",
+    "url": "/kindergarten2webport/index.html"
+  },
+  {
+    "name": "Kindergarten 3 Webport",
+    "url": "/kindergarten3webport/index.html"
+  },
+  {
+    "name": "Kirbysoftandwetwebport",
+    "url": "/kirbysoftandwetwebport/kirbysoftandwet.html"
   },
   {
     "name": "Klifur",
-    "url": "/Klifur/index.html"
+    "url": "/klifur/index.html"
   },
   {
-    "name": "Lacey S Flash Games",
-    "url": "/Lacey_s Flash Games_ Webport/index.html"
+    "name": "Krunker",
+    "url": "/krunker/index.html"
   },
   {
-    "name": "Learn To Fly",
-    "url": "/Learn To Fly/index.html"
+    "name": "Laceysflashgameswebport",
+    "url": "/laceysflashgameswebport/lacy.html"
   },
   {
-    "name": "Learn To Fly 2",
-    "url": "/Learn To Fly 2/index.html"
+    "name": "Learntofly",
+    "url": "/learntofly/index.html"
   },
   {
-    "name": "Learn To Fly 3",
-    "url": "/Learn To Fly 3/index.html"
+    "name": "Learntofly 2",
+    "url": "/learntofly2/index.html"
   },
   {
-    "name": "Learn To Fly Idle",
-    "url": "/Learn To Fly Idle/index.html"
+    "name": "Learntofly 3",
+    "url": "/learntofly3/index.html"
   },
   {
-    "name": "Lego Star Wars",
-    "url": "/Lego Star Wars/index.html"
+    "name": "Learntoflyidle",
+    "url": "/learntoflyidle/index.html"
   },
   {
-    "name": "Level Devil",
-    "url": "/Level Devil/index.html"
+    "name": "Legostarwars",
+    "url": "/legostarwars/legostarwars.html"
   },
   {
-    "name": "Line Rider",
-    "url": "/Line Rider/index.html"
+    "name": "Leveldevil",
+    "url": "/leveldevil/index.html"
   },
   {
-    "name": "Little Alchemy",
-    "url": "/Little Alchemy/index.html"
+    "name": "Linerider",
+    "url": "/linerider/index.html"
   },
   {
-    "name": "Little Alchemy 2",
-    "url": "/Little Alchemy 2/index.html"
+    "name": "Littlealchemy",
+    "url": "/littlealchemy/index.html"
   },
   {
-    "name": "Little Big Planet",
-    "url": "/Little Big Planet/index.html"
+    "name": "Littlealchemy 2",
+    "url": "/littlealchemy2/little2.html"
   },
   {
-    "name": "Madness Melee",
-    "url": "/Madness Melee/index.html"
+    "name": "Littlebigplanet",
+    "url": "/littlebigplanet/index.html"
   },
   {
-    "name": "Mario Kart 64",
-    "url": "/Mario Kart 64/index.html"
+    "name": "Madnessmelee",
+    "url": "/madnessmelee/index.html"
   },
   {
-    "name": "Mario Kart 7",
-    "url": "/Mario Kart 7/index.html"
+    "name": "Mariokart 64",
+    "url": "/mariokart64/index.html"
   },
   {
-    "name": "Mario Kart Ds",
-    "url": "/Mario Kart DS/index.html"
+    "name": "Mariokart 7",
+    "url": "/mariokart7/index.html"
   },
   {
-    "name": "Mario Party 1",
-    "url": "/Mario Party 1/index.html"
+    "name": "Mariokartds",
+    "url": "/mariokartds/index.html"
   },
   {
-    "name": "Mario Party 2",
-    "url": "/Mario Party 2/index.html"
+    "name": "Marioparty 1",
+    "url": "/marioparty1/marioparty.html"
   },
   {
-    "name": "Mario Party 3",
-    "url": "/Mario Party 3/index.html"
+    "name": "Marioparty 2",
+    "url": "/marioparty2/marioparty2.html"
+  },
+  {
+    "name": "Marioparty 3",
+    "url": "/marioparty3/marioparty3.html"
   },
   {
     "name": "Megaman",
-    "url": "/Megaman/index.html"
+    "url": "/megaman/megaman.html"
   },
   {
-    "name": "Melon Playground",
-    "url": "/Melon Playground/index.html"
+    "name": "Melonplayground",
+    "url": "/melonplayground/index.html"
   },
   {
-    "name": "Merge Rot",
-    "url": "/Merge Rot/index.html"
+    "name": "Mergerot",
+    "url": "/mergerot/index.html"
   },
   {
-    "name": "Milkman Karlson",
-    "url": "/Milkman karlson_ Webport/index.html"
+    "name": "Milkmankarlsonwebport",
+    "url": "/milkmankarlsonwebport/index.html"
   },
   {
-    "name": "Minecraft 1.12.2",
-    "url": "/Minecraft 1.12.2/index.html"
+    "name": "Minecraft 1122",
+    "url": "/minecraft1122/index.html"
   },
   {
-    "name": "Minecraft 1.8.8",
-    "url": "/Minecraft 1.8.8/index.html"
+    "name": "Minecraft 188",
+    "url": "/minecraft188/index.html"
   },
   {
-    "name": "Minecraft Pocket Edition",
-    "url": "/Minecraft Pocket Edition_ Webport/index.html"
+    "name": "Minecraftlegacyconsoleeditionwebport",
+    "url": "/minecraftlegacyconsoleeditionwebport/index.html"
   },
   {
-    "name": "Minecraft Wurst",
-    "url": "/Minecraft Wurst/index.html"
+    "name": "Minecraftpocketeditionwebport",
+    "url": "/minecraftpocketeditionwebport/index.html"
   },
   {
-    "name": "Minesweeper Mania",
-    "url": "/Minesweeper Mania/index.html"
+    "name": "Minecraftwurst",
+    "url": "/minecraftwurst/clwurst.html"
   },
   {
-    "name": "Minesweeper Plus",
-    "url": "/Minesweeper Plus_ Webport/index.html"
+    "name": "Minesweepermania",
+    "url": "/minesweepermania/minesweepermania.html"
   },
   {
-    "name": "Monkey Mart",
-    "url": "/Monkey Mart/index.html"
+    "name": "Minesweeperpluswebport",
+    "url": "/minesweeperpluswebport/mineplus.html"
   },
   {
-    "name": "Moto M",
-    "url": "/Moto X3M/index.html"
+    "name": "Misidewebport",
+    "url": "/misidewebport/miside.html"
   },
   {
-    "name": "My Teardrop Daniel",
-    "url": "/My teardrop_ daniel/index.html"
+    "name": "Monkeymart",
+    "url": "/monkeymart/index.html"
   },
   {
-    "name": "N Gon",
-    "url": "/n-gon/index.html"
+    "name": "Motox 3 M",
+    "url": "/motox3m/index.html"
   },
   {
-    "name": "Nazi Zombies Portable",
-    "url": "/Nazi Zombies_ Portable/index.html"
+    "name": "Myteardropdaniel",
+    "url": "/myteardropdaniel/mytear.html"
   },
   {
-    "name": "Needy Streamer Overload",
-    "url": "/Needy Streamer Overload_ Webport/index.html"
+    "name": "Nazizombiesportable",
+    "url": "/nazizombiesportable/nzp.html"
   },
   {
-    "name": "New Super Mario Bros",
-    "url": "/New Super Mario Bros/index.html"
+    "name": "Needystreameroverloadwebport",
+    "url": "/needystreameroverloadwebport/index.html"
   },
   {
-    "name": "Node Buster",
-    "url": "/Node Buster_ Webport/index.html"
+    "name": "Newsupermariobros",
+    "url": "/newsupermariobros/index.html"
   },
   {
-    "name": "Nubbys Number Factory",
-    "url": "/Nubbys Number Factory_ Webport/index.html"
+    "name": "Ngon",
+    "url": "/ngon/index.html"
   },
   {
-    "name": "O",
-    "url": "/OvO/index.html"
+    "name": "Nodebusterwebport",
+    "url": "/nodebusterwebport/index.html"
   },
   {
-    "name": "O 2",
-    "url": "/OvO 2/index.html"
+    "name": "Nubbysnumberfactorywebport",
+    "url": "/nubbysnumberfactorywebport/nubby.html"
   },
   {
-    "name": "O Dimensions",
-    "url": "/OvO Dimensions/index.html"
+    "name": "Omnomrun",
+    "url": "/omnomrun/omnomrun.html"
   },
   {
-    "name": "Om Nom Run",
-    "url": "/Om Nom Run/index.html"
+    "name": "Omoriwebport",
+    "url": "/omoriwebport/OMORI.html"
   },
   {
-    "name": "Omori",
-    "url": "/OMORI_ Webport/index.html"
+    "name": "Oneshotwebport",
+    "url": "/oneshotwebport/oneshot.html"
   },
   {
-    "name": "Oneshot",
-    "url": "/Oneshot_ Webport/index.html"
+    "name": "Oneshotworldmachineeditionwebport",
+    "url": "/oneshotworldmachineeditionwebport/index.html"
   },
   {
-    "name": "Orange Roulette",
-    "url": "/Orange Roulette/index.html"
+    "name": "Orangeroulette",
+    "url": "/orangeroulette/orange.html"
   },
   {
-    "name": "Oshi Oshi Punch",
-    "url": "/Oshi Oshi Punch/index.html"
+    "name": "Oshioshipunch",
+    "url": "/oshioshipunch/onshi.html"
   },
   {
     "name": "Osu",
-    "url": "/Osu_/index.html"
+    "url": "/osu/index.html"
   },
   {
-    "name": "Overburden",
-    "url": "/Overburden_ Webport/index.html"
+    "name": "Overburdenwebport",
+    "url": "/overburdenwebport/overburden.html"
+  },
+  {
+    "name": "Ovo",
+    "url": "/ovo/index.html"
+  },
+  {
+    "name": "Ovo 2",
+    "url": "/ovo2/index.html"
+  },
+  {
+    "name": "Ovodimensions",
+    "url": "/ovodimensions/index.html"
   },
   {
     "name": "Pacman",
-    "url": "/Pacman/index.html"
+    "url": "/pacman/index.html"
   },
   {
-    "name": "Pacman World",
-    "url": "/Pacman World/index.html"
+    "name": "Pacmanworld",
+    "url": "/pacmanworld/pacmanw.html"
   },
   {
-    "name": "Pacman World 2",
-    "url": "/Pacman World 2/index.html"
+    "name": "Pacmanworld 2",
+    "url": "/pacmanworld2/pacmanw2.html"
   },
   {
-    "name": "Paint Gal Adventures",
-    "url": "/Paint Gal Adventures/index.html"
+    "name": "Paintgaladventures",
+    "url": "/paintgaladventures/Paint Gal Adventures.html"
   },
   {
-    "name": "Papas Bakeria",
-    "url": "/Papas Bakeria/index.html"
+    "name": "Papasbakeria",
+    "url": "/papasbakeria/index.html"
   },
   {
-    "name": "Papas Burgeria",
-    "url": "/Papas Burgeria/index.html"
+    "name": "Papasburgeria",
+    "url": "/papasburgeria/index.html"
   },
   {
-    "name": "Papas Cheeseria",
-    "url": "/Papas Cheeseria/index.html"
+    "name": "Papascheeseria",
+    "url": "/papascheeseria/index.html"
   },
   {
-    "name": "Papas Donuteria",
-    "url": "/Papas Donuteria/index.html"
+    "name": "Papasdonuteria",
+    "url": "/papasdonuteria/index.html"
   },
   {
-    "name": "Papas Freezeria",
-    "url": "/Papas Freezeria/index.html"
+    "name": "Papasfreezeria",
+    "url": "/papasfreezeria/index.html"
   },
   {
-    "name": "Papas Pizzaeria",
-    "url": "/Papas Pizzaeria/index.html"
-  },
-  {
-    "name": "Paper Mario",
-    "url": "/Paper Mario/index.html"
+    "name": "Papaspizzaeria",
+    "url": "/papaspizzaeria/index.html"
   },
   {
     "name": "Paperio 2",
-    "url": "/Paperio 2/index.html"
+    "url": "/paperio2/index.html"
   },
   {
-    "name": "Papers Please",
-    "url": "/Papers_ Please/index.html"
+    "name": "Papermario",
+    "url": "/papermario/papermario.html"
   },
   {
-    "name": "Parappa The Rapper",
-    "url": "/Parappa The Rapper/index.html"
+    "name": "Papersplease",
+    "url": "/papersplease/papers.html"
   },
   {
-    "name": "Parappa The Rapper 2",
-    "url": "/Parappa The Rapper 2/index.html"
+    "name": "Parappatherapper",
+    "url": "/parappatherapper/index.html"
   },
   {
-    "name": "Peaks Of Yore",
-    "url": "/Peaks of Yore_ Webport/index.html"
+    "name": "Parappatherapper 2",
+    "url": "/parappatherapper2/index.html"
+  },
+  {
+    "name": "Peaksofyorewebport",
+    "url": "/peaksofyorewebport/peaksofyore.html"
   },
   {
     "name": "Peggle",
-    "url": "/Peggle/index.html"
+    "url": "/peggle/Peggle.html"
   },
   {
-    "name": "People Playground",
-    "url": "/People Playground_ Webport/index.html"
+    "name": "Peopleplaygroundwebport",
+    "url": "/peopleplaygroundwebport/index.html"
   },
   {
-    "name": "Pixel Gun 3d",
-    "url": "/Pixel Gun 3D/index.html"
+    "name": "Pikunikuwebport",
+    "url": "/pikunikuwebport/index.html"
   },
   {
-    "name": "Pizza Tower",
-    "url": "/Pizza Tower_ Webport/index.html"
+    "name": "Pixelgun 3 D",
+    "url": "/pixelgun3d/index.html"
   },
   {
-    "name": "Pizza Tower Scoutdigo",
-    "url": "/Pizza Tower_ Scoutdigo/index.html"
+    "name": "Pizzatowerscoutdigo",
+    "url": "/pizzatowerscoutdigo/pts.html"
   },
   {
-    "name": "Plants Vs Zombies",
-    "url": "/Plants VS Zombies/index.html"
+    "name": "Pizzatowerwebport",
+    "url": "/pizzatowerwebport/Pizza Tower.html"
   },
   {
-    "name": "Plants Vs Zombies Garden Endless",
-    "url": "/Plants VS Zombies Garden Endless/index.html"
+    "name": "Plantsvszombies",
+    "url": "/plantsvszombies/pvs.html"
   },
   {
-    "name": "Pokemon Academy Life Forever",
-    "url": "/Pokemon Academy Life Forever/index.html"
+    "name": "Plantsvszombiesgardenendless",
+    "url": "/plantsvszombiesgardenendless/index.html"
   },
   {
-    "name": "Pokemon Blue",
-    "url": "/Pokemon Blue/index.html"
+    "name": "Plaugeincwebport",
+    "url": "/plaugeincwebport/index.html"
   },
   {
-    "name": "Pokemon Crystal",
-    "url": "/Pokemon Crystal/index.html"
+    "name": "Pokemonacademylifeforever",
+    "url": "/pokemonacademylifeforever/pokemonacademy.html"
   },
   {
-    "name": "Pokemon Emerald",
-    "url": "/Pokemon Emerald/index.html"
+    "name": "Pokemonblue",
+    "url": "/pokemonblue/blue.html"
   },
   {
-    "name": "Pokemon Gold",
-    "url": "/Pokemon Gold/index.html"
+    "name": "Pokemoncrystal",
+    "url": "/pokemoncrystal/blob.html"
   },
   {
-    "name": "Pokemon Red",
-    "url": "/Pokemon Red/index.html"
+    "name": "Pokemonemerald",
+    "url": "/pokemonemerald/em.html"
+  },
+  {
+    "name": "Pokemongold",
+    "url": "/pokemongold/red.html"
+  },
+  {
+    "name": "Pokemonred",
+    "url": "/pokemonred/red.html"
+  },
+  {
+    "name": "Pokemonstadium",
+    "url": "/pokemonstadium/pokestad.html"
+  },
+  {
+    "name": "Pokemonstadium 2",
+    "url": "/pokemonstadium2/pokestad2.html"
   },
   {
     "name": "Polytrack",
-    "url": "/Polytrack/index.html"
+    "url": "/polytrack/index.html"
   },
   {
     "name": "Portal",
-    "url": "/Portal/index.html"
+    "url": "/portal/index.html"
   },
   {
-    "name": "Postal",
-    "url": "/Postal_ Webport/index.html"
+    "name": "Postalwebport",
+    "url": "/postalwebport/postal.html"
   },
   {
-    "name": "Pretend Its Not There",
-    "url": "/Pretend its not there_ Webport/index.html"
+    "name": "Pretenditsnottherewebport",
+    "url": "/pretenditsnottherewebport/index.html"
   },
   {
     "name": "Quake",
-    "url": "/Quake/index.html"
+    "url": "/quake/index.html"
   },
   {
-    "name": "Quake Ii",
-    "url": "/Quake II/index.html"
+    "name": "Quakeii",
+    "url": "/quakeii/index.html"
   },
   {
-    "name": "Quake Iii",
-    "url": "/Quake III/index.html"
+    "name": "Raftwars",
+    "url": "/raftwars/index.html"
   },
   {
-    "name": "Raft",
-    "url": "/RAFT_ Webport/index.html"
+    "name": "Raftwars 2",
+    "url": "/raftwars2/index.html"
   },
   {
-    "name": "Raft Wars",
-    "url": "/Raft Wars/index.html"
+    "name": "Raftwebport",
+    "url": "/raftwebport/index.html"
   },
   {
-    "name": "Raft Wars 2",
-    "url": "/Raft Wars 2/index.html"
+    "name": "Ragdollarchers",
+    "url": "/ragdollarchers/index.html"
   },
   {
-    "name": "Ragdoll Archers",
-    "url": "/Ragdoll Archers/index.html"
+    "name": "Ragdollhit",
+    "url": "/ragdollhit/index.html"
   },
   {
-    "name": "Ragdoll Hit",
-    "url": "/Ragdoll Hit/index.html"
-  },
-  {
-    "name": "Raldi S Crack House",
-    "url": "/Raldi_s Crack House/index.html"
+    "name": "Raldiscrackhouse",
+    "url": "/raldiscrackhouse/index.html"
   },
   {
     "name": "Rayman",
-    "url": "/Rayman/index.html"
+    "url": "/rayman/rayman.html"
   },
   {
-    "name": "Re Run",
-    "url": "/RE_RUN_ Webport/index.html"
+    "name": "Repowebport",
+    "url": "/repowebport/index.html"
   },
   {
-    "name": "Repo",
-    "url": "/REPO_ Webport/index.html"
+    "name": "Rerunwebport",
+    "url": "/rerunwebport/index.html"
   },
   {
-    "name": "Resident Evil 1",
-    "url": "/Resident Evil 1/index.html"
+    "name": "Residentevil 1",
+    "url": "/residentevil1/res1.html"
   },
   {
-    "name": "Resident Evil 2",
-    "url": "/Resident Evil 2/index.html"
+    "name": "Residentevil 2",
+    "url": "/residentevil2/res2.html"
   },
   {
-    "name": "Retro Bowl",
-    "url": "/Retro Bowl/index.html"
+    "name": "Retrobowl",
+    "url": "/retrobowl/index.html"
   },
   {
-    "name": "Retro Bowl College",
-    "url": "/Retro Bowl College/index.html"
+    "name": "Retrobowlcollege",
+    "url": "/retrobowlcollege/index.html"
   },
   {
-    "name": "Riddle School",
-    "url": "/Riddle School/index.html"
+    "name": "Rhythmheaven",
+    "url": "/rhythmheaven/rhythm.html"
   },
   {
-    "name": "Riddle School 2",
-    "url": "/Riddle School 2/index.html"
+    "name": "Riddleschool",
+    "url": "/riddleschool/index.html"
   },
   {
-    "name": "Riddle School 3",
-    "url": "/Riddle School 3/index.html"
+    "name": "Riddleschool 2",
+    "url": "/riddleschool2/index.html"
   },
   {
-    "name": "Riddle School 4",
-    "url": "/Riddle School 4/index.html"
+    "name": "Riddleschool 3",
+    "url": "/riddleschool3/index.html"
   },
   {
-    "name": "Riddle School 5",
-    "url": "/Riddle School 5/index.html"
+    "name": "Riddleschool 4",
+    "url": "/riddleschool4/index.html"
   },
   {
-    "name": "Riddle School Transfer",
-    "url": "/Riddle School Transfer/index.html"
+    "name": "Riddleschool 5",
+    "url": "/riddleschool5/index.html"
   },
   {
-    "name": "Riddle School Transfer 2",
-    "url": "/Riddle School Transfer 2/index.html"
+    "name": "Riddleschooltransfer",
+    "url": "/riddleschooltransfer/index.html"
   },
   {
-    "name": "Rooftop Snipers",
-    "url": "/Rooftop Snipers/index.html"
+    "name": "Riddleschooltransfer 2",
+    "url": "/riddleschooltransfer2/index.html"
   },
   {
-    "name": "Rooftop Snipers 2",
-    "url": "/Rooftop Snipers 2/index.html"
+    "name": "Rooftopsnipers",
+    "url": "/rooftopsnipers/index.html"
+  },
+  {
+    "name": "Rooftopsnipers 2",
+    "url": "/rooftopsnipers2/index.html"
   },
   {
     "name": "Run",
-    "url": "/Run/index.html"
+    "url": "/run/run.html"
   },
   {
     "name": "Run 2",
-    "url": "/Run 2/index.html"
+    "url": "/run2/run2.html"
   },
   {
     "name": "Run 3",
-    "url": "/Run 3/index.html"
+    "url": "/run3/run3.html"
   },
   {
-    "name": "Running Fred",
-    "url": "/Running Fred_ Webport/index.html"
+    "name": "Runningfredwebport",
+    "url": "/runningfredwebport/index.html"
   },
   {
-    "name": "S 4 Super Mario 64",
-    "url": "/SM64_ Super Mario 64/index.html"
-  },
-  {
-    "name": "Saihate Station",
-    "url": "/Saihate Station_ Webport/index.html"
+    "name": "Saihatestationwebport",
+    "url": "/saihatestationwebport/saihatestation.html"
   },
   {
     "name": "Sandboxels",
-    "url": "/Sandboxels/index.html"
+    "url": "/sandboxels/Sandboxels.html"
   },
   {
-    "name": "Sanic Ball",
-    "url": "/Sanic Ball_ Webport/index.html"
+    "name": "Sanicballwebport",
+    "url": "/sanicballwebport/index.html"
   },
   {
-    "name": "Scary Path",
-    "url": "/Scary Path/index.html"
+    "name": "Scarypath",
+    "url": "/scarypath/index.html"
   },
   {
-    "name": "Schoolboy Runaway",
-    "url": "/Schoolboy Runaway_ Webport/index.html"
+    "name": "Schoolboyrunawaywebport",
+    "url": "/schoolboyrunawaywebport/runaway.html"
   },
   {
-    "name": "Shift At Midnight",
-    "url": "/Shift At Midnight_ Webport/index.html"
+    "name": "Shiftatmidnightwebport",
+    "url": "/shiftatmidnightwebport/shift.html"
   },
   {
-    "name": "Silksong",
-    "url": "/Silksong_ Webport/index.html"
+    "name": "Silksongwebport",
+    "url": "/silksongwebport/index.html"
   },
   {
-    "name": "Skibidi Shooter",
-    "url": "/Skibidi Shooter/index.html"
+    "name": "Skibidishooter",
+    "url": "/skibidishooter/index.html"
   },
   {
-    "name": "Slender The 8 Pages",
-    "url": "/Slender_ The 8 Pages_ Webport/index.html"
+    "name": "Skiingfred",
+    "url": "/skiingfred/index.html"
   },
   {
-    "name": "Slendytubbies",
-    "url": "/Slendytubbies_ Webport/index.html"
+    "name": "Slenderthe 8 Pageswebport",
+    "url": "/slenderthe8pageswebport/index.html"
   },
   {
-    "name": "Slient Hill",
-    "url": "/Slient Hill/index.html"
+    "name": "Slendytubbiesii 2 Dwebport",
+    "url": "/slendytubbiesii2dwebport/index.html"
   },
   {
-    "name": "Slime Ranchers",
-    "url": "/Slime Ranchers_ Webport/index.html"
+    "name": "Slendytubbiesiiwebport",
+    "url": "/slendytubbiesiiwebport/index.html"
   },
   {
-    "name": "Slither.io",
-    "url": "/Slither.io_ Webport/index.html"
+    "name": "Slendytubbiesiwebport",
+    "url": "/slendytubbiesiwebport/slendy1.html"
+  },
+  {
+    "name": "Slienthill",
+    "url": "/slienthill/slienthill.html"
+  },
+  {
+    "name": "Slimerancherswebport",
+    "url": "/slimerancherswebport/slimeranchers.html"
+  },
+  {
+    "name": "Slitheriowebport",
+    "url": "/slitheriowebport/sfge.html"
   },
   {
     "name": "Slope",
-    "url": "/Slope/index.html"
+    "url": "/slope/index.html"
   },
   {
     "name": "Slowroads",
-    "url": "/Slowroads/index.html"
+    "url": "/slowroads/index.html"
   },
   {
-    "name": "Smash Karts",
-    "url": "/Smash Karts/index.html"
+    "name": "Sm 64 Supermario 64",
+    "url": "/sm64supermario64/index.html"
   },
   {
-    "name": "Snow Battle",
-    "url": "/Snow Battle/index.html"
+    "name": "Smashkarts",
+    "url": "/smashkarts/index.html"
   },
   {
-    "name": "Snow Rider 3d",
-    "url": "/Snow Rider 3D/index.html"
+    "name": "Snowbattle",
+    "url": "/snowbattle/snow.html"
   },
   {
-    "name": "Soccer Bros",
-    "url": "/Soccer Bros/index.html"
+    "name": "Snowrider 3 D",
+    "url": "/snowrider3d/index.html"
   },
   {
-    "name": "Soccer Random",
-    "url": "/Soccer Random/index.html"
+    "name": "Soccerbros",
+    "url": "/soccerbros/index.html"
   },
   {
-    "name": "Solar Smash",
-    "url": "/Solar Smash/index.html"
+    "name": "Soccerrandom",
+    "url": "/soccerrandom/index.html"
+  },
+  {
+    "name": "Solarsmash",
+    "url": "/solarsmash/solar.html"
   },
   {
     "name": "Solitaire",
-    "url": "/Solitaire/index.html"
+    "url": "/solitaire/index.html"
   },
   {
     "name": "Sonic 1",
-    "url": "/Sonic 1/index.html"
+    "url": "/sonic1/index.html"
   },
   {
     "name": "Sonic 2",
-    "url": "/Sonic 2/index.html"
+    "url": "/sonic2/index.html"
   },
   {
     "name": "Sonic 3",
-    "url": "/Sonic 3/index.html"
+    "url": "/sonic3/sonic3.html"
   },
   {
-    "name": "Sonic 3d Blast",
-    "url": "/Sonic 3D Blast/index.html"
+    "name": "Sonic 3 Dblast",
+    "url": "/sonic3dblast/sonic3dblast.html"
   },
   {
     "name": "Sonic 4",
-    "url": "/Sonic 4/index.html"
+    "url": "/sonic4/index.html"
   },
   {
-    "name": "Sonic Cd",
-    "url": "/Sonic CD/index.html"
+    "name": "Soniccd",
+    "url": "/soniccd/soniccd.html"
   },
   {
-    "name": "Sonic Exe",
-    "url": "/Sonic EXE/index.html"
+    "name": "Sonicexe",
+    "url": "/sonicexe/sonicexe.html"
   },
   {
-    "name": "Sonic Jam",
-    "url": "/Sonic Jam/index.html"
+    "name": "Sonicjam",
+    "url": "/sonicjam/sonicjam.html"
   },
   {
-    "name": "Sonic Mania",
-    "url": "/Sonic Mania_ Webport/index.html"
+    "name": "Sonicmaniawebport",
+    "url": "/sonicmaniawebport/sonic.html"
   },
   {
-    "name": "Sonic R",
-    "url": "/Sonic R/index.html"
+    "name": "Sonicr",
+    "url": "/sonicr/sonicr.html"
   },
   {
-    "name": "Sonic Robo Blast 2",
-    "url": "/Sonic Robo Blast 2/index.html"
+    "name": "Sonicroboblast 2",
+    "url": "/sonicroboblast2/index.html"
   },
   {
-    "name": "Sonic Robo Blast 2 Kart",
-    "url": "/Sonic Robo Blast 2 KART/index.html"
+    "name": "Sonicroboblast 2 Kart",
+    "url": "/sonicroboblast2kart/index.html"
   },
   {
-    "name": "Sonic World Next",
-    "url": "/Sonic World Next/index.html"
+    "name": "Sonicworldnext",
+    "url": "/sonicworldnext/index.html"
   },
   {
-    "name": "Space Waves",
-    "url": "/Space waves/index.html"
+    "name": "Spaceflightsimulatorwebport",
+    "url": "/spaceflightsimulatorwebport/spaceflight.html"
   },
   {
-    "name": "Spank The Monkey Bogs Favorites",
-    "url": "/Spank the monkey_ bogs favorites/index.html"
+    "name": "Spacewaves",
+    "url": "/spacewaves/spacewaves.html"
   },
   {
-    "name": "Speed Stars",
-    "url": "/Speed Stars/index.html"
+    "name": "Spankthemonkeybogsfavorites",
+    "url": "/spankthemonkeybogsfavorites/monkey.html"
   },
   {
-    "name": "Spelunky Classic Hd",
-    "url": "/Spelunky Classic HD/index.html"
+    "name": "Speedstars",
+    "url": "/speedstars/index.html"
   },
   {
-    "name": "Starbound",
-    "url": "/Starbound_ Webport/index.html"
+    "name": "Spelunkyclassichd",
+    "url": "/spelunkyclassichd/spelunky.html"
   },
   {
-    "name": "Stardew Valley",
-    "url": "/Stardew Valley_ Webport/index.html"
+    "name": "Starboundwebport",
+    "url": "/starboundwebport/index.html"
   },
   {
-    "name": "Stick War Legacy",
-    "url": "/Stick War_ Legacy/index.html"
+    "name": "Stardewvalleywebport",
+    "url": "/stardewvalleywebport/index.html"
   },
   {
-    "name": "Stick With It",
-    "url": "/Stick With It_ Webport/index.html"
+    "name": "Stickmanhook",
+    "url": "/stickmanhook/index.html"
   },
   {
-    "name": "Stickman Hook",
-    "url": "/Stickman Hook/index.html"
+    "name": "Stickwarlegacy",
+    "url": "/stickwarlegacy/stickwar.html"
   },
   {
-    "name": "Subway Surfers",
-    "url": "/Subway Surfers/index.html"
+    "name": "Stickwithitwebport",
+    "url": "/stickwithitwebport/index.html"
   },
   {
-    "name": "Super Hot",
-    "url": "/Super Hot/index.html"
+    "name": "Subwaysurfers",
+    "url": "/subwaysurfers/index.html"
   },
   {
-    "name": "Super Mario Bros",
-    "url": "/Super Mario Bros/index.html"
+    "name": "Superhot",
+    "url": "/superhot/index.html"
   },
   {
-    "name": "Super Mario Galaxy Ds",
-    "url": "/Super Mario Galaxy DS/index.html"
+    "name": "Supermario 64 Sm 64 Coop",
+    "url": "/supermario64sm64coop/sm64coopdx.html"
   },
   {
-    "name": "Super Meat Boy",
-    "url": "/Super Meat Boy/index.html"
+    "name": "Supermariobros",
+    "url": "/supermariobros/smb.html"
   },
   {
-    "name": "Super Monkey Ball 1 2",
-    "url": "/Super Monkey Ball 1 _ 2/index.html"
+    "name": "Supermariogalaxyds",
+    "url": "/supermariogalaxyds/smgds.html"
   },
   {
-    "name": "Super Monkey Ball Jr",
-    "url": "/Super Monkey Ball JR/index.html"
+    "name": "Supermeatboy",
+    "url": "/supermeatboy/index.html"
   },
   {
-    "name": "Super Oliver World",
-    "url": "/Super Oliver World/index.html"
+    "name": "Supermonkeyball 12",
+    "url": "/supermonkeyball12/monk.html"
   },
   {
-    "name": "Super Smash Bros",
-    "url": "/Super Smash Bros/index.html"
+    "name": "Supermonkeyballjr",
+    "url": "/supermonkeyballjr/supermonkey.html"
   },
   {
-    "name": "Super Smash Flash",
-    "url": "/Super Smash Flash/index.html"
+    "name": "Superoliverworld",
+    "url": "/superoliverworld/superoliverworld.html"
   },
   {
-    "name": "Super Smash Flash 2",
-    "url": "/Super Smash Flash 2/index.html"
+    "name": "Supersmashbros",
+    "url": "/supersmashbros/ssm.html"
   },
   {
-    "name": "Survivor.io",
-    "url": "/Survivor.io_ Webport/index.html"
+    "name": "Supersmashflash",
+    "url": "/supersmashflash/ssf.html"
   },
   {
-    "name": "Taiko No Tatsujini",
-    "url": "/Taiko No Tatsujini/index.html"
+    "name": "Supersmashflash 2",
+    "url": "/supersmashflash2/ssf2.html"
   },
   {
-    "name": "Tanuki Sunset",
-    "url": "/Tanuki Sunset/index.html"
+    "name": "Survivoriowebport",
+    "url": "/survivoriowebport/survivor.html"
   },
   {
-    "name": "Tattle Tail",
-    "url": "/Tattle Tail_ Webport/index.html"
+    "name": "Taikonotatsujini",
+    "url": "/taikonotatsujini/index.html"
   },
   {
-    "name": "Ten Basket",
-    "url": "/Ten Basket/index.html"
+    "name": "Tanukisunset",
+    "url": "/tanukisunset/index.html"
   },
   {
-    "name": "Terraria",
-    "url": "/Terraria_ Webport/index.html"
+    "name": "Tattletailwebport",
+    "url": "/tattletailwebport/index.html"
+  },
+  {
+    "name": "Taxheaven 3000 Webport",
+    "url": "/taxheaven3000webport/index.html"
+  },
+  {
+    "name": "Tenbasket",
+    "url": "/tenbasket/index.html"
+  },
+  {
+    "name": "Terrariawebport",
+    "url": "/terrariawebport/terraria-wrapper.html"
   },
   {
     "name": "Tetris",
-    "url": "/Tetris/index.html"
+    "url": "/tetris/index.html"
   },
   {
     "name": "Tetrisweeper",
-    "url": "/Tetrisweeper/index.html"
+    "url": "/tetrisweeper/index.html"
   },
   {
-    "name": "Thats Not My Neighbor",
-    "url": "/Thats Not My Neighbor_ Webport/index.html"
+    "name": "Thatsnotmyneighborwebport",
+    "url": "/thatsnotmyneighborwebport/thatsnot.html"
   },
   {
-    "name": "The Binding Of Isaac Wrath Of The Lamb",
-    "url": "/The Binding Of Isaac Wrath Of The Lamb/index.html"
+    "name": "Thebindingofisaacwrathofthelamb",
+    "url": "/thebindingofisaacwrathofthelamb/tboiw.html"
   },
   {
-    "name": "The Binding Of Isaac Wrath Of The Lamb Eternal",
-    "url": "/The Binding Of Isaac Wrath Of The Lamb_ Eternal/index.html"
+    "name": "Thebindingofisaacwrathofthelambeternal",
+    "url": "/thebindingofisaacwrathofthelambeternal/boilambeternal.html"
   },
   {
-    "name": "The Binding Of Issac",
-    "url": "/The Binding Of Issac/index.html"
+    "name": "Thebindingofissac",
+    "url": "/thebindingofissac/index.html"
   },
   {
-    "name": "The Binding Of Issac Rebirth",
-    "url": "/The Binding Of Issac_ Rebirth_ Webport/index.html"
+    "name": "Thebindingofissacrebirthwebport",
+    "url": "/thebindingofissacrebirthwebport/index.html"
   },
   {
-    "name": "The Impossible Quiz",
-    "url": "/The Impossible Quiz/index.html"
+    "name": "Theimpossiblequiz",
+    "url": "/theimpossiblequiz/index.html"
   },
   {
-    "name": "The Legend Of Zelda Ocarina Of Time",
-    "url": "/The Legend of Zelda Ocarina of Time/index.html"
+    "name": "Thelegendofzeldaocarinaoftime",
+    "url": "/thelegendofzeldaocarinaoftime/tloz.html"
   },
   {
-    "name": "There Is No Game",
-    "url": "/There Is No Game/index.html"
+    "name": "Thereisnogame",
+    "url": "/thereisnogame/index.html"
   },
   {
-    "name": "Time Shooter 1",
-    "url": "/Time Shooter 1/index.html"
+    "name": "Timeshooter 1",
+    "url": "/timeshooter1/time1.html"
   },
   {
-    "name": "Time Shooter 2",
-    "url": "/Time Shooter 2/index.html"
+    "name": "Timeshooter 2",
+    "url": "/timeshooter2/index.html"
   },
   {
-    "name": "Time Shooter 3",
-    "url": "/Time Shooter 3/index.html"
+    "name": "Timeshooter 3",
+    "url": "/timeshooter3/index.html"
   },
   {
-    "name": "Tiny Fishing",
-    "url": "/Tiny Fishing/index.html"
+    "name": "Tinyfishing",
+    "url": "/tinyfishing/index.html"
   },
   {
-    "name": "To The Core",
-    "url": "/To The Core_ Webport/index.html"
+    "name": "Tombofthemask",
+    "url": "/tombofthemask/index.html"
   },
   {
-    "name": "Tomb Of The Mask",
-    "url": "/Tomb Of The Mask/index.html"
+    "name": "Tomodachicollection",
+    "url": "/tomodachicollection/tomo.html"
   },
   {
-    "name": "Tomodachi Collection",
-    "url": "/Tomodachi Collection/index.html"
+    "name": "Tothecorewebport",
+    "url": "/tothecorewebport/index.html"
   },
   {
-    "name": "Touhou Mother",
-    "url": "/Touhou Mother_ Webport/index.html"
+    "name": "Touhou 1 Touhoureiiden",
+    "url": "/touhou1touhoureiiden/touhou.html"
   },
   {
-    "name": "Tube Jumpers",
-    "url": "/Tube Jumpers/index.html"
+    "name": "Touhou 2 Touhoufuumaroku",
+    "url": "/touhou2touhoufuumaroku/touhou2.html"
   },
   {
-    "name": "Tung Tung Horror",
-    "url": "/Tung Tung Horror/index.html"
+    "name": "Touhou 3 Touhouyumejikuu",
+    "url": "/touhou3touhouyumejikuu/touhou3.html"
   },
   {
-    "name": "Ultrakill",
-    "url": "/Ultrakill_ Webport/index.html"
+    "name": "Touhou 4 Touhougensokyou",
+    "url": "/touhou4touhougensokyou/touhou4.html"
   },
   {
-    "name": "Ultrapool",
-    "url": "/Ultrapool_ Webport/index.html"
+    "name": "Touhou 5 Touhoukaikidan",
+    "url": "/touhou5touhoukaikidan/touhou5.html"
   },
   {
-    "name": "Um Jammer Lammy",
-    "url": "/Um Jammer Lammy/index.html"
+    "name": "Touhoumotherwebport",
+    "url": "/touhoumotherwebport/index.html"
   },
   {
-    "name": "Undertale",
-    "url": "/Undertale_ Webport/index.html"
+    "name": "Tubejumpers",
+    "url": "/tubejumpers/tube.html"
   },
   {
-    "name": "Undertale Yellow",
-    "url": "/Undertale Yellow_ Webport/index.html"
+    "name": "Tungtungbasicswebport",
+    "url": "/tungtungbasicswebport/index.html"
   },
   {
-    "name": "Untitled Goose Game",
-    "url": "/Untitled Goose Game_ Webport/index.html"
+    "name": "Tungtunghorror",
+    "url": "/tungtunghorror/tung.html"
   },
   {
-    "name": "Vampire Survivors",
-    "url": "/Vampire Survivors_ Webport/index.html"
+    "name": "Ultrakillwebport",
+    "url": "/ultrakillwebport/index.html"
+  },
+  {
+    "name": "Ultrapoolwebport",
+    "url": "/ultrapoolwebport/ultrapool.html"
+  },
+  {
+    "name": "Umjammerlammy",
+    "url": "/umjammerlammy/jemmer.html"
+  },
+  {
+    "name": "Undertale 10 Thanniversarywebport",
+    "url": "/undertale10thanniversarywebport/index.html"
+  },
+  {
+    "name": "Undertalelastbreath",
+    "url": "/undertalelastbreath/udlb.html"
+  },
+  {
+    "name": "Undertalewebport",
+    "url": "/undertalewebport/undertale.html"
+  },
+  {
+    "name": "Undertaleyellowwebport",
+    "url": "/undertaleyellowwebport/play.html"
+  },
+  {
+    "name": "Untitledgoosegamewebport",
+    "url": "/untitledgoosegamewebport/index.html"
+  },
+  {
+    "name": "Vampiresurvivorswebport",
+    "url": "/vampiresurvivorswebport/index.html"
   },
   {
     "name": "Vex",
-    "url": "/Vex/index.html"
+    "url": "/vex/index.html"
   },
   {
     "name": "Vex 2",
-    "url": "/Vex 2/index.html"
+    "url": "/vex2/vex2.html"
   },
   {
     "name": "Vex 3",
-    "url": "/Vex 3/index.html"
+    "url": "/vex3/index.html"
   },
   {
     "name": "Vex 4",
-    "url": "/Vex 4/index.html"
+    "url": "/vex4/index.html"
   },
   {
     "name": "Vex 5",
-    "url": "/Vex 5/index.html"
+    "url": "/vex5/index.html"
   },
   {
     "name": "Vex 6",
-    "url": "/Vex 6/index.html"
+    "url": "/vex6/vex6.html"
   },
   {
     "name": "Vex 7",
-    "url": "/Vex 7/index.html"
+    "url": "/vex7/vex7.html"
   },
   {
     "name": "Vex 8",
-    "url": "/Vex 8/index.html"
+    "url": "/vex8/vex8.html"
   },
   {
-    "name": "Volley Random",
-    "url": "/Volley Random/index.html"
+    "name": "Vibribbonwebport",
+    "url": "/vibribbonwebport/vib.html"
   },
   {
-    "name": "Warioware D.i.y",
-    "url": "/Warioware D.I.Y/index.html"
+    "name": "Volleyrandom",
+    "url": "/volleyrandom/index.html"
   },
   {
-    "name": "We Become What We Behold",
-    "url": "/We Become What We behold/index.html"
+    "name": "Wariowarediy",
+    "url": "/wariowarediy/wariowarediy.html"
   },
   {
-    "name": "Webfishing",
-    "url": "/Webfishing_ Webport/index.html"
+    "name": "Webecomewhatwebehold",
+    "url": "/webecomewhatwebehold/wbwwb.html"
   },
   {
-    "name": "Who S Your Daddy",
-    "url": "/Who_s Your Daddy_ Webport/index.html"
+    "name": "Webfishingwebport",
+    "url": "/webfishingwebport/index.html"
   },
   {
-    "name": "Witch S Heart",
-    "url": "/Witch_s Heart_ Webport/index.html"
+    "name": "Whosyourdaddywebport",
+    "url": "/whosyourdaddywebport/index.html"
   },
   {
-    "name": "Woody S Incredible Journey To The Escape From Eternal Terror",
-    "url": "/Woody_s Incredible Journey To The Escape From Eternal Terror/index.html"
+    "name": "Witchsheartwebport",
+    "url": "/witchsheartwebport/witches.html"
+  },
+  {
+    "name": "Woodysincrediblejourneytotheescapefrometernalterror",
+    "url": "/woodysincrediblejourneytotheescapefrometernalterror/index.html"
   },
   {
     "name": "Wordle",
-    "url": "/Wordle/index.html"
+    "url": "/wordle/index.html"
   },
   {
-    "name": "Worlds Hardest Game",
-    "url": "/Worlds Hardest Game/index.html"
+    "name": "Worldshardestgame",
+    "url": "/worldshardestgame/twhg.html"
   },
   {
-    "name": "Worlds Hardest Game 2",
-    "url": "/Worlds Hardest Game 2/index.html"
+    "name": "Worldshardestgame 2",
+    "url": "/worldshardestgame2/index.html"
   },
   {
-    "name": "Worlds Hardest Game 3",
-    "url": "/Worlds Hardest Game 3/index.html"
+    "name": "Worldshardestgame 3",
+    "url": "/worldshardestgame3/index.html"
   },
   {
-    "name": "Yandere Simulator",
-    "url": "/Yandere Simulator_ Webport/index.html"
+    "name": "Yanderesimulatorwebport",
+    "url": "/yanderesimulatorwebport/yandere.html"
   },
   {
     "name": "Yoked",
-    "url": "/Yoked/index.html"
+    "url": "/yoked/yoked.html"
   },
   {
-    "name": "Your Only Move Is Hustle Yomi Hustle",
-    "url": "/Your Only Move Is HUSTLE_ YOMI Hustle_ Webport/index.html"
+    "name": "Youronlymoveishustleyomihustlewebport",
+    "url": "/youronlymoveishustleyomihustlewebport/index.html"
   },
   {
-    "name": "Yume Nikki",
-    "url": "/Yume Nikki_ Webport/index.html"
+    "name": "Yumenikkiwebport",
+    "url": "/yumenikkiwebport/yume.html"
   }
 ]

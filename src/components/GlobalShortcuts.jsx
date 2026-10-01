@@ -6,15 +6,8 @@ import { process, isInternalGhostTabUrl } from '/src/utils/hooks/loader/utils';
 import { createId } from '/src/utils/id';
 import loaderStore from '/src/utils/hooks/loader/useLoaderStore';
 
-/**
- * global shortcuts mounted at root so it is always active
- * regardless of which route 
- *
- * handles both keyboard interception AND action execution so shortcuts
- * work on every page, UI element, not on iframes or proxied content
- * 
- * this took way to long 
- */
+// mounted at the root so it never unmounts. interception and execution both
+// live here so shortcuts still work with focus inside a frame
 const GlobalShortcuts = () => {
   const { options, updateOption } = useOptions();
   const navigate = useNavigate();
@@ -67,7 +60,7 @@ const GlobalShortcuts = () => {
       };
 
       const openNewTab = () => {
-        if (store.tabs.length >= 20) return;
+        if (store.tabs.length >= 60) return;
         const id = createId();
         store.addTab({ title: 'New Tab', id, url: 'tabs://new' });
         store.setActive(id);
@@ -91,7 +84,7 @@ const GlobalShortcuts = () => {
       const duplicateCurrentTab = () => {
         const current = getActiveTab();
         if (!current) return;
-        if (store.tabs.length >= 20) return;
+        if (store.tabs.length >= 60) return;
         const id = createId();
         store.addTab({ title: current.title || 'New Tab', id, url: current.url || 'tabs://new' });
         store.setActive(id);
@@ -188,7 +181,7 @@ const GlobalShortcuts = () => {
           store.setIframeUrl(current.id, 'ghost://home');
           ensureWorkspace();
         },
-        // DevTools toggle
+        // devtools toggle
         toggleDevToolsF12: () => {
           window.dispatchEvent(new CustomEvent('ghost-toggle-devtools', {
             detail: { tabId: activeTab.id, frame: getActiveFrame(store, activeTab) },
@@ -213,7 +206,7 @@ const GlobalShortcuts = () => {
           getActiveFrame(store, current)?.requestFullscreen?.();
         },
         openSettings: () => {
-          if (store.tabs.length >= 20) return;
+          if (store.tabs.length >= 60) return;
           const id = createId();
           const settingsUrl = process('ghost://settings', false, options.prType || 'auto', options.engine || null);
           store.addTab({ title: 'Ghost Settings', id, url: settingsUrl });
@@ -221,7 +214,7 @@ const GlobalShortcuts = () => {
           store.setActive(id);
           ensureWorkspace();
         },
-        // History/bookmarks 
+        // history/bookmarks 
         openHistory: () => {
           window.dispatchEvent(new Event('ghost-open-history'));
         },
@@ -246,7 +239,7 @@ const GlobalShortcuts = () => {
       action();
     };
 
-    // If inside an iframe it passes to top window instead of executing locally.
+    // inside an iframe this passes up to the top window instead of running here
     const handleKeyDown = (e) => {
       const combo = eventToShortcut(e);
       if (!comboMatchesShortcut(combo)) return;

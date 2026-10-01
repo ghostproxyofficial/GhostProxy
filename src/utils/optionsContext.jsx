@@ -9,6 +9,31 @@ const gridDesignDefaults = designConfig.find((c) => c.option === 'Griddy')?.valu
 const duckDuckGoDefaults =
   searchConfig.find((c) => c.option === 'DuckDuckGo')?.value || searchConfig[0].value;
 const scramjetDefaults = prConfig.find((c) => c.option === 'Scramjet only')?.value || prConfig[0].value;
+const CAPABILITY_KEY = 'ghostPerformanceCapability';
+
+const getPerformanceCapability = () => {
+  if (typeof window === 'undefined') return true;
+  try {
+    const stored = JSON.parse(localStorage.getItem(CAPABILITY_KEY) || 'null');
+    if (stored && typeof stored.capable === 'boolean') return stored.capable;
+  } catch {
+    // capability caching is optional
+  }
+
+  const cores = Number(navigator.hardwareConcurrency || 2);
+  const memory = Number(navigator.deviceMemory || 0);
+  const connection = navigator.connection;
+  const isMobile = /Android|iPhone|iPad|Mobile/i.test(navigator.userAgent || '');
+  const capable = !connection?.saveData
+    && cores >= (isMobile ? 6 : 4)
+    && (!memory || memory >= 4);
+  try {
+    localStorage.setItem(CAPABILITY_KEY, JSON.stringify({ capable, cores, memory, isMobile, checkedAt: Date.now() }));
+  } catch {
+    // some browsers expose hardware data but block local storage
+  }
+  return capable;
+};
 
 const DEFAULT_OPTIONS = {
   ...darkThemeDefaults,
@@ -58,9 +83,21 @@ const DEFAULT_OPTIONS = {
   stealthMode: 0,
   magicPill: false,
   gradientText: false,
-  customAnimatedBackground: 'StarrySky',
+  customAnimatedBackground: 'WebThreads',
   animatedBgProps: {},
   customSiteTitle: '',
+  liquidGlassEnabled: true,
+  liquidGlassBlur: 18,
+  liquidGlassTint: 0.12,
+  liquidGlassSaturation: 1.2,
+  browserIdentity: 'mirror',
+  haloEnabled: true,
+  userAgentPreset: 'default',
+  customUserAgent: '',
+  experimentalScramjetLogs: false,
+  experimentalScramjetSourcemaps: true,
+  experimentalScramjetScramitize: false,
+  experimentalUvPrefix: '',
 };
 
 const normalizeLegacyOptions = (stored) => {
@@ -111,8 +148,10 @@ const normalizeLegacyOptions = (stored) => {
 
   out.hideLocation = toBool(out.hideLocation, false);
   out.antiClose = toBool(out.antiClose, false);
-  out.popupBlockDefault = toBool(out.popupBlockDefault, false);
-  out.downloadBlockDefault = toBool(out.downloadBlockDefault, false);
+// only normalize if the key exists, otherwise the DEFAULT_OPTIONS values
+// (popup/download block default = true) still have to apply
+  if (out.popupBlockDefault !== undefined) out.popupBlockDefault = toBool(out.popupBlockDefault, true);
+  if (out.downloadBlockDefault !== undefined) out.downloadBlockDefault = toBool(out.downloadBlockDefault, true);
 
   if (String(out.defaultMusicPlayer || '').toLowerCase() === 'monochrome') {
     out.defaultMusicPlayer = 'musicplayer';
@@ -267,6 +306,24 @@ const normalizeLegacyOptions = (stored) => {
     });
   }
 
+  // new option migrations
+  if (!['mirror', 'disguise'].includes(String(out.browserIdentity || '').toLowerCase())) out.browserIdentity = 'mirror';
+  else out.browserIdentity = String(out.browserIdentity).toLowerCase();
+  if (typeof out.liquidGlassEnabled !== 'boolean') out.liquidGlassEnabled = getPerformanceCapability();
+  const storedGlassBlur = Number(out.liquidGlassBlur);
+  out.liquidGlassBlur = Number.isFinite(storedGlassBlur) ? Math.max(0, Math.min(20, storedGlassBlur)) : 18;
+  out.liquidGlassTint = Math.max(0, Math.min(0.4, Number.isFinite(Number(out.liquidGlassTint)) ? Number(out.liquidGlassTint) : 0.12));
+  out.liquidGlassSaturation = Math.max(0.5, Math.min(2.5, Number.isFinite(Number(out.liquidGlassSaturation)) ? Number(out.liquidGlassSaturation) : 1.2));
+  if (typeof out.haloEnabled !== 'boolean') out.haloEnabled = true;
+  const validUA = new Set(['default','chrome-win','chrome-mac','chrome-linux','chrome-chromebook','chrome-android','chrome-android-tablet','chrome-ios','safari-mac','safari-iphone','safari-ipad','firefox-win','firefox-mac','firefox-linux','firefox-android','edge-win','edge-mac','edge-linux','opera-win','brave-win','samsung-android','tv','playstation5','xbox','nintendo-switch','googlebot','custom']);
+  if (!validUA.has(String(out.userAgentPreset || '').toLowerCase())) out.userAgentPreset = 'default';
+  else out.userAgentPreset = String(out.userAgentPreset).toLowerCase();
+  if (typeof out.customUserAgent !== 'string') out.customUserAgent = '';
+  if (typeof out.experimentalScramjetLogs !== 'boolean') out.experimentalScramjetLogs = false;
+  if (typeof out.experimentalScramjetSourcemaps !== 'boolean') out.experimentalScramjetSourcemaps = true;
+  if (typeof out.experimentalScramjetScramitize !== 'boolean') out.experimentalScramjetScramitize = false;
+  if (typeof out.experimentalUvPrefix !== 'string') out.experimentalUvPrefix = '';
+
   if (Array.isArray(out.quickLinks) && out.quickLinks.length >= 4) {
     const hasCrazy = out.quickLinks.some((q) => (q?.name || '').toLowerCase().includes('crazy'));
     const hasTikTok = out.quickLinks.some((q) => (q?.name || '').toLowerCase().includes('tiktok'));
@@ -290,9 +347,9 @@ const normalizeLegacyOptions = (stored) => {
 const getStoredOptions = () => {
   try {
     const stored = normalizeLegacyOptions(JSON.parse(localStorage.getItem('options') || '{}'));
-    return { ...DEFAULT_OPTIONS, ...stored };
+    return { ...DEFAULT_OPTIONS, liquidGlassEnabled: getPerformanceCapability(), ...stored };
   } catch {
-    return DEFAULT_OPTIONS;
+    return { ...DEFAULT_OPTIONS, liquidGlassEnabled: getPerformanceCapability() };
   }
 };
 
@@ -302,7 +359,16 @@ export const OptionsProvider = ({ children }) => {
   useEffect(() => {
     const syncOptions = (event) => {
       if (event?.type === 'storage' && event.key && event.key !== 'options') return;
-      setOptions(getStoredOptions());
+// only swap state when the stored value really changed, otherwise the top
+// window and the settings iframe ping-pong storage events and the sliders
+// jitter and flicker
+      setOptions((prev) => {
+        const next = getStoredOptions();
+        try {
+          if (JSON.stringify(prev) === JSON.stringify(next)) return prev;
+        } catch { }
+        return next;
+      });
     };
 
     window.addEventListener('ghost-options-updated', syncOptions);
@@ -316,7 +382,11 @@ export const OptionsProvider = ({ children }) => {
 
   useEffect(() => {
     try {
-      localStorage.setItem('options', JSON.stringify(options));
+      const next = JSON.stringify(options);
+      // never write back the same value, stops the cross-document write loops
+      if (localStorage.getItem('options') !== next) {
+        localStorage.setItem('options', next);
+      }
     } catch { }
   }, [options]);
 
@@ -333,19 +403,9 @@ export const OptionsProvider = ({ children }) => {
   const updateOption = useCallback((obj, immediate = true) => {
     if (!obj || typeof obj !== 'object') return;
 
-    setOptions((prev) => {
-      const updated = { ...prev, ...obj };
-
-      try {
-        localStorage.setItem('options', JSON.stringify(updated));
-      } catch { }
-
-      setTimeout(() => {
-        window.dispatchEvent(new Event('ghost-options-updated'));
-      }, 0);
-
-      return immediate ? updated : prev;
-    });
+// state only, the effect above does the saving and fires the event.
+// side-effect free keeps strictmode double-invoke safe
+    setOptions((prev) => (immediate ? { ...prev, ...obj } : prev));
   }, []);
 
   const contextValue = useMemo(() => ({ options, updateOption }), [options, updateOption]);

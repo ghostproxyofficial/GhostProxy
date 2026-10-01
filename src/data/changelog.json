@@ -98,5 +98,22 @@
       "Integrated Monochrome as the default built-in music player.",
       "Fixed many bugs with video entertainment."
     ]
+  },
+  {
+    "version": "1.9.9",
+    "track": "Stable",
+    "date": "2026-09-29",
+    "changes": [
+      "Added Ghost Notes, a built-in lecture recorder with microphone capture, live transcription, an offline Whisper fallback for Firefox, and Duck.ai summaries.",
+      "Fixed the Quick AI popup closing when you clicked inside it, and added screenshot sharing to Duck.ai.",
+      "Fixed the Settings CSS editor doing nothing until the page was reloaded, and wired up the Scramjet and Ultraviolet settings.",
+      "Fixed Browser Identity so the user agent, platform, vendor, client hints, and upstream request headers all agree, and stopped disguise mode from falling back to the YouTube TV identity.",
+      "Renamed the Quick AI setting and added a Notes toggle to the sidebar editor.",
+      "Fixed proxy reliability by retrying the transport, falling back to Epoxy, and recovering stuck pages silently instead of showing a blank frame.",
+      "Fixed the wisp server using blocking DNS resolvers, which was breaking sites like Cinejoy. Redeploy the wisp server to get this fix.",
+      "Rewrote the documentation, added Notes and Quick AI guides, and expanded the Settings info page.",
+      "Refreshed the game catalogs and removed dead and duplicate entries.",
+      "Replaced Remote Access with a RayGrid coming soon page."
+    ]
   }
 ]

@@ -3,14 +3,17 @@ import { useOptions } from '/src/utils/optionsContext';
 
 const Button = ({ value, action, disabled = false, maxW = 40 }) => {
   const { options } = useOptions();
+  const isLight =
+    options?.type === 'light' || options?.theme === 'light' || options?.themeName === 'lightTheme';
 
   return (
     <button
       onClick={action}
       className={clsx(
-        'rounded-xl border border-white/20 text-[0.9rem] font-medium cursor-pointer',
+        'rounded-xl border text-[0.9rem] font-medium cursor-pointer',
         'flex items-center justify-center h-11 px-4 transition-all duration-150',
-        'hover:border-white/30 hover:opacity-95 active:opacity-90',
+        isLight ? 'border-black/15 hover:border-black/30' : 'border-white/20 hover:border-white/30',
+        'hover:opacity-95 active:opacity-90',
         disabled ? 'opacity-60' : undefined,
       )}
       style={{

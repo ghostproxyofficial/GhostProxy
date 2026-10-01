@@ -9,7 +9,37 @@
   ::before,
   ::backdrop,
   ::file-selector-button {
-    border-color: rgba(255, 255, 255, 0.11);
+    border-color: var(--ghost-border-color, rgba(255, 255, 255, 0.11));
+  }
+
+  /* modern themed scrollbars everywhere (replaces default OS scrollbars) */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 163, 184, 0.5) transparent;
+  }
+
+  *::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(148, 163, 184, 0.45);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(148, 163, 184, 0.72);
+  }
+
+  *::-webkit-scrollbar-corner {
+    background: transparent;
   }
 
   :root {

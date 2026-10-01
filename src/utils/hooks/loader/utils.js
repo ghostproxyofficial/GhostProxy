@@ -59,6 +59,7 @@ export const INTERNAL_GHOST_PATHS = [
   '/code',
   '/ai',
   '/remote',
+  '/notes',
   '/new',
 ];
 
@@ -153,6 +154,7 @@ const resolveGhostRoute = (input) => {
     'code-runner': `${location.origin}/code?ghost=1&run=1`,
     'ai': `${location.origin}/ai?ghost=1`,
     'remote': `${location.origin}/remote?ghost=1`,
+    'notes': `${location.origin}/notes?ghost=1`,
     'musicplayer': 'ghost://musicplayer',
     'monochrome': 'ghost://musicplayer',
     'duckai': 'ghost://duckai',
@@ -189,6 +191,7 @@ const resolveGhostRoute = (input) => {
       'code-runner',
       'ai',
       'remote',
+      'notes',
       'musicplayer',
       'monochrome',
       'duckai',
@@ -253,6 +256,7 @@ export const toGhostDisplayUrl = (url) => {
       'code',
       'ai',
       'remote',
+      'notes',
       'musicplayer',
       'monochrome',
       'duckai',
@@ -293,6 +297,7 @@ export const toGhostDisplayUrl = (url) => {
       '/code': 'ghost://code',
       '/ai': 'ghost://ai',
       '/remote': 'ghost://remote',
+      '/notes': 'ghost://notes',
     };
 
     return map[path] || null;
@@ -329,11 +334,9 @@ export const process = (input, decode = false, prType, engine = "https://duckduc
 
   if (!decode) {
     const directUrl = check(input, engine);
-    if (
-      directUrl.startsWith('https://monochrome.tf') ||
-      directUrl.startsWith('/monochrome/') ||
-      directUrl.startsWith('https://glcdn.githack.com')
-    ) {
+// keep third party script hosts direct but ghost music goes through the
+// proxy so the parent can reach its media element and controls
+    if (directUrl.startsWith('/monochrome/') || directUrl.startsWith('https://glcdn.githack.com')) {
       return directUrl;
     }
   }

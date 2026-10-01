@@ -29,7 +29,7 @@ const DialogHost = () => {
   const isLightTheme =
     options.type === 'light' ||
     options.theme === 'light' ||
-    options.themeName === 'light';
+    options.themeName === 'lightTheme';
   const panelBg = options.quickModalBgColor || options.menuColor || (isLightTheme ? '#eff4fb' : '#252f3e');
   const textColor = options.siteTextColor || (isLightTheme ? '#1f2b3f' : '#d3ddef');
   const panelBorder = isLightTheme ? 'rgba(15,23,42,0.16)' : 'rgba(255,255,255,0.12)';
@@ -42,7 +42,7 @@ const DialogHost = () => {
     <div className="fixed inset-0 z-[12000] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/55" onClick={() => close(isConfirm ? false : undefined)} />
       <div
-        className="relative w-full max-w-md rounded-xl border shadow-2xl overflow-hidden"
+        className="ghost-glass relative w-full max-w-md rounded-xl border shadow-2xl overflow-hidden"
         style={{ backgroundColor: panelBg, color: textColor, borderColor: panelBorder }}
       >
         <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: panelBorder }}>

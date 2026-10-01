@@ -247,7 +247,7 @@ const NewTab = ({ id, updateFn }) => {
   }, [menuClockNow, effectiveTimezone]);
 
   const infoCardBg = options.menuColor || options.quickModalBgColor || '#111827';
-  const isLightTheme = options.type === 'light';
+  const isLightTheme = options.type === 'light' || options.theme === 'light' || options.themeName === 'lightTheme';
   const logoCenterOffsetPx = 30;
   const infoCardSurfaceBg = isLightTheme
     ? 'rgba(248, 250, 252, 0.62)'
@@ -594,7 +594,7 @@ const NewTab = ({ id, updateFn }) => {
     openInNewTab: (url) => {
       if (!url) return;
       const processed = process(url, false, options.prType || 'auto', options.engine || null);
-      if (loaderStore.getState().tabs.length >= 20) return;
+      if (loaderStore.getState().tabs.length >= 60) return;
       const tabId = createId();
       addTab({ title: 'New Tab', id: tabId, url: processed });
       setActive(tabId);

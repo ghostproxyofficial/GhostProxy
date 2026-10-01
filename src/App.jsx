@@ -13,6 +13,7 @@ import { applyStealthMode } from './utils/stealthMode';
 import DialogHost from './components/DialogHost';
 import GlobalShortcuts from './components/GlobalShortcuts';
 import AnimatedBackground from './components/AnimatedBackground';
+import Halo from './components/Halo';
 import './index.css';
 import 'nprogress/nprogress.css';
 
@@ -23,6 +24,7 @@ const importSettings = () => import('./pages/Settings');
 const importCode = () => import('./pages/CodeRunner');
 const importAI = () => import('./pages/AI');
 const importRemote = () => import('./pages/RemoteAccess');
+const importNotes = () => import('./pages/Notes');
 
 const Apps = lazyLoad(importApps);
 const Apps2 = lazyLoad(importGms);
@@ -31,6 +33,7 @@ const Settings = lazyLoad(importSettings);
 const CodeRunner = lazyLoad(importCode);
 const AI = lazyLoad(importAI);
 const RemoteAccess = lazyLoad(importRemote);
+const Notes = lazyLoad(importNotes);
 const Player = lazyLoad(() => import('./pages/Player'));
 const New = lazyLoad(() => import('./pages/New'));
 
@@ -41,6 +44,7 @@ initPreload('/settings', importSettings);
 initPreload('/code', importCode);
 initPreload('/ai', importAI);
 initPreload('/remote', importRemote);
+initPreload('/notes', importNotes);
 
 function useTracking() {
   const location = useLocation();
@@ -95,6 +99,13 @@ const ThemedApp = memo(() => {
   useEffect(() => {
     applyStealthMode(options.stealthMode || 0);
   }, [options.stealthMode]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const isLight = options.type === 'light' || options.theme === 'light' || options.themeName === 'lightTheme';
+    root.classList.toggle('liquid-glass', options.liquidGlassEnabled !== false);
+    root.classList.toggle('ghost-light', isLight);
+  }, [options.liquidGlassEnabled, options.type, options.theme, options.themeName]);
 
   const openInGhostBrowser = useCallback((url, title = 'New Tab') => {
     const rawUrl = String(url || '').trim();
@@ -181,6 +192,7 @@ const ThemedApp = memo(() => {
       { path: '/code', element: <CodeRunner /> },
       { path: '/ai', element: <AI /> },
       { path: '/remote', element: <RemoteAccess /> },
+      { path: '/notes', element: <Notes /> },
       { path: '/new', element: <New /> },
       { path: '*', element: <NotFound /> },
     ],
@@ -198,7 +210,6 @@ const ThemedApp = memo(() => {
     const transpValue = Number(options.bgTransparency ?? 20);
     const overlayAlpha = 100 - (Number.isFinite(transpValue) ? Math.max(0, Math.min(100, transpValue)) : 20);
 
-    // we only apply the dimmer gradient if overlayalpha > 0 and theres actually a background to dim
     const hasBg = bgDesignConfig !== 'none';
     const overlayGradient = hasBg && overlayAlpha > 0
       ? `linear-gradient(color-mix(in srgb, var(--ghost-bg-color) ${overlayAlpha}%, transparent), color-mix(in srgb, var(--ghost-bg-color) ${overlayAlpha}%, transparent))`
@@ -212,13 +223,30 @@ const ThemedApp = memo(() => {
 
     const finalBgImage = backgrounds.length > 0 ? backgrounds.join(', ') : 'none';
 
+     const rawGlassBlur = Number(options.liquidGlassBlur ?? 18);
+     const glassBlur = Math.max(0, Math.min(20, Number.isFinite(rawGlassBlur) ? rawGlassBlur : 18));
+     const glassTint = Math.max(0, Math.min(0.4, Number(options.liquidGlassTint ?? 0.12) || 0));
+     const glassSaturation = Math.max(0.5, Math.min(2.5, Number(options.liquidGlassSaturation ?? 1.2) || 1.2));
+     const isLightTheme = options.type === 'light' || options.theme === 'light' || options.themeName === 'lightTheme';
+     const gradientStart = isLightTheme ? '#2563eb' : (options.navItemActive || '#ffffff');
+     const gradientEnd = isLightTheme ? '#7c3aed' : (options.switchEnabledColor || '#a0b0c8');
+
     return `
       :root {
         --ghost-bg-color: ${options.bgColor || '#111827'};
         --ghost-logo-color: ${options.logoColor || '#ffffff'};
         --ghost-text-color: ${options.siteTextColor || '#a0b0c8'};
-        --ghost-muted-text-color: ${options.siteMutedTextColor || 'rgba(160, 176, 200, 0.78)'};
-        --ghost-public-logo-filter: ${(options.type === 'light' || options.theme === 'light')
+         --ghost-muted-text-color: ${options.siteMutedTextColor || 'rgba(160, 176, 200, 0.78)'};
+         --ghost-border-color: ${isLightTheme ? 'rgba(15, 23, 42, 0.14)' : 'rgba(255, 255, 255, 0.11)'};
+        --ghost-control-track: ${isLightTheme ? 'rgba(15, 23, 42, 0.12)' : 'rgba(255, 255, 255, 0.1)'};
+        --ghost-control-thumb: ${isLightTheme ? '#334155' : '#ffffff'};
+        --ghost-glass-surface: ${isLightTheme ? `rgba(190, 197, 208, ${(0.28 + glassTint * 0.45).toFixed(2)})` : `rgba(8, 9, 12, ${(0.72 + glassTint * 0.35).toFixed(2)})`};
+        --ghost-glass-surface-strong: ${isLightTheme ? `rgba(184, 191, 202, ${(0.38 + glassTint * 0.45).toFixed(2)})` : `rgba(8, 9, 12, ${(0.82 + glassTint * 0.2).toFixed(2)})`};
+        --ghost-glass-border: ${isLightTheme ? 'rgba(15, 23, 42, 0.16)' : 'rgba(255, 255, 255, 0.11)'};
+        --ghost-glass-highlight: ${isLightTheme ? 'rgba(255, 255, 255, 0.14)' : 'rgba(255, 255, 255, 0.025)'};
+        --ghost-glass-shadow: ${isLightTheme ? 'rgba(15, 23, 42, 0.16)' : 'rgba(0, 0, 0, 0.48)'};
+        --ghost-glass-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='1 0 0 0 0 0 1 0 0 0 0 0 1 0 0 0 0 0 .055 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        --ghost-public-logo-filter: ${(options.type === 'light' || options.theme === 'light' || options.themeName === 'lightTheme')
           ? 'invert(0) brightness(0.12)'
           : 'invert(1) brightness(1.8)'};
         ${options.customFontFamily ? `--font-family: ${options.customFontFamily} !important;` : ''}
@@ -233,7 +261,7 @@ const ThemedApp = memo(() => {
 
       ${options.gradientText ? `
       h1, h2, h3, h4, h5, h6 {
-        background-image: linear-gradient(135deg, ${options.navItemActive || '#ffffff'}, ${options.switchEnabledColor || '#a0b0c8'}) !important;
+         background-image: linear-gradient(135deg, ${gradientStart}, ${gradientEnd}) !important;
         -webkit-background-clip: text !important;
         -webkit-text-fill-color: transparent !important;
         background-clip: text !important;
@@ -241,6 +269,58 @@ const ThemedApp = memo(() => {
         display: inline-block;
       }
       ` : ''}
+
+      /* Frosted surfaces stay translucent so animated backgrounds remain visible. */
+      .liquid-glass .ghost-glass,
+      .liquid-glass .ghost-glass-tint {
+        background-color: var(--ghost-glass-surface) !important;
+        background-image: linear-gradient(135deg, var(--ghost-glass-highlight), transparent 48%), var(--ghost-glass-noise) !important;
+        background-blend-mode: normal, soft-light;
+        background-clip: padding-box;
+        border-color: var(--ghost-glass-border) !important;
+        backdrop-filter: blur(${glassBlur}px) saturate(${glassSaturation});
+        -webkit-backdrop-filter: blur(${glassBlur}px) saturate(${glassSaturation});
+        box-shadow: 0 18px 42px var(--ghost-glass-shadow), inset 0 1px 0 var(--ghost-glass-highlight);
+      }
+
+      .liquid-glass .ghost-glass-contained {
+        isolation: isolate;
+      }
+
+      .liquid-glass .ghost-profile-manager {
+        background-color: var(--ghost-glass-surface-strong) !important;
+        background-image: linear-gradient(135deg, var(--ghost-glass-highlight), transparent 48%), var(--ghost-glass-noise) !important;
+        background-blend-mode: normal, soft-light;
+        backdrop-filter: blur(${Math.min(24, glassBlur + 2)}px) saturate(${glassSaturation});
+        -webkit-backdrop-filter: blur(${Math.min(24, glassBlur + 2)}px) saturate(${glassSaturation});
+      }
+
+      .liquid-glass .ghost-profile-manager > div,
+      .liquid-glass .ghost-profile-manager .ghost-profile-row,
+      .liquid-glass .ghost-profile-manager input,
+      .liquid-glass .ghost-profile-manager button {
+        background-image: linear-gradient(135deg, var(--ghost-glass-highlight), transparent 52%), var(--ghost-glass-noise) !important;
+        background-blend-mode: normal, soft-light;
+      }
+
+      .liquid-glass .ghost-profile-manager > div {
+        background-color: color-mix(in srgb, var(--ghost-glass-surface) 72%, transparent) !important;
+        border-color: var(--ghost-glass-border) !important;
+      }
+
+      .liquid-glass .ghost-profile-manager .ghost-profile-row {
+        background-color: color-mix(in srgb, var(--ghost-glass-surface) 58%, transparent) !important;
+        border-color: var(--ghost-glass-border) !important;
+      }
+
+      .liquid-glass .ghost-profile-manager .ghost-profile-row-active {
+        background-color: color-mix(in srgb, var(--ghost-glass-surface-strong) 78%, transparent) !important;
+      }
+
+      .liquid-glass .ghost-profile-manager input {
+        background-color: color-mix(in srgb, var(--ghost-glass-surface) 78%, transparent) !important;
+        border-color: var(--ghost-glass-border) !important;
+      }
 
       html {
         background-image: ${options.customAnimatedBackground ? 'none' : options.customBackgroundImage ? `url(${options.customBackgroundImage})` : finalBgImage};
@@ -313,6 +393,7 @@ const ThemedApp = memo(() => {
     options.globalFont,
     options.performanceMode,
     options.logoColor,
+    options.customGlobalCss,
     options.customThemeCss,
     options.theme,
     options.gradientText,
@@ -322,12 +403,18 @@ const ThemedApp = memo(() => {
     options.bgTransparency,
     options.customAnimatedBackground,
     options.customBackgroundImage,
-  ]);
+     options.type,
+     options.themeName,
+     options.liquidGlassBlur,
+     options.liquidGlassTint,
+     options.liquidGlassSaturation,
+   ]);
 
   return (
     <>
       <AnimatedBackground />
       <GlobalShortcuts />
+      <Halo />
       <Routing pages={pages} />
       <ReturnToBrowserHint />
       <DialogHost />

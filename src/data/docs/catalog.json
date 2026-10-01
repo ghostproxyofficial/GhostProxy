@@ -10,6 +10,11 @@
       },
       {
         "id": "2",
+        "title": "How to use Ghost",
+        "file": "/docs/getting_started/2.md"
+      },
+      {
+        "id": "3",
         "title": "General info",
         "file": "/docs/getting_started/3.md"
       }
@@ -61,13 +66,23 @@
       },
       {
         "id": "9",
-        "title": "Access my home computer with WarpDesk",
+        "title": "Access my home computer with RayGrid",
         "file": "/docs/how_to/9.md"
       },
       {
         "id": "10",
         "title": "Use GeForce Now",
         "file": "/docs/how_to/10.md"
+      },
+      {
+        "id": "11",
+        "title": "Record lectures with Ghost Notes",
+        "file": "/docs/how_to/11.md"
+      },
+      {
+        "id": "12",
+        "title": "Use Quick AI",
+        "file": "/docs/how_to/12.md"
       }
     ]
   },
@@ -92,7 +107,7 @@
       },
       {
         "id": "4",
-        "title": "How to Set Up WarpDesk Beta on Your PC",
+        "title": "How to Set Up RayGrid Beta on Your PC",
         "file": "/docs/development/4.md"
       },
       {

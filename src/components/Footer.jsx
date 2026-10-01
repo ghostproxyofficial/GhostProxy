@@ -7,7 +7,7 @@ import changelogEntries from '/src/data/changelog.json';
 import loaderStore from '/src/utils/hooks/loader/useLoaderStore';
 
 const Footer = memo(() => {
-const defaultWispEndpoint = 'wss://ashburn.edisonlearningcenter.me/connection';
+const defaultWispEndpoint = 'wss://service.khanacademyy.org/socket/';
   const { options } = useOptions();
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,8 +19,26 @@ const defaultWispEndpoint = 'wss://ashburn.edisonlearningcenter.me/connection';
   const hasCustomBackground = String(options.customBackgroundImage || '').trim().length > 0;
 
   const latestVersionLabel = useMemo(() => {
-    const latestEntry = [...(Array.isArray(changelogEntries) ? changelogEntries : [])]
-      .sort((a, b) => Number(String(b?.version || '0')) - Number(String(a?.version || '0')))[0];
+// compare each segment as a number. Number('1.9.9') is NaN which made the
+// old sort a no-op and left the label stuck on an older release
+    const toSegments = (value) =>
+      String(value || '')
+        .trim()
+        .split('.')
+        .map((part) => Number.parseInt(part, 10))
+        .map((part) => (Number.isFinite(part) ? part : 0));
+
+    const latestEntry = [...(Array.isArray(changelogEntries) ? changelogEntries : [])].sort((a, b) => {
+      const left = toSegments(a?.version);
+      const right = toSegments(b?.version);
+      const length = Math.max(left.length, right.length);
+      for (let i = 0; i < length; i += 1) {
+        const diff = (right[i] || 0) - (left[i] || 0);
+        if (diff !== 0) return diff;
+      }
+      return 0;
+    })[0];
+
     const version = String(latestEntry?.version || '').trim();
     return version ? `v${version}` : 'v1';
   }, []);
@@ -208,8 +226,12 @@ const defaultWispEndpoint = 'wss://ashburn.edisonlearningcenter.me/connection';
       ? 'text-[#facc15]'
       : 'text-[#22c55e]';
 
+  const footerIsLight =
+    options.type === 'light' || options.theme === 'light' || options.themeName === 'lightTheme';
   const footerCardClass = hasCustomBackground
-    ? 'rounded-md border border-white/10 bg-[#0d1016]/92'
+    ? (footerIsLight
+      ? 'rounded-md border border-black/10 bg-white/85'
+      : 'rounded-md border border-white/10 bg-[#0d1016]/92')
     : 'rounded-md border border-transparent bg-transparent';
 
   const isSearchPage = location.pathname === '/' || location.pathname.startsWith('/search');

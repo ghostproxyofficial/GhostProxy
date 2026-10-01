@@ -57,7 +57,7 @@ export default function Menu() {
   const devToolsBlockedForInternalPage = isInternalGhostTabUrl(activeTab?.url);
 
   const newTab = useCallback(() => {
-    if (tabs.length < 20) {
+    if (tabs.length < 60) {
       let uuid = createId();
       addTab({
         title: 'New Tab',
@@ -140,7 +140,7 @@ export default function Menu() {
   }, []);
 
   const cnt = clsx(
-    'absolute right-2 w-56 rounded-lg shadow-lg overflow-hidden text-sm z-50',
+    'ghost-glass absolute right-2 w-56 rounded-lg shadow-lg overflow-hidden text-sm z-50',
     'border transition-all duration-200 origin-top-right',
     showTabs ? 'mt-21' : 'mt-11',
     showMenu
@@ -150,7 +150,7 @@ export default function Menu() {
 
   const item = clsx(
     'w-full flex justify-between items-center text-left text-[0.8rem] px-3 py-2 focus:outline-none',
-    options.type === 'light' ? 'hover:bg-gray-100' : 'hover:bg-[#ffffff0c]',
+    (options.type === 'light' || options.theme === 'light' || options.themeName === 'lightTheme') ? 'hover:bg-gray-100' : 'hover:bg-[#ffffff0c]',
   );
 
   return (
@@ -198,7 +198,7 @@ export default function Menu() {
                 <hr
                   className={clsx(
                     'border-t',
-                    options.type === 'light' ? 'border-gray-300' : 'border-gray-700',
+                    (options.type === 'light' || options.theme === 'light' || options.themeName === 'lightTheme') ? 'border-gray-300' : 'border-gray-700',
                   )}
                 />
               )}

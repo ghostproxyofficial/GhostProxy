@@ -11,7 +11,7 @@ const Logo = memo(({ options, action, width, height, showBetaBadge = true }) => 
   const isLightTheme =
     op.type === 'light' ||
     op.theme === 'light' ||
-    op.themeName === 'light';
+    op.themeName === 'lightTheme';
   const logoSrc = isLightTheme ? '/ghost-text-logo-black.png' : '/ghost-text-logo-white.png';
 
   const style = useMemo(() => {
@@ -73,7 +73,7 @@ const Logo = memo(({ options, action, width, height, showBetaBadge = true }) => 
           Beta
         </span>
       ) : (
-        <span className="text-xs font-bold tracking-wider uppercase px-2 py-0.5 rounded-md border border-white/20 bg-white/8 text-white/70 select-none">
+        <span className={clsx('text-xs font-bold tracking-wider uppercase px-2 py-0.5 rounded-md border select-none', isLightTheme ? 'border-black/20 bg-black/5 text-[#0f172a]' : 'border-white/20 bg-white/8 text-white/70')}>
           Beta
         </span>
       )}

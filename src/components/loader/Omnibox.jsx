@@ -54,28 +54,93 @@ const Action = ({ Icon, size = 15, action = () => { }, disabled = false }) => {
 const Omnibox = () => {
   const [Icon, setIcon] = useState(Info);
   const activeTab = loaderStore((state) => state.tabs.find((tab) => tab.active));
+  const allTabs = loaderStore((state) => state.tabs);
   const activeTabId = activeTab?.id;
   const { updateUrl, refreshTab, goBack, goForward, toggleMenu, showUI, setIframeUrl, toggleSidebar } = loaderStore();
   const inputRef = useRef(null);
   const suggestPanelRef = useRef(null);
   const quickPanelRef = useRef(null);
   const mediaPanelRef = useRef(null);
+  const mediaSeekFramesRef = useRef(new Map());
+  const mediaSeekValuesRef = useRef(new Map());
   const { options, updateOption } = useOptions();
   
   const [mediaExpanded, setMediaExpanded] = useState(false);
+  const [mediaSeekDrafts, setMediaSeekDrafts] = useState({});
   const activeTabMedia = activeTab?.mediaState || { playing: false, title: '', artist: '', artwork: '' };
   const mediaState = { ...activeTabMedia, expanded: mediaExpanded };
+  const isLight = options.type === 'light' || options.theme === 'light' || options.themeName === 'lightTheme';
+
+  const sendMediaCommand = (command, tabId = null, time = null) => {
+    const message = { type: 'GHOST_MEDIA_COMMAND', command, ...(tabId ? { tabId } : {}), ...(time !== null ? { time } : {}) };
+    document.querySelectorAll('iframe').forEach((iframe) => {
+      if (tabId && iframe.getAttribute('data-ghost-tab-id') !== String(tabId)) return;
+      try {
+        iframe.contentWindow?.postMessage(message, '*');
+      } catch { }
+      try {
+        const media = Array.from(iframe.contentWindow?.document?.querySelectorAll('audio, video') || []);
+        if (command === 'play') media.forEach((item) => { try { item.play?.().catch(() => {}); } catch { } });
+        if (command === 'pause') media.forEach((item) => { try { item.pause?.(); } catch { } });
+        if (command === 'seek') media.forEach((item) => {
+          try {
+            if (Number.isFinite(Number(time))) item.currentTime = Number(time);
+          } catch { }
+        });
+        if (command === 'nexttrack' || command === 'previoustrack') {
+          const selectors = command === 'nexttrack'
+            ? '[aria-label*="next" i], [title*="next" i], #fs-next-btn, #next-btn, [data-action="next-track"], [data-action="next"]'
+            : '[aria-label*="prev" i], [aria-label*="previous" i], [title*="prev" i], [title*="previous" i], #fs-prev-btn, #prev-btn, [data-action="previous-track"], [data-action="previous"]';
+          iframe.contentWindow?.document?.querySelector(selectors)?.click?.();
+        }
+      } catch { }
+    });
+  };
+
+  const sendMediaSeek = (tabId, time) => {
+    mediaSeekValuesRef.current.set(tabId, time);
+    if (mediaSeekFramesRef.current.has(tabId)) return;
+    const frame = requestAnimationFrame(() => {
+      mediaSeekFramesRef.current.delete(tabId);
+      sendMediaCommand('seek', tabId, mediaSeekValuesRef.current.get(tabId));
+    });
+    mediaSeekFramesRef.current.set(tabId, frame);
+  };
+
+  const formatMediaTime = (value) => {
+    const seconds = Math.max(0, Math.floor(Number(value) || 0));
+    return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+  };
+
+  const formatMediaLabel = (mediaTitle, artist, tabTitle) => {
+    const title = String(mediaTitle || '').trim();
+    const byline = String(artist || '').trim();
+    const site = String(tabTitle || '').trim();
+    const track = title && byline ? `${title} by ${byline}` : title || byline || 'Unknown media';
+    return site && site.toLowerCase() !== track.toLowerCase() ? `${track} - ${site}` : track;
+  };
 
   useEffect(() => {
     const handleMediaMessage = (e) => {
-      if (e.data && e.data.type === 'GHOST_MEDIA_STATE') {
-        if (e.data.tabId) {
-          loaderStore.getState().updateMediaState(e.data.tabId, {
-            playing: e.data.playing,
-            title: e.data.title || 'Unknown',
-            artist: e.data.artist || '',
-            artwork: e.data.artwork || ''
-          });
+       if (e.data && e.data.type === 'GHOST_MEDIA_STATE') {
+         if (e.data.tabId) {
+           const hasMedia = Number(e.data.mediaCount) > 0;
+           const hasMediaMetadata = Boolean(e.data.title || e.data.artist || e.data.artwork);
+           loaderStore.getState().updateMediaState(
+             e.data.tabId,
+             e.data.playing || hasMediaMetadata || hasMedia
+               ? {
+                 playing: !!e.data.playing,
+                 title: e.data.title || '',
+                 artist: e.data.artist || '',
+                 artwork: e.data.artwork || '',
+                 mediaCount: Number(e.data.mediaCount) || 0,
+                 mediaKind: e.data.mediaKind || 'audio',
+                 currentTime: Number(e.data.currentTime) || 0,
+                 duration: Number(e.data.duration) || 0,
+               }
+               : undefined,
+          );
         }
       }
     };
@@ -84,13 +149,45 @@ const Omnibox = () => {
   }, []);
 
   useEffect(() => {
+    if (!mediaExpanded) return undefined;
+
     const closeMedia = (event) => {
-      if (!mediaExpanded) return;
       if (mediaPanelRef.current?.contains(event.target)) return;
       setMediaExpanded(false);
     };
-    window.addEventListener('pointerdown', closeMedia);
-    return () => window.removeEventListener('pointerdown', closeMedia);
+
+// clicks inside a proxied iframe dont bubble up here so treat any
+// interaction with a frame as an outside click too
+    const bindFrameListeners = () => {
+      document.querySelectorAll('iframe').forEach((frame) => {
+        try {
+          const frameWindow = frame.contentWindow;
+          if (!frameWindow || frameWindow.__ghostMediaOutsideBound) return;
+          frameWindow.__ghostMediaOutsideBound = true;
+          frameWindow.addEventListener('pointerdown', () => setMediaExpanded(false));
+        } catch {
+          // cross-origin frames fall back to the window blur handler
+        }
+      });
+    };
+
+    const onWindowBlur = () => {
+      window.setTimeout(() => {
+        const active = document.activeElement;
+        if (active && active.tagName === 'IFRAME') setMediaExpanded(false);
+      }, 0);
+    };
+
+    document.addEventListener('pointerdown', closeMedia, true);
+    window.addEventListener('blur', onWindowBlur);
+    bindFrameListeners();
+    const frameObserver = window.setInterval(bindFrameListeners, 2000);
+
+    return () => {
+      document.removeEventListener('pointerdown', closeMedia, true);
+      window.removeEventListener('blur', onWindowBlur);
+      window.clearInterval(frameObserver);
+    };
   }, [mediaExpanded]);
   const { state } = useLocation();
   const navigate = useNavigate();
@@ -158,7 +255,7 @@ const Omnibox = () => {
     latestQuery.current = '';
     // also reset input if not editing
     if (!isEditingRef.current && activeTab) {
-      // logic is handled in other useeffect, but ensure suggestions are gone.
+      // handled in another useeffect, just make sure the suggestions are gone
     }
   }, [activeTab?.id]);
 
@@ -373,7 +470,7 @@ const Omnibox = () => {
           })
         }
       />
-      {/** ^^ callback used if going back to a new tab only */}
+      {/* only used when going back to a new tab */}
       <Action Icon={ArrowRight} size="17" action={() => activeTab && goForward(activeTab.id)} />
       <Action Icon={RotateCw} size="16" action={() => activeTab && refreshTab(activeTab.id)} />
       <Action
@@ -388,7 +485,7 @@ const Omnibox = () => {
       <div
         ref={suggestPanelRef}
         className={clsx(
-          ' h-[calc(100%-8px)] w-full',
+          'ghost-glass-tint h-[calc(100%-8px)] w-full',
           'rounded-lg border-1 flex items-center px-2 ml-1 mr-1 relative',
         )}
         style={{
@@ -494,7 +591,7 @@ const Omnibox = () => {
 
         {suggestOpen && results.length > 0 && (
           <div
-            className="absolute left-0 right-0 top-[calc(100%+6px)] rounded-xl border border-white/12 shadow-[0_14px_32px_rgba(0,0,0,0.45)] p-1.5 z-[170]"
+            className="ghost-glass absolute left-0 right-0 top-[calc(100%+6px)] rounded-xl border border-white/12 shadow-[0_14px_32px_rgba(0,0,0,0.45)] p-1.5 z-[170]"
             style={{ backgroundColor: suggestionPanelBg, color: suggestionPanelText }}
           >
             {results.map((result) => (
@@ -503,7 +600,7 @@ const Omnibox = () => {
                 type="button"
                 className={clsx(
                   'w-full h-9 rounded-lg px-2.5 text-left text-sm transition-colors flex items-center gap-2',
-                  options.type !== 'light' ? 'hover:bg-white/10' : 'hover:bg-black/10',
+                  !isLight ? 'hover:bg-white/10' : 'hover:bg-black/10',
                 )}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
@@ -521,54 +618,130 @@ const Omnibox = () => {
         )}
       </div>
 
-      {/* Media Controls Pill */}
+      {/* media controls pill */}
       <div className="relative flex-shrink-0" ref={mediaPanelRef}>
-        <div
-          className={clsx(
-            "h-7 rounded-full flex items-center px-2 gap-1.5 cursor-pointer text-xs border border-white/10 transition-colors select-none ml-1 mr-1",
-            mediaState.playing ? "bg-[#ffffff15] hover:bg-[#ffffff20] text-white" : "bg-[#ffffff05] hover:bg-[#ffffff10] text-white/50",
-            options.type === 'light' && "border-black/10 bg-black/5 hover:bg-black/10 text-black/70"
-          )}
-          onClick={() => setMediaExpanded(prev => !prev)}
-        >
-          <Music2 size={13} className={mediaState.playing ? "animate-pulse" : ""} />
-          <span className="max-w-[100px] truncate">
-            {mediaState.playing ? mediaState.title : "Nothing playing"}
-          </span>
-          <div className="flex items-center gap-0.5 ml-1" onClick={e => e.stopPropagation()}>
-            <button className="p-0.5 rounded-sm hover:bg-white/20 opacity-70 hover:opacity-100"><SkipBack size={12} /></button>
-            <button className="p-0.5 rounded-sm hover:bg-white/20 opacity-70 hover:opacity-100" onClick={() => {
-              const msg = { type: 'GHOST_MEDIA_COMMAND', command: mediaState.playing ? 'pause' : 'play' };
-              document.querySelectorAll('iframe').forEach(ifr => ifr.contentWindow?.postMessage(msg, '*'));
-              loaderStore.getState().updateMediaState(activeTabId, { ...activeTabMedia, playing: !activeTabMedia.playing });
-            }}>
-              {mediaState.playing ? <Pause size={12} /> : <Play size={12} />}
-            </button>
-            <button className="p-0.5 rounded-sm hover:bg-white/20 opacity-70 hover:opacity-100"><SkipForward size={12} /></button>
-          </div>
-        </div>
-
-        {/* Media Expanded Panel */}
-        {mediaState.expanded && (
-          <div
-            className="absolute right-0 top-9 w-64 rounded-xl border border-white/12 p-3 shadow-2xl z-[180] backdrop-blur-md"
-            style={{ backgroundColor: options.menuColor || '#171d29', color: options.siteTextColor || '#fff' }}
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-14 h-14 bg-black/20 rounded-md overflow-hidden flex items-center justify-center border border-white/5 shrink-0">
-                {mediaState.artwork ? (
-                  <img src={mediaState.artwork} alt="Artwork" className="w-full h-full object-cover" />
-                ) : (
-                  <Music2 size={24} className="opacity-30" />
+        {(() => {
+           const playingTabs = allTabs.filter((t) => t.mediaState?.playing);
+           const mediaTabs = allTabs.filter((t) => t.mediaState?.mediaCount > 0 || t.mediaState?.playing);
+           const hasAnyPlaying = playingTabs.length > 0;
+           const hasAnyMedia = mediaTabs.length > 0;
+          return (
+            <>
+              <div
+                className={clsx(
+                  "h-7 rounded-full flex items-center px-2 gap-1.5 cursor-pointer text-xs border border-white/10 transition-colors select-none ml-1 mr-1",
+                   isLight
+                    ? (hasAnyPlaying ? "border-black/10 bg-black/10 hover:bg-black/15 text-[#0f172a]" : "border-black/10 bg-black/5 hover:bg-black/10 text-black/55")
+                    : (hasAnyPlaying ? "bg-[#ffffff15] hover:bg-[#ffffff20] text-white" : "bg-[#ffffff05] hover:bg-[#ffffff10] text-white/50")
                 )}
+                onClick={() => setMediaExpanded((prev) => !prev)}
+                 title={hasAnyPlaying ? `${playingTabs.length} tab(s) playing` : hasAnyMedia ? 'Media detected' : 'No audio'}
+              >
+                 <Music2 size={13} className={hasAnyPlaying ? "animate-pulse" : hasAnyMedia ? "text-current" : ""} />
+                <span className="max-w-[100px] truncate">
+                    {hasAnyPlaying ? (playingTabs.length === 1 ? formatMediaLabel(playingTabs[0].mediaState.title, playingTabs[0].mediaState.artist, playingTabs[0].title) : `${playingTabs.length} playing`) : hasAnyMedia ? 'Media ready' : "Nothing playing"}
+                </span>
+                <div className="flex items-center gap-0.5 ml-1" onClick={(e) => e.stopPropagation()}>
+                  <button
+                    className={clsx('p-0.5 rounded-sm opacity-70 hover:opacity-100', isLight ? 'hover:bg-black/10' : 'hover:bg-white/20')}
+                    title="Previous track"
+                     onClick={() => sendMediaCommand('previoustrack')}
+                  >
+                    <SkipBack size={12} />
+                  </button>
+                  <button
+                      className={clsx('p-0.5 rounded-sm opacity-70 hover:opacity-100', isLight ? 'hover:bg-black/10' : 'hover:bg-white/20')}
+                    onClick={() => {
+                       sendMediaCommand(hasAnyPlaying ? 'pause' : 'play');
+                    }}
+                  >
+                    {hasAnyPlaying ? <Pause size={12} /> : <Play size={12} />}
+                  </button>
+                  <button
+                      className={clsx('p-0.5 rounded-sm opacity-70 hover:opacity-100', isLight ? 'hover:bg-black/10' : 'hover:bg-white/20')}
+                    title="Next track"
+                     onClick={() => sendMediaCommand('nexttrack')}
+                  >
+                    <SkipForward size={12} />
+                  </button>
+                </div>
               </div>
-              <div className="flex flex-col min-w-0">
-                <span className="font-semibold text-sm truncate">{mediaState.title || "Unknown Title"}</span>
-                <span className="text-xs opacity-70 truncate">{mediaState.artist || "Unknown Artist"}</span>
-              </div>
-            </div>
-          </div>
-        )}
+              {mediaState.expanded && (
+                <div
+                  className="ghost-glass absolute right-0 top-9 w-72 rounded-xl border border-white/12 p-3 shadow-2xl z-[180] max-h-[60vh] overflow-y-auto"
+                   style={{ backgroundColor: options.menuColor || (isLight ? '#f8fafc' : '#171d29'), color: options.siteTextColor || (isLight ? '#0f172a' : '#fff') }}
+                >
+                   {mediaTabs.length === 0 ? (
+                    <div className="flex items-center gap-3 opacity-70">
+                      <div className="w-14 h-14 bg-black/20 rounded-md flex items-center justify-center border border-white/5 shrink-0"><Music2 size={24} className="opacity-30" /></div>
+                      <span className="text-sm">Nothing playing</span>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                       {mediaTabs.map((t) => (
+                         <div key={t.id} className="flex items-center gap-3 rounded-lg border border-white/10 p-2" style={{ backgroundColor: isLight ? 'rgba(15,23,42,0.04)' : 'rgba(255,255,255,0.04)' }}>
+                          <div className="w-10 h-10 bg-black/20 rounded-md overflow-hidden flex items-center justify-center border border-white/5 shrink-0">
+                            {t.mediaState?.artwork ? <img src={t.mediaState.artwork} alt="" className="w-full h-full object-cover" /> : <Music2 size={16} className="opacity-30" />}
+                          </div>
+                           <div className="flex-1 min-w-0">
+                              <p className="text-xs font-semibold truncate">{formatMediaLabel(t.mediaState?.title, t.mediaState?.artist, t.title)}</p>
+                             {Number(t.mediaState?.duration) > 0 && (
+                               <div className="mt-1">
+                                 <input
+                                   type="range"
+                                   min="0"
+                                   max={t.mediaState.duration}
+                                    step="1"
+                                   value={Object.prototype.hasOwnProperty.call(mediaSeekDrafts, t.id)
+                                     ? mediaSeekDrafts[t.id]
+                                     : Math.min(t.mediaState.duration, t.mediaState.currentTime || 0)}
+                                   onInput={(event) => {
+                                     const value = Number(event.target.value);
+                                     setMediaSeekDrafts((drafts) => ({ ...drafts, [t.id]: value }));
+                                     sendMediaSeek(t.id, value);
+                                   }}
+                                   onPointerUp={() => {
+                                     window.setTimeout(() => setMediaSeekDrafts((drafts) => {
+                                       const next = { ...drafts };
+                                       delete next[t.id];
+                                       return next;
+                                     }), 250);
+                                   }}
+                                    className="media-seek-slider w-full h-1 cursor-pointer"
+                                   aria-label="Media position"
+                                 />
+                                 <div className="flex justify-between text-[10px] opacity-60 tabular-nums">
+                                   <span>{formatMediaTime(t.mediaState.currentTime)}</span>
+                                   <span>{formatMediaTime(t.mediaState.duration)}</span>
+                                 </div>
+                               </div>
+                             )}
+                           </div>
+                          <button
+                            className="p-1 rounded hover:bg-white/10 shrink-0"
+                            onClick={() => {
+                              const isPlaying = !!t.mediaState?.playing;
+                               sendMediaCommand(isPlaying ? 'pause' : 'play', t.id);
+                            }}
+                            title={t.mediaState?.playing ? 'Pause' : 'Play'}
+                          >
+                            {t.mediaState?.playing ? <Pause size={14} /> : <Play size={14} />}
+                          </button>
+                        </div>
+                      ))}
+                      <button
+                         className={clsx('w-full mt-1 h-7 rounded-md text-xs', isLight ? 'bg-black/10 hover:bg-black/15' : 'bg-white/10 hover:bg-white/15')}
+                         onClick={() => sendMediaCommand('pause')}
+                      >
+                        Pause all
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          );
+        })()}
       </div>
 
       <Action
@@ -585,18 +758,9 @@ const Omnibox = () => {
         <Action Icon={Settings2} size="17" action={() => setQuickOpen((prev) => !prev)} />
         {quickRender && (
           <>
-            <button
-              type="button"
-              aria-label="Close quick settings"
-              className={
-                'fixed inset-0 z-[150] bg-transparent transition-opacity duration-200 ' +
-                (quickAnim ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none')
-              }
-              onClick={() => setQuickOpen(false)}
-            />
             <div
               className={
-                'absolute right-0 top-9 w-[18rem] rounded-xl border border-white/10 p-3 shadow-[0_16px_36px_rgba(0,0,0,0.45)] z-[160] backdrop-blur-md transition-all duration-200 origin-top-right ' +
+                'ghost-glass absolute right-0 top-9 w-[18rem] rounded-xl border border-white/10 p-3 shadow-[0_16px_36px_rgba(0,0,0,0.45)] z-[160] transition-all duration-200 origin-top-right ' +
                 (quickAnim ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none')
               }
               style={{ backgroundColor: options.menuColor || '#171d29' }}

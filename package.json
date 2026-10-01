@@ -1,7 +1,7 @@
 {
   "name": "ghost-proxy",
   "private": true,
-  "version": "1.9.7",
+  "version": "1.9.9",
   "description": "Ghost web proxy frontend with Scramjet/UV and Epoxy/LibCurl transports.",
   "type": "module",
   "scripts": {
@@ -38,6 +38,7 @@
     "face-api.js": "^0.22.2",
     "fastify": "^5.4.0",
     "gsap": "^3.15.0",
+    "html2canvas": "^1.4.1",
     "jszip": "^3.10.1",
     "lucide": "^0.536.0",
     "lucide-react": "^0.563.0",
@@ -60,6 +61,7 @@
     "remark-gfm": "^4.0.1",
     "remark-math": "^6.0.0",
     "three": "^0.184.0",
+    "vgpu": "^0.4.1",
     "vite-plugin-static-copy": "^3.1.2",
     "zustand": "^5.0.8"
   },

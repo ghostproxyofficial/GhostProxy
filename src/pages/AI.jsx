@@ -106,7 +106,7 @@ const stripThinkingBlock = (text) => {
 };
 
 const requestAiReply = async (chatMessages) => {
-  // read ai profile early so we can use custompersonality in the system message.
+  // read the profile early, customPersonality goes in the system message
   const raw = (() => {
     try {
       return JSON.parse(localStorage.getItem('ghostAiProfile') || '{}') || {};
@@ -127,9 +127,9 @@ const requestAiReply = async (chatMessages) => {
       .slice(-20)
       .map((m) => ({ role: m.role, content: m.content })),
   ];
-  // raw was already read above for custompersonality.
+  // raw was already read above
 
-  // ghost ai now always uses user-provided provider credentials.
+  // always uses the credentials the user gave us
   const key = String(raw.apiKey || '').trim();
   const provider = String(raw.provider || 'openai').trim().toLowerCase();
   const model = String(raw.model || '').trim();
@@ -150,17 +150,37 @@ const requestAiReply = async (chatMessages) => {
     }
 
   if (provider === 'anthropic') {
-      // anthropic completion api
-      const prompt = apiMessages.map((m) => `${m.role.toUpperCase()}: ${m.content}`).join('\n\n');
-      const res = await fetch('https://api.anthropic.com/v1/complete', {
+// anthropic messages api (v1/messages). the direct browser access header
+// is required when calling from the client
+      const systemPrompt = apiMessages.find((m) => m.role === 'system')?.content;
+      const anthropicMessages = apiMessages
+        .filter((m) => m.role !== 'system')
+        .map((m) => ({ role: m.role === 'assistant' ? 'assistant' : 'user', content: String(m.content || '') }));
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-api-key': key },
-        body: JSON.stringify({ model: model || 'claude-2.1', prompt, max_tokens: 1000, temperature: 0.7 }),
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': key,
+          'anthropic-version': '2023-06-01',
+          'anthropic-dangerous-direct-browser-access': 'true',
+        },
+        body: JSON.stringify({
+          model: model || 'claude-3-5-sonnet-latest',
+          max_tokens: 1024,
+          temperature: 0.7,
+          ...(systemPrompt ? { system: String(systemPrompt) } : {}),
+          messages: anthropicMessages,
+        }),
       });
       if (res.status === 429) throw new Error('You are sending messages too fast.');
-      if (!res.ok) throw new Error('AI provider returned an error.');
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData?.error?.message || 'AI provider returned an error.');
+      }
       const data = await res.json();
-      const reply = data?.completion || data?.completion?.text || '';
+      const reply = Array.isArray(data?.content)
+        ? data.content.map((block) => block?.text || '').filter(Boolean).join('\n')
+        : '';
       if (!reply) throw new Error('AI returned an empty response.');
       return stripThinkingBlock(String(reply));
     }
@@ -670,7 +690,7 @@ export default function AIPage() {
                 {aiSettingsMounted && (
                   <div
                     ref={aiSettingsRef}
-                    className={`absolute right-0 top-9 w-[22rem] rounded-xl border z-30 p-4 shadow-2xl ${aiSettingsVisible ? 'ghost-anim-card' : 'ghost-anim-leave'
+                    className={`ghost-glass absolute right-0 top-9 w-[22rem] rounded-xl border z-30 p-4 shadow-2xl ${aiSettingsVisible ? 'ghost-anim-card' : 'ghost-anim-leave'
                       } ai-settings-no-outline`}
                     style={{ minWidth: '20rem', backgroundColor: aiSettingsSurface, borderColor: aiSettingsBorder, color: isLight ? '#0f172a' : '#ffffff' }}
                   >
@@ -695,7 +715,11 @@ export default function AIPage() {
                     <div className="mb-3">
                       <div className="text-[0.85rem] mb-1">AI Provider</div>
                       <ComboBox
-                        config={[{ option: 'OpenAI', value: 'openai' }, { option: 'Gemini', value: 'gemini' }]}
+                        config={[
+                          { option: 'OpenAI', value: 'openai' },
+                          { option: 'Anthropic (Claude)', value: 'anthropic' },
+                          { option: 'Gemini', value: 'gemini' },
+                        ]}
                         selectedValue={aiProfile.provider || 'openai'}
                         action={(v) => setAiProfile((s) => ({ ...(s || {}), provider: v }))}
                         mode={isLight ? 'light' : 'dark'}
@@ -708,7 +732,7 @@ export default function AIPage() {
                       <Input
                         defValue={aiProfile.model || ''}
                         onChange={(v) => setAiProfile((s) => ({ ...(s || {}), model: v }))}
-                        placeholder="e.g. gpt-4o-mini"
+                        placeholder="e.g. gpt-4o-mini / claude-3-5-sonnet-latest"
                         mode={isLight ? 'light' : 'dark'}
                         backgroundColor={aiSettingsFieldBg}
                       />
@@ -1013,7 +1037,7 @@ export default function AIPage() {
       {aiProviderPopupOpen && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/55 backdrop-blur-sm p-4">
           <div
-            className="w-full max-w-3xl rounded-[28px] border p-6 shadow-2xl"
+            className="ghost-glass w-full max-w-3xl rounded-[28px] border p-6 shadow-2xl"
             style={{
               backgroundColor: isLight ? '#f8fafc' : '#161618',
               borderColor: isLight ? 'rgba(15,23,42,0.14)' : 'rgba(255,255,255,0.1)',
@@ -1091,46 +1115,6 @@ export default function AIPage() {
                     {label}
                   </button>
                 ))}
-
-                {pendingDeleteChatId && (
-                  <div className="fixed inset-0 z-[10020] flex items-center justify-center p-4">
-                    <button
-                      type="button"
-                      aria-label="Close delete dialog"
-                      className="absolute inset-0 bg-black/45"
-                      onClick={() => setPendingDeleteChatId('')}
-                    />
-                    <div
-                      className="relative w-full max-w-sm rounded-2xl border p-4 shadow-2xl"
-                      style={{
-                        backgroundColor: isLight ? '#ffffff' : '#111827',
-                        borderColor: isLight ? 'rgba(15,23,42,0.12)' : 'rgba(255,255,255,0.12)',
-                        color: isLight ? '#0f172a' : '#ffffff',
-                      }}
-                    >
-                      <h3 className="text-base font-semibold">Delete chat</h3>
-                      <p className={`mt-2 text-sm ${isLight ? 'text-[#334155]' : 'text-white/70'}`}>
-                        Delete this chat? This action cannot be undone.
-                      </p>
-                      <div className="mt-4 flex items-center justify-end gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setPendingDeleteChatId('')}
-                          className={`px-3 py-1.5 rounded-md border text-sm ${isLight ? 'border-black/15 hover:bg-black/6' : 'border-white/20 hover:bg-white/10'}`}
-                        >
-                          Cancel
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => confirmDeleteChat(pendingDeleteChatId)}
-                          className="px-3 py-1.5 rounded-md border border-red-400/40 text-red-400 text-sm hover:bg-red-500/10"
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -1146,6 +1130,47 @@ export default function AIPage() {
                   Select
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* delete chat dialog, has to live at page level not in the provider popup */}
+      {pendingDeleteChatId && (
+        <div className="fixed inset-0 z-[10020] flex items-center justify-center p-4">
+          <button
+            type="button"
+            aria-label="Close delete dialog"
+            className="absolute inset-0 bg-black/45"
+            onClick={() => setPendingDeleteChatId('')}
+          />
+          <div
+            className="relative w-full max-w-sm rounded-2xl border p-4 shadow-2xl"
+            style={{
+              backgroundColor: isLight ? '#ffffff' : '#111827',
+              borderColor: isLight ? 'rgba(15,23,42,0.12)' : 'rgba(255,255,255,0.12)',
+              color: isLight ? '#0f172a' : '#ffffff',
+            }}
+          >
+            <h3 className="text-base font-semibold">Delete chat</h3>
+            <p className={`mt-2 text-sm ${isLight ? 'text-[#334155]' : 'text-white/70'}`}>
+              Delete this chat? This action cannot be undone.
+            </p>
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => setPendingDeleteChatId('')}
+                className={`px-3 py-1.5 rounded-md border text-sm ${isLight ? 'border-black/15 hover:bg-black/6' : 'border-white/20 hover:bg-white/10'}`}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => confirmDeleteChat(pendingDeleteChatId)}
+                className="px-3 py-1.5 rounded-md border border-red-400/40 text-red-400 text-sm hover:bg-red-500/10"
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>

@@ -3,20 +3,85 @@ import loaderStore from '/src/utils/hooks/loader/useLoaderStore';
 import StaticError from './viewer/StaticError';
 import { useOptions } from '/src/utils/optionsContext';
 import { process, isInternalGhostTabUrl } from '/src/utils/hooks/loader/utils';
+import { getEffectiveIdentity } from '/src/data/userAgents';
 import { useRef, useEffect, useState } from 'react';
 import { Loader } from 'lucide-react';
-import { eventToShortcut, getEffectiveShortcuts } from '/src/utils/shortcuts';
 import { showConfirm } from '/src/utils/uiDialog';
 
 import NewTab from './NewTab';
 
-// retry loading if it fails. max 3 times with exponential backoff
+// retry a failed load 3 times, backoff gets longer each time
 const MAX_ERROR_RETRIES = 3;
 const BASE_RETRY_DELAY = 1500; // ms
+
+// transport error signatures we retry past on the quiet.
+// kept narrow, generic stuff like "network error" shows up in normal pages too
+const PROXY_ERROR_MARKERS = [
+  'ssl connect error',
+  'tls handshake eof',
+  'connection reset',
+  'connection refused',
+  'could not resolve host',
+  'name or service not known',
+  'socket hang up',
+  'econnreset',
+  'etimedout',
+  'err_connection',
+  'err_ssl',
+  'err_tunnel',
+  'err_name_not_resolved',
+  'code 28',
+  'code 35',
+  'code 56',
+  'code 60',
+];
+
+const isProxyErrorDocument = (doc) => {
+  if (!doc) return false;
+  try {
+    if (doc.getElementById?.('errorTrace-wrapper') || doc.getElementById?.('fetchedURL')) return true;
+    const text = String(doc.body?.innerText || '').toLowerCase();
+    if (!text) return false;
+    return PROXY_ERROR_MARKERS.some((marker) => text.includes(marker));
+  } catch {
+    return false;
+  }
+};
+
+// stuck-load watchdog, no load event in 30s means stalled.
+// reuses the retry path. the isLoading check spares sparse pages that loaded fine
+const STUCK_NO_LOAD_MS = 30000;
+const STUCK_WATCH_TTL_MS = 6 * 60 * 1000;
+const STUCK_MAX_TRIGGERS = 2;
 const SITE_POLICY_KEY = 'ghostSitePolicies';
 const ADBLOCK_STYLE_ID = 'ghost-adblock-style';
 const DOWNLOAD_FILE_EXT_RE = /\.(zip|crx|exe|msi|dmg|pkg|apk|ipa|pdf|docx?|xlsx?|pptx?|csv|rar|7z|tar|gz|iso|bin|deb|rpm)(\?|#|$)/i;
 const DOWNLOAD_HINT_RE = /(download|attachment|export|filename=|file=|response-content-disposition)/i;
+
+const getMediaMetadata = (documentObject, mediaElement) => {
+  const read = (selector) => {
+    try {
+      const node = documentObject.querySelector(selector);
+      return String(node?.content || node?.textContent || '').trim();
+    } catch {
+      return '';
+    }
+  };
+  const attr = (name) => String(mediaElement?.dataset?.[name] || mediaElement?.getAttribute?.(`data-${name}`) || '').trim();
+  return {
+    title: attr('title')
+      || mediaElement?.getAttribute?.('aria-label')
+      || read('meta[property="og:title"]')
+      || read('[itemprop="name"]')
+      || String(documentObject.title || '').trim(),
+    artist: attr('artist')
+      || read('meta[property="music:musician"]')
+      || read('[itemprop="byArtist"]')
+      || read('[data-artist]')
+      || read('[class*="artist" i]')
+      || read('meta[name="author"]'),
+  };
+};
 const AD_SELECTORS = [
   '[id*="ad-"]',
   '[id^="ad-"]',
@@ -71,17 +136,20 @@ const Viewer = ({ zoom }) => {
   const updateTitle = loaderStore((state) => state.updateTitle);
   const setLoading = loaderStore((state) => state.setLoading);
   const setFrameRefs = loaderStore((state) => state.setFrameRefs);
-  // wisp connection check for static builds
+  // wisp connection check, static builds only
   const wispStatus = loaderStore((state) => state.wispStatus);
   const { setIframeUrl, showMenu, toggleMenu } = loaderStore();
   const frameRefs = useRef({});
   const prevURL = useRef({});
   const prevTitle = useRef({});
   const errorRetries = useRef({});   // tabid -> { count, timer }
+  const stuckWatch = useRef({});    // tabid -> { url, firstSeen, lastSig, lastChange, triggered, settled }
+  const watchTick = useRef(0);
   const { options } = useOptions();
   const updateActiveFrameRef = loaderStore((state) => state.updateActiveFrameRef);
   const activeFrameRef = loaderStore((state) => state.activeFrameRef);
   const [policyTick, setPolicyTick] = useState(0);
+  const uaSignatureRef = useRef(null);
   const syncFrameState = (tab, iframe, force = false) => {
     if (!tab || !iframe?.contentWindow) return;
     try {
@@ -101,206 +169,108 @@ const Viewer = ({ zoom }) => {
     } catch { }
   };
 
+  const syncMediaState = (tab, iframe) => {
+    if (!tab || !iframe?.contentWindow) return;
+    try {
+      const media = Array.from(iframe.contentWindow.document.querySelectorAll('audio, video'));
+      const playingMedia = media.find((item) => !item.paused && item.volume > 0 && !item.muted);
+      const documentObject = iframe.contentWindow.document;
+      const artwork = documentObject.querySelector('meta[property="og:image"]')?.content
+        || documentObject.querySelector('link[rel*="icon"]')?.href
+        || '';
+      const metadata = getMediaMetadata(documentObject, playingMedia || media[0]);
+      const nextState = media.length > 0
+        ? {
+          playing: !!playingMedia,
+          title: metadata.title,
+          artist: metadata.artist,
+          artwork,
+          mediaCount: media.length,
+          mediaKind: playingMedia?.tagName === 'VIDEO' ? 'video' : media.some((item) => item.tagName === 'AUDIO') ? 'audio' : 'video',
+          currentTime: playingMedia?.currentTime || 0,
+          duration: Number.isFinite(playingMedia?.duration) ? playingMedia.duration : 0,
+        }
+        : undefined;
+      const currentState = loaderStore.getState().tabs.find((item) => item.id === tab.id)?.mediaState;
+      if (
+        currentState?.playing === nextState?.playing &&
+        currentState?.title === nextState?.title &&
+        currentState?.artist === nextState?.artist &&
+        currentState?.mediaCount === nextState?.mediaCount &&
+        currentState?.artwork === nextState?.artwork &&
+        Math.abs((currentState?.currentTime || 0) - (nextState?.currentTime || 0)) < 0.5
+      ) return;
+      loaderStore.getState().updateMediaState(tab.id, nextState);
+    } catch { }
+  };
+
   const installFrameBridge = (tab, iframe) => {
     if (!tab || !iframe?.contentWindow) return;
 
     try {
       const cw = iframe.contentWindow;
-      if (!cw.__ghostUrlBridgeHooked) {
-        cw.__ghostUrlBridgeHooked = true;
 
-        const notifyFrameState = () => syncFrameState(tab, iframe, true);
-        const originalPushState = cw.history.pushState.bind(cw.history);
-        const originalReplaceState = cw.history.replaceState.bind(cw.history);
+      applyFrameUserAgent(tab, iframe);
 
-        cw.history.pushState = function (...args) {
-          const result = originalPushState(...args);
-          notifyFrameState();
-          return result;
-        };
-
-        cw.history.replaceState = function (...args) {
-          const result = originalReplaceState(...args);
-          notifyFrameState();
-          return result;
-        };
-
-        const onStateChange = () => notifyFrameState();
-        cw.addEventListener('popstate', onStateChange);
-        cw.addEventListener('hashchange', onStateChange);
-        cw.addEventListener('pageshow', onStateChange);
-
-        const titleObserver = new cw.MutationObserver(onStateChange);
-        const titleNode = cw.document.querySelector('title');
-        if (titleNode) {
-          titleObserver.observe(titleNode, { childList: true, characterData: true, subtree: true });
-        } else if (cw.document.head) {
-          titleObserver.observe(cw.document.head, { childList: true, subtree: true });
-        }
-        cw.__ghostTitleObserver = titleObserver;
-      }
-
-      const shortcutsMap = getEffectiveShortcuts(options);
-      const activeCombos = Object.entries(shortcutsMap)
-        .filter(([, cfg]) => cfg?.enabled !== false)
-        .map(([, cfg]) => cfg.key);
-      cw.__ghostActiveCombos = activeCombos;
-      cw.postMessage({ type: 'ghost-update-shortcuts', shortcuts: activeCombos }, '*');
-
-      if (!cw.__ghostShortcutHooked) {
-        cw.__ghostShortcutHooked = true;
-
-        const stealShortcut = (e) => {
-          const combo = eventToShortcut(e);
-          if (cw.__ghostActiveCombos?.includes(combo) || combo === 'F11' || combo === 'F12' || combo === 'F5') {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation?.();
-
-            const synth = new KeyboardEvent('keydown', {
-              key: e.key,
-              altKey: e.altKey,
-              ctrlKey: e.ctrlKey,
-              shiftKey: e.shiftKey,
-              metaKey: e.metaKey,
-              bubbles: true,
-              cancelable: true
-            });
-            window.top.dispatchEvent(synth);
-          }
-        };
-
-        cw.addEventListener('keydown', stealShortcut, { capture: true });
-        cw.document.addEventListener('keydown', stealShortcut, { capture: true });
-      }
-
+// media bridge goes in before the url/shortcut hooks, scramjet RawProxy
+// can reject those on some proxied sites
       if (!cw.__ghostMessageForwarderHooked) {
         cw.__ghostMessageForwarderHooked = true;
         cw.addEventListener('message', (e) => {
-          if (e.data && typeof e.data.type === 'string' && e.data.type.startsWith('ghost-')) {
-            try {
-              if (e.data.type === 'ghost-audio-state-up') {
-                window.top.postMessage({
-                  type: 'GHOST_MEDIA_STATE',
-                  tabId: tab.id,
-                  playing: e.data.playing,
-                  title: e.data.title || 'Unknown',
-                  artist: '',
-                  artwork: ''
-                }, '*');
-              } else if (e.data.type === 'ghost-location-change-up') {
-                if (e.data.url && e.data.url !== 'about:blank' && e.data.url !== tab.url) {
-                  setIframeUrl(tab.id, e.data.url);
-                }
-                if (e.data.title && e.data.title !== tab.title) {
-                  updateTitle(tab.id, e.data.title);
-                }
-              } else if (e.data.type === 'ghost-title-change-up') {
-                if (e.data.title && e.data.title !== tab.title) {
-                  updateTitle(tab.id, e.data.title);
-                }
-              } else if (e.data.type === 'ghost-shortcut-up') {
-                window.top.postMessage({
-                  ...e.data,
-                  type: 'ghost-shortcut'
-                }, '*');
-              } else {
-                window.top.postMessage(e.data, '*');
-              }
-            } catch {}
-          }
-          if (e.data && e.data.type === 'GHOST_MEDIA_COMMAND') {
-            try {
-              if (cw.document.querySelector('video, audio')) {
-                const mediaElements = Array.from(cw.document.querySelectorAll('video, audio'));
-                if (e.data.command === 'play') mediaElements.forEach(m => m.play().catch(()=>{}));
-                if (e.data.command === 'pause') mediaElements.forEach(m => m.pause());
-              }
-            } catch {}
-          }
+          if (e.data?.type !== 'GHOST_MEDIA_COMMAND') return;
+          try {
+            if (e.data.tabId && String(e.data.tabId) !== String(tab.id)) return;
+            const media = Array.from(cw.document.querySelectorAll('video, audio'));
+            if (e.data.command === 'play') {
+              media.forEach((item) => { try { item.play?.().catch(() => {}); } catch {} });
+            } else if (e.data.command === 'pause') {
+              media.forEach((item) => { try { item.pause?.(); } catch {} });
+            } else if (e.data.command === 'seek') {
+              media.forEach((item) => {
+                try {
+                  if (Number.isFinite(Number(e.data.time))) item.currentTime = Number(e.data.time);
+                } catch { }
+              });
+            } else if (e.data.command === 'nexttrack') {
+              const button = cw.document.querySelector('#fs-next-btn, #next-btn, [data-action="next-track"], [data-action="next"]');
+              if (button) button.click();
+            } else if (e.data.command === 'previoustrack') {
+              const button = cw.document.querySelector('#fs-prev-btn, #prev-btn, [data-action="previous-track"], [data-action="previous"]');
+              if (button) button.click();
+            }
+          } catch { }
         });
-      }
-
-      if (!cw.__ghostAudioHooked) {
-        cw.__ghostAudioHooked = true;
-        
-        // Hook prototype to catch already-instantiated AudioContexts
-        cw.__ghostAudioContexts = [];
-        const AudioCtx = cw.AudioContext || cw.webkitAudioContext;
-        if (AudioCtx && AudioCtx.prototype) {
-          const proto = AudioCtx.prototype;
-          const methods = ['createBufferSource', 'createGain', 'createOscillator', 'resume', 'suspend'];
-          methods.forEach(method => {
-            const orig = proto[method];
-            if (typeof orig === 'function') {
-              proto[method] = function(...args) {
-                if (!cw.__ghostAudioContexts.includes(this)) {
-                  cw.__ghostAudioContexts.push(this);
-                  this.addEventListener('statechange', () => {
-                    if (this.state === 'closed') {
-                      cw.__ghostAudioContexts = cw.__ghostAudioContexts.filter(c => c !== this);
-                    }
-                  });
-                }
-                return orig.apply(this, args);
-              };
-            }
-          });
-        }
-
-        // Track dynamically created audio/video elements not appended to DOM
-        cw.__ghostDynamicMedia = [];
-        const originalCreateElement = cw.document.createElement;
-        cw.document.createElement = function(tagName, ...args) {
-          const el = originalCreateElement.call(cw.document, tagName, ...args);
-          if (typeof tagName === 'string' && (tagName.toLowerCase() === 'audio' || tagName.toLowerCase() === 'video')) {
-            cw.__ghostDynamicMedia.push(el);
-          }
-          return el;
-        };
-        const OriginalAudio = cw.Audio;
-        if (OriginalAudio) {
-          cw.Audio = new Proxy(OriginalAudio, {
-            construct(target, args) {
-              const audio = new target(...args);
-              cw.__ghostDynamicMedia.push(audio);
-              return audio;
-            }
-          });
-        }
       }
 
       if (!cw.__ghostMediaStateHooked) {
         cw.__ghostMediaStateHooked = true;
         const sendMediaState = () => {
           try {
-            const domMedia = Array.from(cw.document.querySelectorAll('video, audio')).filter(el => !el.paused && el.volume > 0 && !el.muted);
-            const dynamicMedia = (cw.__ghostDynamicMedia || []).filter(el => !el.paused && el.volume > 0 && !el.muted);
-            const playingMedia = [...domMedia, ...dynamicMedia].find(Boolean);
-            
-            const ms = cw.navigator.mediaSession;
-            const hasRunningAudioContext = (cw.__ghostAudioContexts || []).some(ctx => ctx.state === 'running');
-            const playing = !!playingMedia || (ms && ms.playbackState === 'playing') || hasRunningAudioContext;
-            
-            let artwork = '';
-            if (ms?.metadata?.artwork && ms.metadata.artwork.length > 0) {
-              artwork = ms.metadata.artwork[ms.metadata.artwork.length - 1].src;
-            }
-            
+            const media = Array.from(cw.document.querySelectorAll('video, audio'));
+            const playing = media.some((item) => !item.paused && item.volume > 0 && !item.muted);
+            const audio = media.find((item) => !item.paused && item.volume > 0 && !item.muted);
+            const metadata = getMediaMetadata(cw.document, audio || media[0]);
+            const artwork = cw.document.querySelector('meta[property="og:image"]')?.content
+              || cw.document.querySelector('link[rel*="icon"]')?.href
+              || '';
             window.top.postMessage({
               type: 'GHOST_MEDIA_STATE',
               tabId: tab.id,
               playing,
-              title: ms?.metadata?.title || (playing ? cw.document.title : ''),
-              artist: ms?.metadata?.artist || '',
-              artwork
+              title: metadata.title,
+              artist: metadata.artist,
+              artwork,
+              mediaCount: media.length,
+              mediaKind: audio?.tagName === 'VIDEO' ? 'video' : media.some((item) => item.tagName === 'AUDIO') ? 'audio' : 'video',
+              currentTime: audio?.currentTime || 0,
+              duration: audio?.duration || 0,
             }, '*');
-          } catch {}
+          } catch { }
         };
-        
         cw.setInterval(sendMediaState, 1000);
         cw.addEventListener('play', sendMediaState, true);
         cw.addEventListener('pause', sendMediaState, true);
+        sendMediaState();
       }
 
       syncFrameState(tab, iframe, true);
@@ -320,6 +290,88 @@ const Viewer = ({ zoom }) => {
       }
     }
     return value;
+  };
+
+  const applyFrameUserAgent = (tab, iframe) => {
+    if (!tab || !iframe?.contentWindow) return;
+    try {
+      const navigatorObject = iframe.contentWindow.navigator;
+      if (!navigatorObject) return;
+      const decoded = decodeForSite(tab.url);
+      const identity = getEffectiveIdentity(options, decoded);
+      if (!identity?.ua) {
+        // mirror default, put the natives back if we overrode them
+        try {
+          if (navigatorObject.__ghostNativeUserAgent !== undefined) {
+            const native = navigatorObject.__ghostNativeUserAgent;
+            Object.defineProperty(navigatorObject, 'userAgent', { get: () => native, configurable: true });
+          }
+          if (navigatorObject.__ghostNativePlatform !== undefined) {
+            const native = navigatorObject.__ghostNativePlatform;
+            Object.defineProperty(navigatorObject, 'platform', { get: () => native, configurable: true });
+          }
+          if (navigatorObject.__ghostNativeVendor !== undefined) {
+            const native = navigatorObject.__ghostNativeVendor;
+            Object.defineProperty(navigatorObject, 'vendor', { get: () => native, configurable: true });
+          }
+          if (navigatorObject.__ghostNativeUAD !== undefined) {
+            const native = navigatorObject.__ghostNativeUAD;
+            Object.defineProperty(navigatorObject, 'userAgentData', { get: () => native, configurable: true });
+          }
+        } catch { }
+        return;
+      }
+      if (navigatorObject.__ghostNativeUserAgent === undefined) {
+        try { navigatorObject.__ghostNativeUserAgent = navigatorObject.userAgent; } catch { navigatorObject.__ghostNativeUserAgent = null; }
+      }
+      if (navigatorObject.__ghostNativePlatform === undefined) {
+        try { navigatorObject.__ghostNativePlatform = navigatorObject.platform; } catch { navigatorObject.__ghostNativePlatform = null; }
+      }
+      if (navigatorObject.__ghostNativeVendor === undefined) {
+        try { navigatorObject.__ghostNativeVendor = navigatorObject.vendor; } catch { navigatorObject.__ghostNativeVendor = null; }
+      }
+      if (navigatorObject.__ghostNativeUAD === undefined) {
+        try { navigatorObject.__ghostNativeUAD = navigatorObject.userAgentData; } catch { navigatorObject.__ghostNativeUAD = null; }
+      }
+      // whole identity, has to line up with the ua everywhere
+      const spoofedUAD = identity.brands
+        ? {
+          brands: identity.brands.map((b) => ({ brand: b.brand, version: b.version })),
+          mobile: !!identity.mobile,
+          platform: identity.uadPlatform || '',
+          getHighEntropyValues: () => Promise.resolve({
+            platform: identity.uadPlatform || '',
+            mobile: !!identity.mobile,
+            model: '',
+            architecture: '',
+            bitness: '',
+            formFactor: identity.mobile ? 'Mobile' : 'Desktop',
+            fullVersionList: identity.brands.map((b) => ({ brand: b.brand, version: `${b.version}.0.0.0` })),
+            wow64: false,
+          }),
+        }
+        : undefined;
+      Object.defineProperty(navigatorObject, 'userAgent', {
+        get: () => identity.ua,
+        configurable: true,
+      });
+      if (identity.platform) {
+        Object.defineProperty(navigatorObject, 'platform', {
+          get: () => identity.platform,
+          configurable: true,
+        });
+      }
+      if (typeof identity.vendor === 'string') {
+        Object.defineProperty(navigatorObject, 'vendor', {
+          get: () => identity.vendor,
+          configurable: true,
+        });
+      }
+      Object.defineProperty(navigatorObject, 'userAgentData', {
+        get: () => spoofedUAD,
+        configurable: true,
+      });
+    } catch { }
   };
 
   const isInternalGhostUrl = (urlValue) => {
@@ -618,7 +670,7 @@ const Viewer = ({ zoom }) => {
     }
 
     if (options.torRouting) {
-      // get raw url from proxy url
+      // pull the real url back out
       let targetUrl = value;
       if (value.includes('/uv/service/') || value.includes('/scramjet/')) {
          try {
@@ -696,6 +748,27 @@ const Viewer = ({ zoom }) => {
   };
 
   useEffect(() => {
+    const signature = [
+      options.userAgentPreset,
+      options.customUserAgent,
+      options.browserIdentity,
+    ].map((value) => String(value || '')).join('|');
+    const changed = uaSignatureRef.current !== null && uaSignatureRef.current !== signature;
+    uaSignatureRef.current = signature;
+    if (!changed) return;
+
+    tabs.forEach((tab) => {
+      if (!tab || isNewTabLikeUrl(tab.url) || isInternalGhostTabUrl(tab.url)) return;
+      const iframe = frameRefs.current[tab.id];
+      if (!iframe) return;
+      applyFrameUserAgent(tab, iframe);
+      try {
+        iframe.contentWindow.location.reload();
+      } catch { }
+    });
+  }, [tabs, options.userAgentPreset, options.customUserAgent, options.browserIdentity]);
+
+  useEffect(() => {
     setFrameRefs(frameRefs);
     const tabIds = new Set(tabs.map((t) => t.id));
     Object.keys(frameRefs.current).forEach((id) => {
@@ -713,8 +786,15 @@ const Viewer = ({ zoom }) => {
     };
   }, []);
 
-  /* rate-limited error retry helper */
+  // 2nd retry re-inits the transport, that fixes stuff a reload cant
   const scheduleErrorRetry = (tabId, iframe, url) => {
+    // safety net, ghost pages never get retried as a failed load
+    const tabUrl = loaderStore.getState().tabs.find((t) => t.id === tabId)?.url;
+    if (tabUrl) {
+      try {
+        if (isInternalGhostTabUrl(tabUrl)) return;
+      } catch { }
+    }
     const entry = errorRetries.current[tabId] || { count: 0, timer: null };
     if (entry.count >= MAX_ERROR_RETRIES) {
       // give up  leave error page visible instead of infinite loop
@@ -724,35 +804,96 @@ const Viewer = ({ zoom }) => {
     if (entry.timer) return; // already scheduled
     const delay = BASE_RETRY_DELAY * Math.pow(2, entry.count); // 1.5s, 3s, 6s
     entry.count += 1;
-    entry.timer = setTimeout(() => {
+    entry.timer = setTimeout(async () => {
       entry.timer = null;
+
+      if (entry.count >= 2 && typeof window.__ghostReinitTransport === 'function') {
+        try {
+          await window.__ghostReinitTransport();
+        } catch { }
+      }
+
+      let target = url;
       try {
-        iframe.contentWindow.location.replace(url);
+        const current = loaderStore.getState().tabs.find((t) => t.id === tabId);
+        if (current) target = getFrameUrl(current.url) || url;
+      } catch { }
+
+      try {
+        iframe.contentWindow.location.replace(target);
       } catch { /* cross-origin or destroyed */ }
     }, delay);
     errorRetries.current[tabId] = entry;
   };
 
+  const checkStuckTab = (tab, iframe) => {
+    if (!tab || isNewTabLikeUrl(tab.url)) return;
+    try {
+      if (isInternalGhostTabUrl(tab.url)) return;
+    } catch { }
+    // never disturb media that is actually playing
+    if (tab.mediaState?.playing) return;
+    // load already fired so its alive even if the page looks empty
+    if (!tab.isLoading) {
+      if (stuckWatch.current[tab.id]) delete stuckWatch.current[tab.id];
+      return;
+    }
+    // the retry flow owns the tab while it still has budget left
+    if (errorRetries.current[tab.id]?.timer) return;
+    if ((errorRetries.current[tab.id]?.count || 0) >= MAX_ERROR_RETRIES) return;
+
+    const now = Date.now();
+    let entry = stuckWatch.current[tab.id];
+    if (!entry || entry.url !== tab.url) {
+      entry = { url: tab.url, firstSeen: now, triggers: 0 };
+      stuckWatch.current[tab.id] = entry;
+    }
+    if (now - entry.firstSeen > STUCK_WATCH_TTL_MS) {
+      delete stuckWatch.current[tab.id];
+      return;
+    }
+    if (entry.triggers >= STUCK_MAX_TRIGGERS) return;
+
+    // need same-origin access, cross-origin frames get skipped
+    try {
+      if (!iframe.contentWindow?.document?.documentElement) return;
+    } catch { return; }
+
+    if (now - entry.firstSeen >= STUCK_NO_LOAD_MS) {
+      entry.triggers += 1;
+      entry.firstSeen = now;
+      try {
+        scheduleErrorRetry(tab.id, iframe, getFrameUrl(tab.url));
+      } catch { }
+    }
+  };
+
+// stable key, rebind only when tabs actually change.
+// not every mediaState tick or the bridge tears down and audio detection breaks
+  const tabsKey = tabs.map((t) => `${t.id}:${t.url}`).join('|');
+
   useEffect(() => {
     const listeners = [];
 
-    tabs.forEach((tab) => {
-      if (isNewTabLikeUrl(tab.url)) return;
+    const bindTab = (tab) => {
+      if (!tab || isNewTabLikeUrl(tab.url)) return;
       const iframe = frameRefs.current[tab.id];
       if (!iframe) return;
 
       const handleLoad = () => {
+        const fresh = loaderStore.getState().tabs.find((t) => t.id === tab.id) || tab;
         setLoading(tab.id, false);
-        applyProtection(tab, iframe);
-        installFrameBridge(tab, iframe);
-        syncFrameState(tab, iframe, true);
+        applyProtection(fresh, iframe);
+        installFrameBridge(fresh, iframe);
+        syncMediaState(fresh, iframe);
+        syncFrameState(fresh, iframe, true);
         window.dispatchEvent(
           new CustomEvent('ghost-frame-loaded', {
             detail: { tabId: tab.id, frame: iframe },
           }),
         );
 
-        if ((tab.url.includes('hianime.ms') || tab.url.includes('ghost://anime')) && !localStorage.getItem('ghost-hianime-ryu-warned')) {
+        if ((fresh.url.includes('hianime.ms') || fresh.url.includes('ghost://anime')) && !localStorage.getItem('ghost-hianime-ryu-warned')) {
           showConfirm("Don't use the RYU server for streaming. Others should be fine.", "HiAnime Notice", "Don't show this again", "OK").then((res) => {
             if (res) localStorage.setItem('ghost-hianime-ryu-warned', '1');
           });
@@ -760,9 +901,8 @@ const Viewer = ({ zoom }) => {
 
         try {
           const d = iframe.contentWindow?.document;
-          if (d?.getElementById('errorTrace-wrapper') || d?.getElementById('fetchedURL')) {
-            const errorText = d.body?.innerText || '';
-            const rawUrl = getFrameUrl(tab.url);
+          if (!isInternalGhostTabUrl(fresh.url) && isProxyErrorDocument(d)) {
+            const rawUrl = getFrameUrl(fresh.url);
 
             scheduleErrorRetry(tab.id, iframe, rawUrl);
           } else if (errorRetries.current[tab.id]) {
@@ -774,23 +914,50 @@ const Viewer = ({ zoom }) => {
 
       iframe.addEventListener('load', handleLoad);
       listeners.push({ iframe, handleLoad });
-    });
+    };
+
+    loaderStore.getState().tabs.forEach(bindTab);
 
     const interval = setInterval(() => {
       const currentTabs = loaderStore.getState().tabs;
+
+      // media bridge on every tab incl. background ones, it is idempotent
+      currentTabs.forEach((tab) => {
+        if (isNewTabLikeUrl(tab.url)) return;
+        const iframe = frameRefs.current[tab.id];
+        if (!iframe) return;
+        applyProtection(tab, iframe);
+        installFrameBridge(tab, iframe);
+        syncMediaState(tab, iframe);
+      });
+
+      // watchdog runs every ~3.2s to keep layout reads down
+      watchTick.current += 1;
+      if (watchTick.current % 4 === 0) {
+        const liveIds = new Set(currentTabs.map((t) => t.id));
+        Object.keys(stuckWatch.current).forEach((id) => {
+          if (!liveIds.has(id)) delete stuckWatch.current[id];
+        });
+        currentTabs.forEach((tab) => {
+          if (isNewTabLikeUrl(tab.url)) return;
+          const iframe = frameRefs.current[tab.id];
+          if (!iframe) return;
+          checkStuckTab(tab, iframe);
+        });
+      }
+
       const activeTab = currentTabs.find((tab) => tab.active);
       if (!activeTab || isNewTabLikeUrl(activeTab.url)) return;
 
       const iframe = frameRefs.current[activeTab.id];
       if (!iframe) return;
 
-      applyProtection(activeTab, iframe);
-
       try {
         syncFrameState(activeTab, iframe);
         const d = iframe.contentWindow?.document;
-        const errorText = d?.body?.innerText || '';
-        const isErrorPage = d?.getElementById('errorTrace-wrapper') || errorText.includes('SSL connect error') || errorText.includes('code 35') || errorText.includes('code 60') || errorText.includes('tls handshake eof');
+// docs can contain the marker strings (the libcurl error doc)
+// so a healthy docs tab looked like a failed load
+        const isErrorPage = !isInternalGhostTabUrl(activeTab.url) && isProxyErrorDocument(d);
 
         if (isErrorPage) {
           const rawUrl = getFrameUrl(activeTab.url);
@@ -801,7 +968,7 @@ const Viewer = ({ zoom }) => {
           delete errorRetries.current[activeTab.id];
         }
       } catch { }
-    }, 300);
+    }, 800);
 
     return () => {
       listeners.forEach(({ iframe, handleLoad }) => {
@@ -810,7 +977,7 @@ const Viewer = ({ zoom }) => {
       clearInterval(interval);
       Object.values(errorRetries.current).forEach((entry) => clearTimeout(entry.timer));
     };
-  }, [tabs, setLoading, updateTitle, setIframeUrl, options.adBlockDefault, options.popupBlockDefault, options.downloadBlockDefault, options.prType, options.engine, policyTick]);
+  }, [tabsKey, setLoading, updateTitle, setIframeUrl, options.adBlockDefault, options.popupBlockDefault, options.downloadBlockDefault, options.prType, options.engine, options.userAgentPreset, options.customUserAgent, options.browserIdentity, policyTick]);
 
   useEffect(() => {
     if (activeFrameRef?.current) {
@@ -857,12 +1024,6 @@ const Viewer = ({ zoom }) => {
                 className="absolute inset-0 w-full h-full flex items-center justify-center -z-20"
                 style={{ backgroundColor: options.tabBarColor || '#070e15' }}
               >
-                {/*
-                  if not static build, show loader
-                  if static, show loader when wispstatus == true
-                  if wisp is still being found (init), show loading
-                  otherwise show error
-                */}
                 {!isStaticBuild ? (
                   <Loader size={32} className="animate-spin" />
                 ) : wispStatus ? (
@@ -877,11 +1038,11 @@ const Viewer = ({ zoom }) => {
                 )}
               </div>
             )}
-            {/* if not static, show frame. otherwise if wisp is found (and is static) show iframe,
-            otherwise display error msg */}
             {wispStatus === true ? (
               <iframe
+                key={`${id}:${getFrameSandbox(url)}`}
                 ref={(el) => (frameRefs.current[id] = el)}
+                data-ghost-tab-id={id}
                 src={getFrameUrl(url)}
                 sandbox={getFrameSandbox(url)}
                 allow="autoplay; fullscreen; clipboard-read; clipboard-write; display-capture; encrypted-media;"
@@ -904,6 +1065,7 @@ const Viewer = ({ zoom }) => {
               wispStatus === true && (
                 <iframe
                   ref={(el) => (frameRefs.current[id] = el)}
+                  data-ghost-tab-id={id}
                   src={getFrameUrl(url)}
                   sandbox={getFrameSandbox(url)}
                   allow="autoplay; fullscreen; clipboard-read; clipboard-write; display-capture; encrypted-media;"
@@ -925,7 +1087,7 @@ const Viewer = ({ zoom }) => {
               )
             )}
 
-            {/*transparent overlay for when click on content */}
+            {/* invisible overlay, keeps clicks off the content behind it */}
             {showMenu && (
               <div className="absolute inset-0 w-full h-full z-50" onClick={() => toggleMenu()} />
             )}

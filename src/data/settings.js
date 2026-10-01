@@ -22,7 +22,7 @@ const prioritizeOption = (config, optionName) => {
 };
 
 const themeConfigForSettings = prioritizeOption(
-  themeConfig.filter((entry) => entry.option !== 'Light'),
+  themeConfig,
   'Dark',
 );
 const designConfigForSettings = prioritizeOption(designConfig, 'Griddy');
@@ -84,6 +84,41 @@ const chatProviderConfig = [
   { option: 'Discord', value: { defaultChatProvider: 'discordchat' } },
 ];
 
+const browserIdentityConfig = [
+  { option: 'Mirror: real fingerprint', value: { browserIdentity: 'mirror' } },
+  { option: 'Disguise: synthetic', value: { browserIdentity: 'disguise' } },
+];
+
+const userAgentConfig = [
+  { option: 'Default', value: { userAgentPreset: 'default' } },
+  { option: 'Chrome — Windows', value: { userAgentPreset: 'chrome-win' } },
+  { option: 'Chrome — macOS', value: { userAgentPreset: 'chrome-mac' } },
+  { option: 'Chrome — Linux', value: { userAgentPreset: 'chrome-linux' } },
+  { option: 'Chrome — ChromeOS', value: { userAgentPreset: 'chrome-chromebook' } },
+  { option: 'Chrome — Android Mobile', value: { userAgentPreset: 'chrome-android' } },
+  { option: 'Chrome — Android Tablet', value: { userAgentPreset: 'chrome-android-tablet' } },
+  { option: 'Chrome — iOS (CriOS)', value: { userAgentPreset: 'chrome-ios' } },
+  { option: 'Safari — macOS', value: { userAgentPreset: 'safari-mac' } },
+  { option: 'Safari — iPhone', value: { userAgentPreset: 'safari-iphone' } },
+  { option: 'Safari — iPad', value: { userAgentPreset: 'safari-ipad' } },
+  { option: 'Firefox — Windows', value: { userAgentPreset: 'firefox-win' } },
+  { option: 'Firefox — macOS', value: { userAgentPreset: 'firefox-mac' } },
+  { option: 'Firefox — Linux', value: { userAgentPreset: 'firefox-linux' } },
+  { option: 'Firefox — Android', value: { userAgentPreset: 'firefox-android' } },
+  { option: 'Edge — Windows', value: { userAgentPreset: 'edge-win' } },
+  { option: 'Edge — macOS', value: { userAgentPreset: 'edge-mac' } },
+  { option: 'Edge — Linux', value: { userAgentPreset: 'edge-linux' } },
+  { option: 'Opera — Windows', value: { userAgentPreset: 'opera-win' } },
+  { option: 'Brave — Windows', value: { userAgentPreset: 'brave-win' } },
+  { option: 'Samsung — Android', value: { userAgentPreset: 'samsung-android' } },
+  { option: 'Smart TV (Tizen)', value: { userAgentPreset: 'tv' } },
+  { option: 'PlayStation 5', value: { userAgentPreset: 'playstation5' } },
+  { option: 'Xbox Series X', value: { userAgentPreset: 'xbox' } },
+  { option: 'Nintendo Switch', value: { userAgentPreset: 'nintendo-switch' } },
+  { option: 'Googlebot', value: { userAgentPreset: 'googlebot' } },
+  { option: 'Custom', value: { userAgentPreset: 'custom' } },
+];
+
 export const privacyConfig = ({ options, updateOption, openPanic }) => ({
   1: {
     name: 'Site Title',
@@ -131,7 +166,7 @@ export const privacyConfig = ({ options, updateOption, openPanic }) => ({
       return '';
     },
   },
-  3: {
+  '2a': {
     name: 'Auto Cloak',
     desc: 'Automatically apply your selected cloak when this tab loses focus and restore on return.',
     value: !!options.clkOff,
@@ -188,6 +223,14 @@ export const privacyConfig = ({ options, updateOption, openPanic }) => ({
     value: !!options.antiClose,
     type: 'switch',
     action: (b) => setTimeout(() => updateOption({ antiClose: b }), 100),
+  },
+  10: {
+    name: 'Browser Identity',
+    desc: 'Mirror is your real fingerprint and disguise is a synthetic one.',
+    config: browserIdentityConfig,
+    value: (browserIdentityConfig.find((c) => c.value.browserIdentity === (options.browserIdentity || 'mirror')) || browserIdentityConfig[0]).value,
+    type: 'select',
+    action: (a) => updateOption(a),
   },
 });
 
@@ -331,6 +374,42 @@ export const customizeConfig = ({ options, updateOption, openCssEditor }) => ({
     type: 'button',
     value: 'Open Sidebar Editor',
     action: openCssEditor?.openSidebarEditor,
+  },
+  '13a': {
+    name: 'Liquid Glass',
+    desc: 'Translucent blurred surfaces with tint. Blur and tint sliders appear when enabled.',
+    value: !!options.liquidGlassEnabled,
+    type: 'switch',
+    action: (b) => updateOption({ liquidGlassEnabled: !!b }),
+  },
+  '13b': {
+    name: 'Glass Blur',
+    desc: 'Blur amount for liquid glass (0–20px).',
+    value: Number(options.liquidGlassBlur ?? 18),
+    type: 'slider',
+    min: 0,
+    max: 20,
+    step: 1,
+    hidden: !options.liquidGlassEnabled,
+    action: (v) => updateOption({ liquidGlassBlur: Math.max(0, Math.min(20, Number(v) || 0)) }),
+  },
+  '13c': {
+    name: 'Glass Tint',
+    desc: 'Tint opacity for glass surfaces (0–0.40).',
+    value: Number(options.liquidGlassTint ?? 0.12),
+    type: 'slider',
+    min: 0,
+    max: 0.4,
+    step: 0.01,
+    hidden: !options.liquidGlassEnabled,
+    action: (v) => updateOption({ liquidGlassTint: Math.max(0, Math.min(0.4, Number(v) || 0)) }),
+  },
+  '13d': {
+    name: 'Quick AI (Top-Right)',
+    desc: 'Intelligent Quick AI feature in the top right.',
+    value: options.haloEnabled !== false,
+    type: 'switch',
+    action: (b) => updateOption({ haloEnabled: !!b }),
   },
   15: {
     name: 'Clock Format',
@@ -488,7 +567,12 @@ export const browsingConfig = ({ options, updateOption, openShortcuts }) => ({
   },
 });
 
-export const advancedConfig = ({ options, updateOption }) => ({
+const resolveUserAgentLabel = (preset) => {
+  const hit = userAgentConfig.find((c) => c.value.userAgentPreset === preset);
+  return hit ? hit.option : 'Default';
+};
+
+export const advancedConfig = ({ options, updateOption, openCssEditor }) => ({
   1: {
     name: 'Confirm Leave',
     desc: 'Show a confirmation when attempting to leave the site.',
@@ -499,7 +583,7 @@ export const advancedConfig = ({ options, updateOption }) => ({
   2: {
     name: 'Wisp Config',
     desc: 'Configure the websocket server location.',
-    // empty custom value falls back to the fixed default endpoint.
+    // an empty custom value falls back to the default endpoint
     value: options.wServer || '',
     type: 'input',
     action: (b) => {
@@ -604,6 +688,59 @@ export const advancedConfig = ({ options, updateOption }) => ({
     value: !!options.debugMode,
     type: 'switch',
     action: (b) => updateOption({ debugMode: b }),
+  },
+  13: {
+    name: 'User Agent',
+    desc: 'Override the browser User-Agent. YouTube always uses a TV UA and cannot be overridden.',
+    config: userAgentConfig,
+    value: (userAgentConfig.find((c) => c.value.userAgentPreset === (options.userAgentPreset || 'default')) || userAgentConfig[0]).value,
+    type: 'select',
+    action: (a) => updateOption(a),
+  },
+  14: {
+    name: 'Custom User Agent',
+    desc: 'Only used when User Agent is set to Custom.',
+    value: options.customUserAgent || '',
+    type: 'input',
+    placeholder: 'Mozilla/5.0 ...',
+    hidden: (options.userAgentPreset || 'default') !== 'custom',
+    action: (v) => updateOption({ customUserAgent: String(v || '') }),
+  },
+  15: {
+    name: 'CSS Editor (Variables)',
+    desc: 'Edit every theme variable with a friendly GUI + raw CSS.',
+    type: 'button',
+    value: 'Open CSS Editor',
+    action: () => openCssEditor?.openCssEditor?.(),
+  },
+  16: {
+    name: 'Scramjet: Rewriter Logs',
+    desc: 'Enable Scramjet rewriter logging (verbose, experimental).',
+    value: !!options.experimentalScramjetLogs,
+    type: 'switch',
+    action: (b) => updateOption({ experimentalScramjetLogs: !!b }),
+  },
+  17: {
+    name: 'Scramjet: Sourcemaps',
+    desc: 'Enable Scramjet sourcemaps.',
+    value: options.experimentalScramjetSourcemaps !== false,
+    type: 'switch',
+    action: (b) => updateOption({ experimentalScramjetSourcemaps: !!b }),
+  },
+  18: {
+    name: 'Scramjet: Scramitize',
+    desc: 'Experimental scramitize flag for Scramjet (may break pages).',
+    value: !!options.experimentalScramjetScramitize,
+    type: 'switch',
+    action: (b) => updateOption({ experimentalScramjetScramitize: !!b }),
+  },
+  19: {
+    name: 'UV Prefix Override',
+    desc: 'Override UV prefix (e.g. /uv/service/). Leave blank for default.',
+    value: options.experimentalUvPrefix || '',
+    type: 'input',
+    placeholder: '/uv/service/',
+    action: (v) => updateOption({ experimentalUvPrefix: String(v || '').trim() }),
   },
 });
 

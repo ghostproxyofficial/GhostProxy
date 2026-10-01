@@ -212,54 +212,81 @@ const CodeRunner = () => {
   const panelBg = options.quickModalBgColor || '#121c2a';
   const subtleBg = options.omninputColor || '#0d1725';
   const textColor = options.siteTextColor || '#ffffff';
+  const isLightTheme = options.type === 'light' || options.theme === 'light' || options.themeName === 'lightTheme';
+  const editorBg = isLightTheme ? '#f8fafc' : '#1e1e1e';
+  const editorText = isLightTheme ? '#1f2937' : '#f8fafc';
+  const codePanelBg = isLightTheme ? (options.settingsContainerColor || '#ffffff') : panelBg;
+  const codeSubtleBg = isLightTheme ? '#f1f5f9' : subtleBg;
 
   return (
-    <div className="h-full w-full overflow-hidden" style={{ backgroundColor: pageBg, color: textColor }}>
+    <div className={`h-full w-full overflow-hidden ${isLightTheme ? 'ghost-code-light' : ''}`} style={{ backgroundColor: pageBg, color: isLightTheme ? '#0f172a' : textColor }}>
+      <style>{`
+        .ghost-code-editor textarea { color: ${editorText} !important; caret-color: ${editorText}; }
+        .ghost-code-editor pre { color: ${editorText} !important; }
+        .ghost-code-light .token.comment, .ghost-code-light .token.prolog, .ghost-code-light .token.doctype { color: #64748b !important; }
+        .ghost-code-light .token.punctuation { color: #334155 !important; }
+        .ghost-code-light .token.property, .ghost-code-light .token.tag, .ghost-code-light .token.boolean, .ghost-code-light .token.number, .ghost-code-light .token.constant, .ghost-code-light .token.symbol { color: #0369a1 !important; }
+        .ghost-code-light .token.selector, .ghost-code-light .token.attr-name, .ghost-code-light .token.string, .ghost-code-light .token.char, .ghost-code-light .token.builtin { color: #047857 !important; }
+        .ghost-code-light .token.operator, .ghost-code-light .token.entity, .ghost-code-light .token.url, .ghost-code-light .language-css .token.string { color: #7c3aed !important; }
+        .ghost-code-light .token.atrule, .ghost-code-light .token.attr-value, .ghost-code-light .token.keyword { color: #b45309 !important; }
+        .ghost-code-light .token.function, .ghost-code-light .token.class-name { color: #c2410c !important; }
+      `}</style>
       <div className="h-full grid grid-rows-[auto_1fr]">
-        <div className="border-b border-white/10 px-4 py-2.5 flex items-center justify-between" style={{ backgroundColor: panelBg }}>
+        <div className={`border-b px-4 py-2.5 flex items-center justify-between ${isLightTheme ? 'border-black/10' : 'border-white/10'}`} style={{ backgroundColor: codePanelBg }}>
           <div>
             <p className="text-sm font-semibold">Code Runner</p>
-            <p className="text-xs opacity-70">Build and preview HTML, CSS, and JavaScript projects</p>
           </div>
           <div className="flex items-center gap-2">
             <button
+              onClick={() => {
+                try {
+                  const opener = window.top?.__ghostOpenBrowserTab || window.__ghostOpenBrowserTab;
+                  if (typeof opener === 'function') opener('https://www.online-ide.com', { title: 'Online IDE' });
+                  else window.open('https://www.online-ide.com', '_blank', 'noopener,noreferrer');
+                } catch { window.open('https://www.online-ide.com', '_blank', 'noopener,noreferrer'); }
+              }}
+              className={`h-9 px-3 text-sm flex items-center gap-2 ${isLightTheme ? 'bg-black/5 hover:bg-black/10' : 'bg-[#ffffff14] hover:bg-[#ffffff22]'}`}
+            >
+              <FileCode size={14} /> Write in other languages
+            </button>
+            <button
               onClick={() => setProjectModalOpen(true)}
-              className="h-9 px-3 bg-[#ffffff14] hover:bg-[#ffffff22] text-sm flex items-center gap-2"
+              className={`h-9 px-3 text-sm flex items-center gap-2 ${isLightTheme ? 'bg-black/5 hover:bg-black/10' : 'bg-[#ffffff14] hover:bg-[#ffffff22]'}`}
             >
               <FolderPlus size={14} /> Projects
             </button>
             <button
               onClick={() => setLoadModalOpen(true)}
-              className="h-9 px-3 bg-[#ffffff14] hover:bg-[#ffffff22] text-sm flex items-center gap-2"
+              className={`h-9 px-3 text-sm flex items-center gap-2 ${isLightTheme ? 'bg-black/5 hover:bg-black/10' : 'bg-[#ffffff14] hover:bg-[#ffffff22]'}`}
             >
               <FolderPlus size={14} /> Load Project
             </button>
             <button
               onClick={() => setFileModalOpen(true)}
-              className="h-9 px-3 bg-[#ffffff14] hover:bg-[#ffffff22] text-sm flex items-center gap-2"
+              className={`h-9 px-3 text-sm flex items-center gap-2 ${isLightTheme ? 'bg-black/5 hover:bg-black/10' : 'bg-[#ffffff14] hover:bg-[#ffffff22]'}`}
             >
               <Plus size={14} /> New File
             </button>
-            <button onClick={saveProject} className="h-9 px-3 bg-[#ffffff14] hover:bg-[#ffffff22] text-sm flex items-center gap-2">
+            <button onClick={saveProject} className={`h-9 px-3 text-sm flex items-center gap-2 ${isLightTheme ? 'bg-black/5 hover:bg-black/10' : 'bg-[#ffffff14] hover:bg-[#ffffff22]'}`}>
               <Save size={14} /> Save
             </button>
             <button onClick={() => setRefreshTick((v) => v + 1)} className="h-9 px-3 bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-sm font-semibold flex items-center gap-2">
               <Play size={13} /> Run
             </button>
-            <button onClick={runInNewGhostTab} className="h-9 px-3 bg-[#26384d] hover:bg-[#324b68] text-sm rounded">
+            <button onClick={runInNewGhostTab} className={`h-9 px-3 text-sm rounded ${isLightTheme ? 'bg-slate-200 hover:bg-slate-300 text-slate-900' : 'bg-[#26384d] hover:bg-[#324b68]'}`}>
               Run in New Tab
             </button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 h-full overflow-hidden">
-          <div className="border-r border-white/10 flex flex-col overflow-hidden" style={{ backgroundColor: panelBg }}>
-            <div className="flex items-center overflow-x-auto px-1 py-1 border-b border-white/10 bg-[#00000030]">
+          <div className={`border-r flex flex-col overflow-hidden ${isLightTheme ? 'border-black/10' : 'border-white/10'}`} style={{ backgroundColor: codePanelBg }}>
+            <div className={`flex items-center overflow-x-auto px-1 py-1 border-b ${isLightTheme ? 'border-black/10 bg-black/[0.04]' : 'border-white/10 bg-[#00000030]'}`}>
               {(activeProject?.files || []).map((file) => (
                 <button
                   key={file.id}
                   onClick={() => setActiveFileId(file.id)}
-                  className={`h-8 px-2.5 text-xs flex items-center gap-2 ${activeFileId === file.id ? 'bg-[#ffffff10] border-t border-t-[#2563eb]' : 'bg-transparent text-white/60 hover:bg-[#ffffff08]'}`}
+                   className={`h-8 px-2.5 text-xs flex items-center gap-2 ${activeFileId === file.id ? (isLightTheme ? 'bg-black/10 border-t border-t-[#2563eb]' : 'bg-[#ffffff10] border-t border-t-[#2563eb]') : (isLightTheme ? 'bg-transparent text-slate-600 hover:bg-black/5' : 'bg-transparent text-white/60 hover:bg-[#ffffff08]')}`}
                 >
                   <FileCode size={12} />
                   <span className="max-w-[180px] truncate">{file.name}</span>
@@ -274,7 +301,7 @@ const CodeRunner = () => {
                 </button>
               ))}
             </div>
-            <div className="flex-1 overflow-auto bg-[#1e1e1e]">
+            <div className="flex-1 overflow-auto" style={{ backgroundColor: editorBg }}>
               <Editor
                 value={activeFile?.content || ''}
                 onValueChange={(code) => activeFile && setFileContent(activeFile.id, code)}
@@ -285,9 +312,12 @@ const CodeRunner = () => {
                   return Prism.highlight(code, grammar, activeFile?.type === 'js' ? 'javascript' : activeFile?.type === 'css' ? 'css' : 'markup');
                 }}
                 padding={15}
+                className="ghost-code-editor"
                 style={{
                   fontFamily: '"Fira Code", "Consolas", monospace',
                   fontSize: 14,
+                  color: editorText,
+                  backgroundColor: editorBg,
                   minHeight: '100%',
                 }}
                 textareaClassName="outline-none"
@@ -295,8 +325,8 @@ const CodeRunner = () => {
             </div>
           </div>
 
-          <div className="flex-1 overflow-hidden flex flex-col" style={{ backgroundColor: panelBg }}>
-            <div className="flex items-center justify-between px-3 py-2 border-b border-white/10">
+          <div className={`flex-1 overflow-hidden flex flex-col ${isLightTheme ? 'border-black/10' : ''}`} style={{ backgroundColor: codePanelBg }}>
+            <div className={`flex items-center justify-between px-3 py-2 border-b ${isLightTheme ? 'border-black/10' : 'border-white/10'}`}>
               <p className="text-sm font-semibold">Preview</p>
               <span className="text-xs opacity-70">{activeProject?.name || 'Project'}</span>
             </div>

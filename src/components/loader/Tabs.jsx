@@ -1,5 +1,6 @@
 import loaderStore from '/src/utils/hooks/loader/useLoaderStore';
-import { Globe, X, Plus, Loader, UsersRound, UserPlus, Check, Pencil, Trash2, Upload, Download, Volume2, Home, LayoutGrid, Settings, Gamepad2, FileText, Search, Code, Bot, MonitorSmartphone, Music, Tv, Clapperboard } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Globe, X, Plus, Loader, UsersRound, UserPlus, Check, Pencil, Trash2, Upload, Download, Volume2, Home, LayoutGrid, Settings, Gamepad2, FileText, Search, Code, Bot, MonitorSmartphone, Music, Tv, Clapperboard, Pin } from 'lucide-react';
 import { showAlert, showConfirm } from '/src/utils/uiDialog';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useOptions } from '/src/utils/optionsContext'
@@ -89,6 +90,7 @@ const getGhostTabLabel = (url) => {
     'ghost://code': 'Ghost Code',
     'ghost://ai': 'Ghost AI',
     'ghost://remote': 'Remote Access',
+    'ghost://notes': 'Ghost Notes',
     'ghost://musicplayer': 'Ghost Music',
     'ghost://monochrome': 'Ghost Music',
     'ghost://duckai': 'Ghost Duck AI',
@@ -256,13 +258,13 @@ const TabBar = () => {
       localStorage.setItem(sessionKey, JSON.stringify(session));
       localStorage.setItem(getSavedTabsKey(nextProfile.id), JSON.stringify({ tabs: initialTabs }));
     } catch {}
-    // profile is created  user can click it to switch when ready
+    // profile exists now, user clicks it to switch over
   };
 
   const switchProfile = (targetId) => {
     if (!targetId || targetId === activeProfileId) return;
 
-    // read profiles from localstorage to avoid stale react state closures
+    // read straight from localstorage, react state closures go stale
     let currentProfiles;
     try {
       currentProfiles = JSON.parse(localStorage.getItem(PROFILE_STORE_KEY) || '[]');
@@ -277,7 +279,7 @@ const TabBar = () => {
       localStorage.setItem(getSavedTabsKey(activeProfileId), JSON.stringify({ tabs: liveTabs }));
     } catch { }
 
-    // also save current tabs into zustand's profile-keyed storage
+    // also dump the current tabs into the profile keyed zustand storage
     try {
       const currentSessionKey = `${activeProfileId}_ghostLoaderSession`;
       let currentSession = { state: {}, version: 0 };
@@ -334,8 +336,8 @@ const TabBar = () => {
     persistProfiles(next, targetId);
     applyStorageSnapshot(target.snapshot || {});
     
-    // critical: write the target's tabs into the zustand storage key
-    // so that after reload, zustand hydrates the correct tabs for this profile.
+// write the target tabs into the zustand key, otherwise a reload hydrates
+// the wrong tabs for this profile
     try {
       const sessionKey = `${targetId}_ghostLoaderSession`;
       const session = {
@@ -513,7 +515,7 @@ const TabBar = () => {
     return () => clearInterval(interval);
   }, [activeProfileId, profiles.length]);
 
-  // instant tab-save: subscribe to loaderstore changes so tab updates persist immediately
+  // save tabs the moment loaderstore changes instead of waiting
   useEffect(() => {
     if (!activeProfileId) return;
     let debounceTimer = null;
@@ -536,26 +538,30 @@ const TabBar = () => {
     return () => { unsub(); clearTimeout(debounceTimer); };
   }, [activeProfileId]);
 
-  const profilePanelBg = '#101215';
-  const profilePanelSubtleBg = '#171a1f';
-  const profilePanelInputBg = '#0c0f13';
-  const profilePanelTextColor = '#eceef2';
-  const profilePanelMutedText = '#aaafb8';
-  const profileCreateBg = '#353941';
-  const profileBorderColor = 'rgba(255,255,255,0.14)';
-  const profileRowActive = 'border-white/25 bg-[#404349]';
-  const profileRowIdle = 'border-white/10 bg-white/[0.03] hover:bg-white/[0.08]';
-  const profileIconHover = 'hover:bg-white/10';
-  const profileSecondaryBg = '#1b1f26';
+  const isLight = options.type === 'light' || options.theme === 'light' || options.themeName === 'lightTheme';
+   const profilePanelBg = isLight ? 'rgba(255,255,255,0.88)' : 'rgba(16,18,21,0.86)';
+   const profilePanelSubtleBg = isLight ? 'rgba(15,23,42,0.06)' : 'rgba(255,255,255,0.06)';
+   const profilePanelInputBg = isLight ? 'rgba(255,255,255,0.72)' : 'rgba(12,15,19,0.72)';
+  const profilePanelTextColor = isLight ? '#0f172a' : '#eceef2';
+  const profilePanelMutedText = isLight ? '#64748b' : '#aaafb8';
+  const profileCreateBg = isLight ? '#0f172a' : '#353941';
+  const profileBorderColor = isLight ? 'rgba(15,23,42,0.12)' : 'rgba(255,255,255,0.14)';
+  const profileRowActive = isLight ? 'border-black/15 bg-black/[0.06]' : 'border-white/25 bg-[#404349]';
+  const profileRowIdle = isLight ? 'border-black/10 bg-black/[0.02] hover:bg-black/[0.06]' : 'border-white/10 bg-white/[0.03] hover:bg-white/[0.08]';
+  const profileIconHover = isLight ? 'hover:bg-black/10' : 'hover:bg-white/10';
+  const profileSecondaryBg = isLight ? '#e2e8f0' : '#1b1f26';
 
   return (
-    <div className={clsx("h-10 items-center overflow-visible gap-1 px-1 relative", showTabs && showUI ? 'flex' : 'hidden')} style={{ backgroundColor: options.tabBarColor || "#070e15" }}>
+    <div className={clsx("h-10 items-center overflow-visible gap-1 px-1 relative transition-[padding] duration-200", options.haloEnabled !== false ? 'pr-[6.5rem]' : 'pr-1', showTabs && showUI ? 'flex' : 'hidden')} style={{ backgroundColor: options.liquidGlassEnabled ? 'transparent' : (options.tabBarColor || "#070e15") }}>
+      {options.haloEnabled !== false && (
+        <div className="pointer-events-none absolute right-[6.5rem] top-0 h-full w-px border-l border-transparent" aria-hidden="true" />
+      )}
       <div className="relative flex-none">
         <button
           ref={triggerRef}
           className={clsx(
             'w-8 h-8 rounded-lg flex items-center justify-center border',
-            options.type != 'light' ? 'border-white/10 hover:bg-[#ffffff1e]' : 'border-black/10 hover:bg-[#a7a7a7]',
+            isLight ? 'border-black/10 hover:bg-black/10' : 'border-white/10 hover:bg-[#ffffff1e]',
           )}
           onClick={(e) => {
             e.stopPropagation();
@@ -568,19 +574,22 @@ const TabBar = () => {
 
         {profilesRender && (
           <>
-            <button
-              type="button"
-              aria-label="Close profile manager"
-              className={
-                'fixed inset-0 z-[115] bg-transparent transition-opacity duration-200 ' +
-                (profilesAnim ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none')
-              }
-              onClick={() => setProfilesOpen(false)}
-            />
+            {typeof document !== 'undefined' && createPortal(
+              <button
+                type="button"
+                aria-label="Close profile manager"
+                className={
+                  'fixed inset-0 z-[115] bg-transparent transition-opacity duration-200 ' +
+                  (profilesAnim ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none')
+                }
+                onClick={() => setProfilesOpen(false)}
+              />,
+              document.body,
+            )}
             <div
               ref={panelRef}
               className={
-                'absolute left-0 top-10 w-[372px] rounded-xl border z-[120] shadow-[0_14px_34px_rgba(0,0,0,0.4)] overflow-hidden backdrop-blur-sm transition-all duration-200 origin-top-left ' +
+                'ghost-glass ghost-profile-manager absolute left-0 top-10 w-[372px] rounded-xl border z-[120] shadow-[0_14px_34px_rgba(0,0,0,0.4)] overflow-hidden transition-all duration-200 origin-top-left ' +
                 (profilesAnim ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none')
               }
               style={{ backgroundColor: profilePanelBg, color: profilePanelTextColor, borderColor: profileBorderColor }}
@@ -607,7 +616,7 @@ const TabBar = () => {
                   return (
                     <div
                       key={profile.id}
-                      className={clsx('rounded-lg border px-2.5 py-2.5 transition-colors duration-150', active ? profileRowActive : clsx(profileRowIdle, 'cursor-pointer'))}
+                      className={clsx('ghost-profile-row rounded-lg border px-2.5 py-2.5 transition-colors duration-150', active ? 'ghost-profile-row-active ' + profileRowActive : clsx(profileRowIdle, 'cursor-pointer'))}
                       onClick={() => !active && !isRenaming && switchProfile(profile.id)}
                     >
                       <div className="flex items-center justify-between gap-2">
@@ -620,7 +629,7 @@ const TabBar = () => {
                                 if (e.key === 'Enter') saveRename();
                               }}
                               className="w-full border border-white/20 outline-none focus:border-white/40 rounded px-2 py-1 text-sm shadow-inner"
-                              style={{ backgroundColor: profilePanelInputBg, color: profilePanelTextColor }}
+                               style={{ backgroundColor: profilePanelInputBg, color: profilePanelTextColor, borderColor: profileBorderColor }}
                               placeholder="Profile name"
                               autoFocus
                               onClick={(e) => e.stopPropagation()}
@@ -665,7 +674,7 @@ const TabBar = () => {
                   }}
                   placeholder="New profile name"
                   className="flex-1 h-9 rounded-md shadow-inner outline-none focus:border-white/30 border border-white/10 px-2 text-sm"
-                  style={{ backgroundColor: profilePanelInputBg, color: profilePanelTextColor }}
+                   style={{ backgroundColor: profilePanelInputBg, color: profilePanelTextColor, borderColor: profileBorderColor }}
                 />
                 <button
                   className="h-9 px-3 rounded-md border border-white/15 hover:brightness-110 text-sm font-medium flex items-center gap-1.5"
@@ -679,14 +688,14 @@ const TabBar = () => {
               <div className="px-3 pb-3 grid grid-cols-2 gap-2">
                 <button
                   className="h-9 rounded-md border border-white/10 hover:brightness-110 text-sm flex items-center justify-center gap-1.5"
-                  style={{ backgroundColor: profileSecondaryBg }}
+                   style={{ backgroundColor: profileSecondaryBg, borderColor: profileBorderColor, color: profilePanelTextColor }}
                   onClick={() => fileInputRef.current?.click()}
                 >
                   <Upload size={13} /> Import
                 </button>
                 <button
                   className="h-9 rounded-md border border-white/10 hover:brightness-110 text-sm flex items-center justify-center gap-1.5"
-                  style={{ backgroundColor: profileSecondaryBg }}
+                   style={{ backgroundColor: profileSecondaryBg, borderColor: profileBorderColor, color: profilePanelTextColor }}
                   onClick={clearActiveProfileData}
                 >
                   <Trash2 size={13} /> Clear Data
@@ -704,8 +713,9 @@ const TabBar = () => {
         )}
       </div>
 
+      <div className="flex min-w-0 flex-1 items-center gap-1 overflow-x-auto hide-scrollbar">
       {tabs.map(({ title, id, active, isLoading, url, pinned, mediaState }, index) => {
-        const isPlayingAudio = mediaState?.playing;
+         const hasMedia = Number(mediaState?.mediaCount) > 0;
         const showGlobe = url === 'tabs://new' || !isLoading;
         const ghostLabel = getGhostTabLabel(url);
         const displayTitle = ghostLabel || (url === 'tabs://new' ? 'New Tab' : title);
@@ -716,17 +726,20 @@ const TabBar = () => {
           try { decodedUrl = process(url, true, options.prType || 'auto'); } catch {}
         }
         let faviconUrl = '';
-        if (decodedUrl) {
+         if (decodedUrl) {
           try {
             const hostname = new URL(decodedUrl).hostname;
             faviconUrl = `https://www.google.com/s2/favicons?domain=${hostname}&sz=32`;
           } catch {}
-        }
+         }
+         const isMusicTab = ghostLabel === 'Ghost Music' || /(?:monochrome|spotify|music\.apple|music\.youtube|music\.amazon|tidal|deezer|soundcloud|pandora|qobuz)/i.test(decodedUrl);
+         const isPlayingAudio = mediaState?.playing && mediaState?.mediaKind !== 'video';
+         const showMediaIcon = hasMedia && isMusicTab;
 
         return (
           <div
             className={clsx(
-              'flex flex-1 flex-shrink px-2 h-[calc(100%-7px)] min-w-[60px] max-w-[200px]',
+                'flex flex-none w-[clamp(110px,14vw,200px)] px-2 h-8',
               'items-center border rounded-md duration-150',
             )}
             onClick={() => setActive(id)}
@@ -751,13 +764,15 @@ const TabBar = () => {
             onDragEnd={() => setDraggedIdx(null)}
             style={{
               backgroundColor: active ? options.tabColor || "#111e2fb0" : "",
-              borderColor: active ? options.tabOutline || "#344646" : "#ffffff0c",
+              borderColor: active ? options.tabOutline || "#344646" : (isLight ? "rgba(15,23,42,0.12)" : "#ffffff0c"),
               opacity: draggedIdx === index ? 0.3 : 1
             }}
           >
-            {isPlayingAudio ? (
-              <Volume2 size={15} className="flex-shrink-0 animate-pulse text-white/90" />
-            ) : showGlobe ? (
+             {isPlayingAudio ? (
+               <Volume2 size={15} className={clsx("flex-shrink-0 animate-pulse", isLight ? 'text-[#0f172a]' : 'text-white/90')} />
+             ) : showMediaIcon ? (
+               <Music size={15} className="flex-shrink-0" />
+             ) : showGlobe ? (
               GhostIcon ? (
                 <GhostIcon size={15} className="flex-shrink-0" />
               ) : faviconUrl ? (
@@ -778,7 +793,7 @@ const TabBar = () => {
             ) : (
               <Loader size={15} className="flex-shrink-0 animate-spin" />
             )}
-            {pinned && <span className="ml-1 text-[0.64rem] opacity-80">📌</span>}
+            {pinned && <Pin size={11} className="ml-1 flex-shrink-0 opacity-80" />}
             <span className="truncate text-[0.79rem] ml-1 min-w-0">{displayTitle}</span>
             {!pinned && (
               <X
@@ -802,18 +817,20 @@ const TabBar = () => {
           </div>
         );
       })}
+      </div>
 
       <button
-        disabled={tabs.length >= 20}
+        disabled={tabs.length >= 60}
         className={clsx(
-          'flex-none mx-1 w-6 h-6',
-          'flex items-center justify-center',
-          'duration-100 rounded-lg',
-          options.type != 'light' ? "hover:bg-[#ffffff1e]" : "hover:bg-[#a7a7a7]",
-          tabs.length >= 20 ? 'cursor-not-allowed opacity-50 hover:bg-transparent' : '',
+          'flex-none mx-1 h-8 w-8 self-center',
+           'flex items-center justify-center border',
+           'duration-100 rounded-lg',
+           isLight ? 'border-black/10' : 'border-white/10',
+          isLight ? "hover:bg-black/10" : "hover:bg-[#ffffff1e]",
+          tabs.length >= 60 ? 'cursor-not-allowed opacity-50 hover:bg-transparent' : '',
         )}
         onClick={() => {
-          if (tabs.length < 20) {
+           if (tabs.length < 60) {
             let uuid = createId();
             addTab({
               title: 'New Tab',
@@ -822,7 +839,8 @@ const TabBar = () => {
             });
             setActive(uuid);
           }
-        }}
+         }}
+        title="New tab"
       >
         <Plus size={15} />
       </button>

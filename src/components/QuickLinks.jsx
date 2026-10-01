@@ -8,6 +8,7 @@ import EditLinkDialog from './EditQuickLink';
 
 const QuickLinks = ({ cls, nav = true, navigating }) => {
   const { options, updateOption } = useOptions();
+  const isLight = options?.type === 'light' || options?.theme === 'light' || options?.themeName === 'lightTheme';
   const navigate = useNavigate();
   const [fallback, setFallback] = useState({});
   const [menuOpen, setMenuOpen] = useState(null);
@@ -88,19 +89,19 @@ const QuickLinks = ({ cls, nav = true, navigating }) => {
             {shiftHeld ? <CircleX size="16" className="opacity-70 text-red-500" /> : <Bolt size="16" className="opacity-50" />}
             {menuOpen === i && (
               <div
-                className="absolute top-5 right-0 rounded-md shadow-lg border border-white/10 py-1 w-[101px] z-50"
+                className={clsx("absolute top-5 right-0 rounded-md shadow-lg border py-1 w-[101px] z-50", isLight ? "border-black/10" : "border-white/10")}
                 style={{ backgroundColor: options.quickModalBgColor || '#252f3e' }}
                 onClick={(e) => e.stopPropagation()}
               >
                 <button
                   onClick={() => setDialog({ add: false, edit: true, index: i }) || setMenuOpen(null)}
-                  className="w-full px-3 py-1.5 text-[0.74rem] flex items-center gap-2 hover:bg-white/10 duration-150 text-left"
+                  className={clsx("w-full px-3 py-1.5 text-[0.74rem] flex items-center gap-2 duration-150 text-left", isLight ? "hover:bg-black/[0.06]" : "hover:bg-white/10")}
                 >
                   <Pencil size="14" /> Edit
                 </button>
                 <button
                   onClick={() => setQuickLinks(quickLinks.filter((_, j) => j !== i)) || setMenuOpen(null)}
-                  className="w-full px-3 py-1.5 text-[0.74rem] flex items-center gap-2 hover:bg-white/10 duration-150 text-left text-red-400"
+                  className={clsx("w-full px-3 py-1.5 text-[0.74rem] flex items-center gap-2 duration-150 text-left text-red-400", isLight ? "hover:bg-black/[0.06]" : "hover:bg-white/10")}
                 >
                   <Trash2 size="14" /> Remove
                 </button>

@@ -183,6 +183,7 @@ const Settings = () => {
       <div className="flex flex-1 overflow-hidden">
         <div
           className={clsx(
+            'ghost-glass',
             theme['settings-panelColor'],
             theme[`theme-${options.theme || 'default'}`],
             'w-20 md:w-60 shrink-0 overflow-y-auto p-2',

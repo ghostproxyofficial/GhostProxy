@@ -26,13 +26,15 @@ const SettingsContainerItem = ({
   buttons,
 }) => {
   const { options } = useOptions();
+  const isLight =
+    options?.type === 'light' || options?.theme === 'light' || options?.themeName === 'lightTheme';
   const hasDisabledAction = disabled && typeof disabledAction === 'function';
 
   return (
     <div
       className={clsx(
         'flex items-center gap-4 py-4 px-5 transition-colors min-w-0',
-        !isLast && 'border-b border-white/5',
+        !isLast && (isLight ? 'border-b border-black/[0.06]' : 'border-b border-white/5'),
         isFirst && 'rounded-t-xl',
         isLast && 'rounded-b-xl',
         dividerTop && 'border-t border-white/15 mt-3',
@@ -44,7 +46,7 @@ const SettingsContainerItem = ({
     >
       <div className="flex-1 min-w-0 overflow-hidden">
         <p className="text-[0.9375rem] font-medium mb-0.5 truncate">{name}</p>
-        <p className="text-[0.8125rem] text-gray-400 leading-snug">{children}</p>
+        <p className={`text-[0.8125rem] leading-snug ${isLight ? 'text-[#5b6474]' : 'text-gray-400'}`}>{children}</p>
       </div>
 
       {(!disabled || hasDisabledAction) && (

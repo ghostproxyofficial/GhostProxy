@@ -11,6 +11,7 @@ import ShortcutsDialog from './settings/components/ShortcutsDialog';
 import ExportDialog from './settings/components/ExportDialog';
 import ImportDialog from './settings/components/ImportDialog';
 import {
+  ArrowUp,
   ChevronDown,
   ChevronUp,
   CircleHelp,
@@ -27,6 +28,7 @@ import {
 } from 'lucide-react';
 import { showAlert, showConfirm } from '/src/utils/uiDialog';
 import { createId } from '/src/utils/id';
+import ModernColorPicker from './settings/components/ModernColorPicker';
 import { themeConfig as siteThemeConfig } from '/src/utils/config';
 import pkg from '../../package.json';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -34,25 +36,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 const BUG_REPORT_FORM_URL = 'https://forms.gle/94VwArsXReWqyWWr9';
 const DISCORD_SERVER_URL = 'https://discord.gg/UZzYt4uE6D';
 const GITHUB_REPO_URL = 'https://github.com/ghostproxyofficial/GhostProxy';
-const LIGHT_MODE_AVAILABLE = false;
-const selectableThemePresets = siteThemeConfig.filter((entry) => entry.option !== 'Light');
+const selectableThemePresets = siteThemeConfig;
 
 const Type = ({ type, title }) => {
   const { options, updateOption } = useOptions();
   const settingsItems = type({ options, updateOption });
   const entries = Object.entries(settingsItems).filter(([, setting]) => !setting.hidden);
-
-  const valueToken = (value) => {
-    if (value == null) return 'none';
-    if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') {
-      return String(value);
-    }
-    try {
-      return JSON.stringify(value);
-    } catch {
-      return 'obj';
-    }
-  };
 
   return (
     <div className="mb-8">
@@ -60,7 +49,7 @@ const Type = ({ type, title }) => {
       <div className="rounded-xl overflow-visible">
         {entries.map(([key, setting], index) => (
           <SettingsContainerItem
-            key={`${key}-${valueToken(setting?.value)}`}
+            key={key}
             {...setting}
             isFirst={index === 0}
             isLast={index === entries.length - 1}
@@ -121,7 +110,6 @@ const InfoPanel = () => {
           <p className="font-semibold mb-1">Backend / Features</p>
           <ul className="space-y-1 opacity-90">
             <li>- ghostproxyofficial/wisp-server (recommended self-host endpoint)</li>
-            <li>- ghostproxyofficial/WarpDesk</li>
             <li>- MercuryWorkshop/wisp-server-node</li>
             <li>- MercuryWorkshop/scramjet</li>
             <li>- titaniumnetwork-dev/Ultraviolet</li>
@@ -181,7 +169,6 @@ const InfoPanel = () => {
           <p className="font-semibold mb-2">Primary upstream projects</p>
           <ul className="space-y-1 text-sm">
             <li>- ghostproxyofficial/wisp-server</li>
-            <li>- ghostproxyofficial/WarpDesk</li>
             <li>- MercuryWorkshop/scramjet</li>
             <li>- MercuryWorkshop/wisp-server-node</li>
             <li>- MercuryWorkshop/epoxy-transport</li>
@@ -246,15 +233,14 @@ const InfoPanel = () => {
     'Code and Contact': (
       <div className="space-y-3 text-sm opacity-90">
         <p>All code is on GitHub.</p>
-        <p>Like any Open Source Software, there is a risk you may be using a hacked version of Ghost. We reccomend you only put private information on links provided by Ghost, a source you trust, or yourself.</p>
+        <p>Like any open source software, there is a risk you may be using a hacked version of Ghost. We recommend you only put private information on links provided by Ghost, a source you trust, or yourself.</p>
         <p>Contact me on Discord (username: ghostproxyofficial)</p>
         <div className="rounded-lg border border-white/10 bg-black/20 p-3 relative overflow-hidden">
           <p className="font-semibold mb-2">Repositories</p>
           <ul className="space-y-1">
             <li>- Frontend (website): ghostproxyofficial/GhostProxy</li>
             <li>- Wisp Server (setting up your own proxy server): ghostproxyofficial/wisp-server</li>
-            <li>- WarpDesk (accessing your home PC remotely): ghostproxyofficial/WarpDesk</li>
-            <li className="line-through opacity-70">- Cloud Saving (save data online): ghostproxyofficial/CloudSaving</li>
+            <li>- Cloud Saving (save data online): ghostproxyofficial/CloudSaving</li>
           </ul>
         </div>
       </div>
@@ -293,6 +279,27 @@ const InfoPanel = () => {
                 Discord Server
               </a>
               .
+            </li>
+            <li>
+              - If one site fails while everything else loads, try a different wisp server. Some wisp setups use filtered DNS that blocks whole categories of sites, which looks like a broken page from inside Ghost.
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <p className="font-semibold mb-1">What is Browser Identity?</p>
+          <ul className="space-y-1">
+            <li>
+              - Mirror is your real fingerprint and disguise is a synthetic one. Disguise keeps the user agent, request headers, and page level signals consistent with each other.
+            </li>
+          </ul>
+        </div>
+
+        <div>
+          <p className="font-semibold mb-1">What is Quick AI?</p>
+          <ul className="space-y-1">
+            <li>
+              - Quick AI is the button in the top right. It opens Duck.ai in a small panel so you can ask questions or send screenshots without leaving your tab.
             </li>
           </ul>
         </div>
@@ -480,7 +487,7 @@ const InfoPanel = () => {
   );
 };
 
-//  custom theme helpers (module-level, no re-creation) 
+// custom theme helpers, module level so they dont get rebuilt every render 
 
 const hsvToRgb = (h, s, v) => {
   s /= 100; v /= 100;
@@ -497,9 +504,35 @@ const cl = (x, lo, hi) => Math.max(lo, Math.min(hi, x));
 const hsl = (h, s, l) => `hsl(${Math.round(h)}, ${Math.round(cl(s, 0, 100))}%, ${Math.round(cl(l, 0, 100))}%)`;
 const hsla = (h, s, l, a) => `hsla(${Math.round(h)}, ${Math.round(cl(s, 0, 100))}%, ${Math.round(cl(l, 0, 100))}%, ${a})`;
 
+
+// bgDesignColor/glow are stored as "r, g, b", the picker wants hex
+const rgbStringToHex = (rgbStr, fallback = "#6b7280") => {
+  try {
+    const parts = String(rgbStr || "").split(",").map(s => parseInt(s.trim(),10));
+    if (parts.length === 3 && parts.every(n => Number.isFinite(n) && n>=0 && n<=255)) {
+      return "#" + parts.map(n => n.toString(16).padStart(2,"0")).join("");
+    }
+  } catch {}
+  const m = /^#([a-f\d]{6})$/i.exec(String(fallback||"").trim());
+  return m ? m[0].toLowerCase() : "#6b7280";
+};
+const hexToRgbString = (hex) => {
+  const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(String(hex||"").trim());
+  if (!m) return "102, 105, 109";
+  return `${parseInt(m[1],16)}, ${parseInt(m[2],16)}, ${parseInt(m[3],16)}`;
+};
+const isHexColor = (v) => /^#([a-f\d]{6}|[a-f\d]{3})$/i.test(String(v||"").trim());
+const normalizeHex = (v, fb="#ffffff") => {
+  const s = String(v||"").trim();
+  if (/^#([a-f\d]{6})$/i.test(s)) return s.toLowerCase();
+  if (/^#([a-f\d]{3})$/i.test(s)) { const m=s.slice(1); return `#${m[0]}${m[0]}${m[1]}${m[1]}${m[2]}${m[2]}`.toLowerCase(); }
+  if (/^[a-f\d]{6}$/i.test(s)) return `#${s.toLowerCase()}`;
+  return fb;
+};
+
 const generateCustomTheme = (h, s, v, mode) => {
   const isDark = mode === 'dark';
-  // get accent lightness
+  // accent lightness
   const sv = s / 100, vv = v / 100;
   const lAcc = vv * (1 - sv / 2) * 100;
   const [rA, gA, bA] = hsvToRgb(h, s, v);
@@ -611,6 +644,27 @@ const Setting = ({ setting }) => {
   const [fontFamilyDraft, setFontFamilyDraft] = useState('');
   const [paddingDraft, setPaddingDraft] = useState('');
   const [radiusDraft, setRadiusDraft] = useState('');
+  // extended variable drafts
+  const [settingsContainerDraft, setSettingsContainerDraft] = useState('#18283e');
+  const [settingsSearchBarDraft, setSettingsSearchBarDraft] = useState('#3c475a');
+  const [settingsPanelItemDraft, setSettingsPanelItemDraft] = useState('#405a77');
+  const [settingsDropdownDraft, setSettingsDropdownDraft] = useState('#162337');
+  const [navItemActiveDraft, setNavItemActiveDraft] = useState('#c1d4f1');
+  const [bgDesignDraft, setBgDesignDraft] = useState('#6b7280');
+  const [glowWrapperDraft, setGlowWrapperDraft] = useState('#ffffff');
+  const [switchOffDraft, setSwitchOffDraft] = useState('#ffffff1a');
+  const [switchOnDraft, setSwitchOnDraft] = useState('#4c6c91');
+  const [quickModalDraft, setQuickModalDraft] = useState('#252f3e');
+  const [paginationTextDraft, setPaginationTextDraft] = useState('#9baec8');
+  const [paginationBorderDraft, setPaginationBorderDraft] = useState('#ffffff1c');
+  const [paginationBgDraft, setPaginationBgDraft] = useState('#141d2b');
+  const [paginationSelectedDraft, setPaginationSelectedDraft] = useState('#75b3e8');
+  const [tabColorDraft, setTabColorDraft] = useState('#111e2f');
+  const [tabOutlineDraft, setTabOutlineDraft] = useState('#344646');
+  const [barColorDraft, setBarColorDraft] = useState('#09121e');
+  const [tabBarDraft, setTabBarDraft] = useState('#070e15');
+  const [omninputDraft, setOmninputDraft] = useState('#06080d');
+  const [menuColorDraft, setMenuColorDraft] = useState('#1a252f');
 
   // theme picker state
   const [customThemeOpen, setCustomThemeOpen] = useState(false);
@@ -635,42 +689,53 @@ const Setting = ({ setting }) => {
     [cssPresets, selectedPresetId],
   );
 
+  const hydrateAllDrafts = (src, fallbackOpts) => {
+    const o = fallbackOpts || options;
+    const s = src || {};
+    setCssDraft(s.css ?? s.customGlobalCss ?? o.customGlobalCss ?? '');
+    setTextColorDraft(normalizeHex(s.siteTextColor ?? o.siteTextColor, '#a0b0c8'));
+    setBgColorDraft(normalizeHex(s.bgColor ?? o.bgColor, '#111827'));
+    setLogoColorDraft(normalizeHex(s.logoColor ?? o.logoColor, '#ffffff'));
+    setSettingsContainerDraft(normalizeHex(s.settingsContainerColor ?? o.settingsContainerColor, '#18283e'));
+    setSettingsSearchBarDraft(normalizeHex(s.settingsSearchBar ?? o.settingsSearchBar, '#3c475a'));
+    setSettingsPanelItemDraft(normalizeHex(s.settingsPanelItemBackgroundColor ?? o.settingsPanelItemBackgroundColor, '#405a77'));
+    setSettingsDropdownDraft(normalizeHex(s.settingsDropdownColor ?? o.settingsDropdownColor, '#162337'));
+    setNavItemActiveDraft(normalizeHex(s.navItemActive ?? o.navItemActive, '#c1d4f1'));
+    setBgDesignDraft(normalizeHex(rgbStringToHex(s.bgDesignColor ?? o.bgDesignColor, '#6b7280'), '#6b7280'));
+    setGlowWrapperDraft(normalizeHex(rgbStringToHex(s.glowWrapperColor ?? o.glowWrapperColor, '#ffffff'), '#ffffff'));
+    setSwitchOffDraft(String(s.switchColor ?? o.switchColor ?? '#ffffff1a'));
+    setSwitchOnDraft(normalizeHex(s.switchEnabledColor ?? o.switchEnabledColor, '#4c6c91'));
+    setQuickModalDraft(normalizeHex(s.quickModalBgColor ?? o.quickModalBgColor, '#252f3e'));
+    setPaginationTextDraft(normalizeHex(s.paginationTextColor ?? o.paginationTextColor, '#9baec8'));
+    setPaginationBorderDraft(String(s.paginationBorderColor ?? o.paginationBorderColor ?? '#ffffff1c'));
+    setPaginationBgDraft(normalizeHex(s.paginationBgColor ?? o.paginationBgColor, '#141d2b'));
+    setPaginationSelectedDraft(normalizeHex(s.paginationSelectedColor ?? o.paginationSelectedColor, '#75b3e8'));
+    setTabColorDraft(String(s.tabColor ?? o.tabColor ?? '#111e2f'));
+    setTabOutlineDraft(normalizeHex(String(s.tabOutline ?? o.tabOutline ?? '#344646').slice(0,7), '#344646'));
+    setBarColorDraft(normalizeHex(s.barColor ?? o.barColor, '#09121e'));
+    setTabBarDraft(normalizeHex(s.tabBarColor ?? o.tabBarColor, '#070e15'));
+    setOmninputDraft(String(s.omninputColor ?? o.omninputColor ?? '#06080d8f'));
+    setMenuColorDraft(normalizeHex(s.menuColor ?? o.menuColor, '#1a252f'));
+    setFontFamilyDraft(String(s.fontFamily ?? s.customFontFamily ?? o.customFontFamily ?? ''));
+    setPaddingDraft(String(s.padding ?? s.customPadding ?? o.customPadding ?? ''));
+    setRadiusDraft(String(s.borderRadius ?? s.customBorderRadius ?? o.customBorderRadius ?? ''));
+  };
+
   useEffect(() => {
     if (!cssEditorOpen) return;
-
     const fallbackPresetId = options.activeCssPresetId || cssPresets[0]?.id || '';
     setSelectedPresetId(fallbackPresetId);
-
     if (fallbackPresetId) {
       const preset = cssPresets.find((p) => p.id === fallbackPresetId);
-      if (preset) {
-        setCssDraft(preset.css || '');
-        setTextColorDraft(preset.siteTextColor || options.siteTextColor || '#a0b0c8');
-        setBgColorDraft(preset.bgColor || options.bgColor || '#111827');
-        setLogoColorDraft(preset.logoColor || options.logoColor || '#ffffff');
-        return;
-      }
+      if (preset) { hydrateAllDrafts(preset, options); return; }
     }
-
-    setCssDraft(options.customGlobalCss || '');
-    setTextColorDraft(options.siteTextColor || '#a0b0c8');
-    setBgColorDraft(options.bgColor || '#111827');
-    setLogoColorDraft(options.logoColor || '#ffffff');
+    hydrateAllDrafts(null, options);
   }, [cssEditorOpen, cssPresets, options.activeCssPresetId, options.customGlobalCss, options.siteTextColor, options.bgColor, options.logoColor]);
 
   useEffect(() => {
     if (!cssEditorOpen && !cssEditorRender && !activePreset) return;
-    if (!activePreset) {
-      setCssDraft(options.customGlobalCss || '');
-      setTextColorDraft(options.siteTextColor || '#a0b0c8');
-      setBgColorDraft(options.bgColor || '#111827');
-      setLogoColorDraft(options.logoColor || '#ffffff');
-      return;
-    }
-    setCssDraft(activePreset.css || '');
-    setTextColorDraft(activePreset.siteTextColor || options.siteTextColor || '#a0b0c8');
-    setBgColorDraft(activePreset.bgColor || options.bgColor || '#111827');
-    setLogoColorDraft(activePreset.logoColor || options.logoColor || '#ffffff');
+    if (!activePreset) { hydrateAllDrafts(null, options); return; }
+    hydrateAllDrafts(activePreset, options);
   }, [cssEditorOpen, cssEditorRender, activePreset, options.siteTextColor, options.bgColor, options.logoColor]);
 
   useEffect(() => {
@@ -760,39 +825,24 @@ const Setting = ({ setting }) => {
     };
   }, [draggingSV, draggingHue, updateSV, updateHue]);
 
-  const pickerModeLocks = useMemo(() => ({
-    darkMaxValue: 42,
-    lightMinValue: 58,
-  }), []);
+  const autoResolveMode = useCallback((h, s, v) => {
+    // auto light mode off the luminance/value
+    const sv = s / 100, vv = v / 100;
+    const f = (n) => { const k = (n + h / 60) % 6; return vv - vv * sv * Math.max(0, Math.min(k, 4 - k, 1)); };
+    const r = Math.round(f(5) * 255), g = Math.round(f(3) * 255), b = Math.round(f(1) * 255);
+    const toLinear = (c) => { const v2 = c / 255; return v2 <= 0.03928 ? v2 / 12.92 : Math.pow((v2 + 0.055) / 1.055, 2.4); };
+    const lum = 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
+    if (v >= 72 && s <= 55) return 'light';
+    if (lum > 0.45) return 'light';
+    if (v >= 85 && s <= 80) return 'light';
+    return 'dark';
+  }, []);
 
-  const getForcedPickerMode = useCallback(
-    (baseMode, val = pickerVal) => {
-      const shouldForceLight = val >= pickerModeLocks.lightMinValue;
-      const shouldForceDark = val <= pickerModeLocks.darkMaxValue;
-      if (shouldForceDark) return 'dark';
-      if (shouldForceLight && LIGHT_MODE_AVAILABLE) return 'light';
-      return baseMode;
-    },
-    [pickerVal, pickerModeLocks.darkMaxValue, pickerModeLocks.lightMinValue],
-  );
-
-  const handlePickerMode = useCallback(
-    (newMode) => {
-      setPickerMode(newMode);
-      const forced = getForcedPickerMode(newMode);
-      if (forced !== newMode) {
-        requestAnimationFrame(() => setPickerMode(forced));
-      }
-    },
-    [getForcedPickerMode],
-  );
+  const resolvedAutoMode = useMemo(() => autoResolveMode(pickerHue, pickerSat, pickerVal), [pickerHue, pickerSat, pickerVal, autoResolveMode]);
 
   useEffect(() => {
-    const forced = getForcedPickerMode(pickerMode);
-    if (forced !== pickerMode) {
-      setPickerMode(forced);
-    }
-  }, [pickerHue, pickerSat, pickerVal, pickerMode, getForcedPickerMode]);
+    if (resolvedAutoMode !== pickerMode) setPickerMode(resolvedAutoMode);
+  }, [resolvedAutoMode, pickerMode]);
 
   useEffect(() => {
     const handleExport = () => setExportOpen(true);
@@ -945,46 +995,73 @@ const Setting = ({ setting }) => {
 
   const applyCssDraft = () => {
     updateOption({
-      siteTextColor: textColorDraft,
-      bgColor: bgColorDraft,
-      logoColor: logoColorDraft,
+      siteTextColor: normalizeHex(textColorDraft, '#a0b0c8'),
+      bgColor: normalizeHex(bgColorDraft, '#111827'),
+      logoColor: normalizeHex(logoColorDraft, '#ffffff'),
+      settingsContainerColor: normalizeHex(settingsContainerDraft, '#18283e'),
+      settingsSearchBar: normalizeHex(settingsSearchBarDraft, '#3c475a'),
+      settingsPanelItemBackgroundColor: normalizeHex(settingsPanelItemDraft, '#405a77'),
+      settingsDropdownColor: normalizeHex(settingsDropdownDraft, '#162337'),
+      navItemActive: normalizeHex(navItemActiveDraft, '#c1d4f1'),
+      bgDesignColor: hexToRgbString(normalizeHex(bgDesignDraft, '#6b7280')),
+      glowWrapperColor: hexToRgbString(normalizeHex(glowWrapperDraft, '#ffffff')),
+      switchColor: String(switchOffDraft || '#ffffff1a'),
+      switchEnabledColor: normalizeHex(switchOnDraft, '#4c6c91'),
+      quickModalBgColor: normalizeHex(quickModalDraft, '#252f3e'),
+      paginationTextColor: normalizeHex(paginationTextDraft, '#9baec8'),
+      paginationBorderColor: String(paginationBorderDraft || '#ffffff1c'),
+      paginationBgColor: normalizeHex(paginationBgDraft, '#141d2b'),
+      paginationSelectedColor: normalizeHex(paginationSelectedDraft, '#75b3e8'),
+      tabColor: String(tabColorDraft || '#111e2fb0'),
+      tabOutline: String(tabOutlineDraft || '#344646').slice(0,7),
+      barColor: normalizeHex(barColorDraft, '#09121e'),
+      tabBarColor: normalizeHex(tabBarDraft, '#070e15'),
+      omninputColor: String(omninputDraft || '#06080d8f'),
+      menuColor: normalizeHex(menuColorDraft, '#1a252f'),
       customGlobalCss: cssDraft,
+      customFontFamily: String(fontFamilyDraft || '').trim(),
+      customPadding: String(paddingDraft || '').trim(),
+      customBorderRadius: String(radiusDraft || '').trim(),
     });
   };
 
+  const buildPresetPayload = () => ({
+    css: cssDraft,
+    siteTextColor: normalizeHex(textColorDraft, '#a0b0c8'),
+    bgColor: normalizeHex(bgColorDraft, '#111827'),
+    logoColor: normalizeHex(logoColorDraft, '#ffffff'),
+    settingsContainerColor: normalizeHex(settingsContainerDraft, '#18283e'),
+    settingsSearchBar: normalizeHex(settingsSearchBarDraft, '#3c475a'),
+    settingsPanelItemBackgroundColor: normalizeHex(settingsPanelItemDraft, '#405a77'),
+    settingsDropdownColor: normalizeHex(settingsDropdownDraft, '#162337'),
+    navItemActive: normalizeHex(navItemActiveDraft, '#c1d4f1'),
+    bgDesignColor: hexToRgbString(normalizeHex(bgDesignDraft, '#6b7280')),
+    glowWrapperColor: hexToRgbString(normalizeHex(glowWrapperDraft, '#ffffff')),
+    switchColor: String(switchOffDraft || '#ffffff1a'),
+    switchEnabledColor: normalizeHex(switchOnDraft, '#4c6c91'),
+    quickModalBgColor: normalizeHex(quickModalDraft, '#252f3e'),
+    paginationTextColor: normalizeHex(paginationTextDraft, '#9baec8'),
+    paginationBorderColor: String(paginationBorderDraft || '#ffffff1c'),
+    paginationBgColor: normalizeHex(paginationBgDraft, '#141d2b'),
+    paginationSelectedColor: normalizeHex(paginationSelectedDraft, '#75b3e8'),
+    tabColor: String(tabColorDraft || '#111e2fb0'),
+    tabOutline: String(tabOutlineDraft || '#344646'),
+    barColor: normalizeHex(barColorDraft, '#09121e'),
+    tabBarColor: normalizeHex(tabBarDraft, '#070e15'),
+    omninputColor: String(omninputDraft || '#06080d8f'),
+    menuColor: normalizeHex(menuColorDraft, '#1a252f'),
+    fontFamily: String(fontFamilyDraft || '').trim(),
+    padding: String(paddingDraft || '').trim(),
+    borderRadius: String(radiusDraft || '').trim(),
+  });
+
   const savePreset = () => {
-    const base = activePreset || {
-      id: createId(),
-      name: newPresetName.trim() || `Preset ${cssPresets.length + 1}`,
-    };
-
-    const nextPreset = {
-      ...base,
-      css: cssDraft,
-      siteTextColor: textColorDraft,
-      bgColor: bgColorDraft,
-      logoColor: logoColorDraft,
-      fontFamily: fontFamilyDraft,
-      padding: paddingDraft,
-      borderRadius: radiusDraft,
-    };
-
+    const base = activePreset || { id: createId(), name: newPresetName.trim() || `Preset ${cssPresets.length + 1}` };
+    const payload = buildPresetPayload();
+    const nextPreset = { ...base, ...payload, name: base.name || payload.siteTextColor };
     const exists = cssPresets.some((p) => p.id === nextPreset.id);
-    const nextPresets = exists
-      ? cssPresets.map((p) => (p.id === nextPreset.id ? nextPreset : p))
-      : [...cssPresets, nextPreset];
-
-    updateOption({
-      cssEditorPresets: nextPresets,
-      activeCssPresetId: nextPreset.id,
-      siteTextColor: nextPreset.siteTextColor,
-      bgColor: nextPreset.bgColor,
-      logoColor: nextPreset.logoColor,
-      customGlobalCss: nextPreset.css,
-      customFontFamily: nextPreset.fontFamily,
-      customPadding: nextPreset.padding,
-      customBorderRadius: nextPreset.borderRadius,
-    });
+    const nextPresets = exists ? cssPresets.map((p) => (p.id === nextPreset.id ? nextPreset : p)) : [...cssPresets, nextPreset];
+    updateOption({ cssEditorPresets: nextPresets, activeCssPresetId: nextPreset.id, ...payload, customGlobalCss: nextPreset.css, customFontFamily: nextPreset.fontFamily, customPadding: nextPreset.padding, customBorderRadius: nextPreset.borderRadius });
     setSelectedPresetId(nextPreset.id);
     setNewPresetName('');
   };
@@ -992,29 +1069,9 @@ const Setting = ({ setting }) => {
   const createPreset = () => {
     const name = newPresetName.trim() || `Preset ${cssPresets.length + 1}`;
     const id = createId();
-    const nextPreset = {
-      id,
-      name,
-      css: cssDraft,
-      siteTextColor: textColorDraft,
-      bgColor: bgColorDraft,
-      logoColor: logoColorDraft,
-      fontFamily: fontFamilyDraft,
-      padding: paddingDraft,
-      borderRadius: radiusDraft,
-    };
-
-    updateOption({
-      cssEditorPresets: [...cssPresets, nextPreset],
-      activeCssPresetId: id,
-      siteTextColor: nextPreset.siteTextColor,
-      bgColor: nextPreset.bgColor,
-      logoColor: nextPreset.logoColor,
-      customGlobalCss: nextPreset.css,
-      customFontFamily: nextPreset.fontFamily,
-      customPadding: nextPreset.padding,
-      customBorderRadius: nextPreset.borderRadius,
-    });
+    const payload = buildPresetPayload();
+    const nextPreset = { id, name, ...payload, css: payload.css };
+    updateOption({ cssEditorPresets: [...cssPresets, nextPreset], activeCssPresetId: id, ...payload, customGlobalCss: nextPreset.css, customFontFamily: nextPreset.fontFamily, customPadding: nextPreset.padding, customBorderRadius: nextPreset.borderRadius });
     setSelectedPresetId(id);
     setNewPresetName('');
   };
@@ -1023,15 +1080,35 @@ const Setting = ({ setting }) => {
     if (!activePreset) return;
     const ok = await showConfirm(`Delete preset "${activePreset.name}"?`, 'Delete Preset');
     if (!ok) return;
-
     const nextPresets = cssPresets.filter((p) => p.id !== activePreset.id);
     const fallback = nextPresets[0] || null;
+    if (fallback) { hydrateAllDrafts(fallback, options); }
     updateOption({
       cssEditorPresets: nextPresets,
       activeCssPresetId: fallback?.id || null,
-      siteTextColor: fallback?.siteTextColor || textColorDraft,
-      bgColor: fallback?.bgColor || bgColorDraft,
-      logoColor: fallback?.logoColor || logoColorDraft,
+      siteTextColor: fallback ? normalizeHex(fallback.siteTextColor, '#a0b0c8') : normalizeHex(textColorDraft, '#a0b0c8'),
+      bgColor: fallback ? normalizeHex(fallback.bgColor, '#111827') : normalizeHex(bgColorDraft, '#111827'),
+      logoColor: fallback ? normalizeHex(fallback.logoColor, '#ffffff') : normalizeHex(logoColorDraft, '#ffffff'),
+      settingsContainerColor: fallback ? normalizeHex(fallback.settingsContainerColor ?? options.settingsContainerColor, '#18283e') : normalizeHex(settingsContainerDraft, '#18283e'),
+      settingsSearchBar: fallback ? normalizeHex(fallback.settingsSearchBar ?? options.settingsSearchBar, '#3c475a') : normalizeHex(settingsSearchBarDraft, '#3c475a'),
+      settingsPanelItemBackgroundColor: fallback ? normalizeHex(fallback.settingsPanelItemBackgroundColor ?? options.settingsPanelItemBackgroundColor, '#405a77') : normalizeHex(settingsPanelItemDraft, '#405a77'),
+      settingsDropdownColor: fallback ? normalizeHex(fallback.settingsDropdownColor ?? options.settingsDropdownColor, '#162337') : normalizeHex(settingsDropdownDraft, '#162337'),
+      navItemActive: fallback ? normalizeHex(fallback.navItemActive ?? options.navItemActive, '#c1d4f1') : normalizeHex(navItemActiveDraft, '#c1d4f1'),
+      bgDesignColor: fallback ? hexToRgbString(normalizeHex(rgbStringToHex(fallback.bgDesignColor ?? options.bgDesignColor, '#6b7280'), '#6b7280')) : hexToRgbString(normalizeHex(bgDesignDraft, '#6b7280')),
+      glowWrapperColor: fallback ? hexToRgbString(normalizeHex(rgbStringToHex(fallback.glowWrapperColor ?? options.glowWrapperColor, '#ffffff'), '#ffffff')) : hexToRgbString(normalizeHex(glowWrapperDraft, '#ffffff')),
+      switchColor: fallback ? String(fallback.switchColor ?? options.switchColor ?? '#ffffff1a') : String(switchOffDraft),
+      switchEnabledColor: fallback ? normalizeHex(fallback.switchEnabledColor ?? options.switchEnabledColor, '#4c6c91') : normalizeHex(switchOnDraft, '#4c6c91'),
+      quickModalBgColor: fallback ? normalizeHex(fallback.quickModalBgColor ?? options.quickModalBgColor, '#252f3e') : normalizeHex(quickModalDraft, '#252f3e'),
+      paginationTextColor: fallback ? normalizeHex(fallback.paginationTextColor ?? options.paginationTextColor, '#9baec8') : normalizeHex(paginationTextDraft, '#9baec8'),
+      paginationBorderColor: fallback ? String(fallback.paginationBorderColor ?? options.paginationBorderColor ?? '#ffffff1c') : String(paginationBorderDraft),
+      paginationBgColor: fallback ? normalizeHex(fallback.paginationBgColor ?? options.paginationBgColor, '#141d2b') : normalizeHex(paginationBgDraft, '#141d2b'),
+      paginationSelectedColor: fallback ? normalizeHex(fallback.paginationSelectedColor ?? options.paginationSelectedColor, '#75b3e8') : normalizeHex(paginationSelectedDraft, '#75b3e8'),
+      tabColor: fallback ? String(fallback.tabColor ?? options.tabColor ?? '#111e2f') : String(tabColorDraft),
+      tabOutline: fallback ? String(fallback.tabOutline ?? options.tabOutline ?? '#344646') : String(tabOutlineDraft),
+      barColor: fallback ? normalizeHex(fallback.barColor ?? options.barColor, '#09121e') : normalizeHex(barColorDraft, '#09121e'),
+      tabBarColor: fallback ? normalizeHex(fallback.tabBarColor ?? options.tabBarColor, '#070e15') : normalizeHex(tabBarDraft, '#070e15'),
+      omninputColor: fallback ? String(fallback.omninputColor ?? options.omninputColor ?? '#06080d8f') : String(omninputDraft),
+      menuColor: fallback ? normalizeHex(fallback.menuColor ?? options.menuColor, '#1a252f') : normalizeHex(menuColorDraft, '#1a252f'),
       customGlobalCss: fallback?.css || cssDraft,
       customFontFamily: fallback?.fontFamily || fontFamilyDraft,
       customPadding: fallback?.padding || paddingDraft,
@@ -1041,34 +1118,24 @@ const Setting = ({ setting }) => {
   };
 
   const resetCssToPreset = () => {
-    const preset = cssPresets.find((p) => p.id === (options.activeCssPresetId || selectedPresetId));
-    if (!preset) {
-      setCssDraft('');
-      setTextColorDraft(options.siteTextColor || '#a0b0c8');
-      setBgColorDraft(options.bgColor || '#111827');
-      setLogoColorDraft(options.logoColor || '#ffffff');
-      updateOption({ customGlobalCss: '' });
+    // back to the built in dark defaults, not whatever custom preset is active
+    const darkPreset = siteThemeConfig.find((c) => c.option === 'Dark')?.value;
+    setSelectedPresetId('');
+    setCssDraft('');
+    if (darkPreset) {
+      hydrateAllDrafts(darkPreset, darkPreset);
+      updateOption({
+        ...darkPreset,
+        activeCssPresetId: null,
+        customGlobalCss: '',
+        customFontFamily: '',
+        customPadding: '',
+        customBorderRadius: '',
+      });
       return;
     }
-
-    setCssDraft(preset.css || '');
-    setTextColorDraft(preset.siteTextColor || '#a0b0c8');
-    setBgColorDraft(preset.bgColor || '#111827');
-    setLogoColorDraft(preset.logoColor || '#ffffff');
-    setFontFamilyDraft(preset.fontFamily || '');
-    setPaddingDraft(preset.padding || '');
-    setRadiusDraft(preset.borderRadius || '');
-
-    updateOption({
-      activeCssPresetId: preset.id,
-      customGlobalCss: preset.css || '',
-      siteTextColor: preset.siteTextColor || '#a0b0c8',
-      bgColor: preset.bgColor || '#111827',
-      logoColor: preset.logoColor || '#ffffff',
-      customFontFamily: preset.fontFamily || '',
-      customPadding: preset.padding || '',
-      customBorderRadius: preset.borderRadius || '',
-    });
+    hydrateAllDrafts(null, { siteTextColor: '#a0b0c8', bgColor: '#111827', logoColor: '#ffffff', settingsContainerColor: '#18283e', settingsSearchBar: '#3c475a', settingsPanelItemBackgroundColor: '#405a77', settingsDropdownColor: '#162337', navItemActive: '#c1d4f1', bgDesignColor: '102, 105, 109', glowWrapperColor: '255, 255, 255', switchColor: '#ffffff1a', switchEnabledColor: '#4c6c91', quickModalBgColor: '#252f3e', paginationTextColor: '#9baec8', paginationBorderColor: '#ffffff1c', paginationBgColor: '#141d2b', paginationSelectedColor: '#75b3e8', tabColor: '#111e2fb0', tabOutline: '#344646', barColor: '#09121e', tabBarColor: '#070e15', omninputColor: '#06080d8f', menuColor: '#1a252f', customGlobalCss: '', customFontFamily: '', customPadding: '', customBorderRadius: '' });
+    updateOption({ activeCssPresetId: null, customGlobalCss: '' });
   };
 
   const scroll = clsx(
@@ -1077,7 +1144,7 @@ const Setting = ({ setting }) => {
       ? 'scrollbar-thumb-gray-600'
       : 'scrollbar-thumb-gray-500',
   );
-  const isUiLight = options?.type === 'light';
+  const isUiLight = options?.type === 'light' || options?.theme === 'light' || options?.themeName === 'lightTheme';
   const popupSurface = options.quickModalBgColor || options.menuColor || (isUiLight ? '#f8fafc' : '#1a252f');
   const popupTextColor = options.siteTextColor || (isUiLight ? '#0f172a' : '#e2e8f0');
   const popupMutedColor = isUiLight ? 'rgba(15,23,42,0.62)' : 'rgba(226,232,240,0.62)';
@@ -1107,7 +1174,7 @@ const Setting = ({ setting }) => {
           <div
             className={clsx(
               theme[`theme-${options.theme || 'default'}`],
-              `relative w-full max-w-5xl max-h-[85dvh] rounded-xl border border-white/10 overflow-hidden transition-all duration-200 ${cssEditorAnim ? 'scale-100 translate-y-0' : 'scale-[0.965] translate-y-[6px]'}`
+              `ghost-glass relative w-full max-w-5xl max-h-[85dvh] rounded-xl border border-white/10 overflow-hidden transition-all duration-200 ${cssEditorAnim ? 'scale-100 translate-y-0' : 'scale-[0.965] translate-y-[6px]'}`
             )}
             style={{ backgroundColor: options.quickModalBgColor || options.menuColor || '#1a252f' }}
           >
@@ -1118,95 +1185,97 @@ const Setting = ({ setting }) => {
               </button>
             </div>
 
-            <div className="p-4 overflow-y-auto max-h-[calc(85dvh-4rem)] space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="rounded-lg bg-[#ffffff0d] p-3">
-                  <p className="text-xs uppercase tracking-wide opacity-70 mb-2">Text Color</p>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={textColorDraft}
-                      onChange={(e) => setTextColorDraft(e.target.value)}
-                      className="h-10 w-12 p-1 rounded-md cursor-pointer border-none bg-transparent"
-                    />
-                    <input
-                      type="text"
-                      value={textColorDraft}
-                      onChange={(e) => setTextColorDraft(e.target.value)}
-                      className="h-10 flex-1 rounded-md bg-[#00000030] outline-none border border-white/10 px-3 text-sm uppercase"
-                    />
-                  </div>
+            <div className={clsx("p-4 overflow-y-auto overflow-x-hidden max-h-[calc(85dvh-4rem)] space-y-4", scroll)}>
+              <div className="rounded-xl border overflow-hidden" style={{ backgroundColor: bgColorDraft, borderColor: settingsContainerDraft }}>
+                <div className="px-4 py-3 flex items-center justify-between" style={{ backgroundColor: settingsContainerDraft, color: textColorDraft }}>
+                  <span className="text-sm font-semibold" style={{ color: logoColorDraft }}>Ghost</span>
+                  <span className="text-xs px-2 py-1 rounded-full" style={{ backgroundColor: navItemActiveDraft, color: bgColorDraft }}>Preview</span>
                 </div>
-                <div className="rounded-lg bg-[#ffffff0d] p-3">
-                  <p className="text-xs uppercase tracking-wide opacity-70 mb-2">Background Color</p>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={bgColorDraft}
-                      onChange={(e) => setBgColorDraft(e.target.value)}
-                      className="h-10 w-12 p-1 rounded-md cursor-pointer border-none bg-transparent"
-                    />
-                    <input
-                      type="text"
-                      value={bgColorDraft}
-                      onChange={(e) => setBgColorDraft(e.target.value)}
-                      className="h-10 flex-1 rounded-md bg-[#00000030] outline-none border border-white/10 px-3 text-sm uppercase"
-                    />
-                  </div>
-                </div>
-                <div className="rounded-lg bg-[#ffffff0d] p-3">
-                  <p className="text-xs uppercase tracking-wide opacity-70 mb-2">Logo Color</p>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={logoColorDraft}
-                      onChange={(e) => setLogoColorDraft(e.target.value)}
-                      className="h-10 w-12 p-1 rounded-md cursor-pointer border-none bg-transparent"
-                    />
-                    <input
-                      type="text"
-                      value={logoColorDraft}
-                      onChange={(e) => setLogoColorDraft(e.target.value)}
-                      className="h-10 flex-1 rounded-md bg-[#00000030] outline-none border border-white/10 px-3 text-sm uppercase"
-                    />
-                  </div>
+                <div className="px-4 py-3 flex gap-2" style={{ backgroundColor: quickModalDraft }}>
+                  <div className="h-9 flex-1 rounded-lg flex items-center px-3 text-xs" style={{ backgroundColor: settingsDropdownDraft, color: textColorDraft, border: "1px solid rgba(255,255,255,0.08)" }}>Dropdown</div>
+                  <div className="h-9 w-20 rounded-lg" style={{ backgroundColor: menuColorDraft }} />
                 </div>
               </div>
 
+              <p className="text-[11px] uppercase tracking-widest opacity-60 font-semibold">Core Colors</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <div className="rounded-lg bg-[#ffffff0d] p-3">
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}>
+                  <p className="text-xs uppercase tracking-wide opacity-70 mb-2">Text Color</p>
+                  <ModernColorPicker value={textColorDraft} onChange={setTextColorDraft} label="Text Color" />
+                </div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}>
+                  <p className="text-xs uppercase tracking-wide opacity-70 mb-2">Background Color</p>
+                  <ModernColorPicker value={bgColorDraft} onChange={setBgColorDraft} label="Background Color" />
+                </div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}>
+                  <p className="text-xs uppercase tracking-wide opacity-70 mb-2">Logo Color</p>
+                  <ModernColorPicker value={logoColorDraft} onChange={setLogoColorDraft} label="Logo Color" />
+                </div>
+              </div>
+
+              <p className="text-[11px] uppercase tracking-widest opacity-60 font-semibold">Settings Surfaces</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Settings Container</p><ModernColorPicker value={settingsContainerDraft} onChange={setSettingsContainerDraft} label="Settings Container" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Settings Search Bar</p><ModernColorPicker value={settingsSearchBarDraft} onChange={setSettingsSearchBarDraft} label="Settings Search Bar" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Panel Item BG</p><ModernColorPicker value={settingsPanelItemDraft} onChange={setSettingsPanelItemDraft} label="Panel Item BG" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Dropdown BG</p><ModernColorPicker value={settingsDropdownDraft} onChange={setSettingsDropdownDraft} label="Dropdown BG" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Nav Active</p><ModernColorPicker value={navItemActiveDraft} onChange={setNavItemActiveDraft} label="Nav Active" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">BG Design Color</p><ModernColorPicker value={bgDesignDraft} onChange={setBgDesignDraft} label="BG Design Color" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Glow Color</p><ModernColorPicker value={glowWrapperDraft} onChange={setGlowWrapperDraft} label="Glow Color" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Switch Off</p><ModernColorPicker value={String(switchOffDraft).slice(0,7)} onChange={(v)=>setSwitchOffDraft(v)} label="Switch Off" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Switch On</p><ModernColorPicker value={switchOnDraft} onChange={setSwitchOnDraft} label="Switch On" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Modal BG</p><ModernColorPicker value={quickModalDraft} onChange={setQuickModalDraft} label="Modal BG" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Pagination Text</p><ModernColorPicker value={paginationTextDraft} onChange={setPaginationTextDraft} label="Pagination Text" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Pagination Border</p><ModernColorPicker value={String(paginationBorderDraft).slice(0,7)} onChange={(v)=>setPaginationBorderDraft(v)} label="Pagination Border" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Pagination BG</p><ModernColorPicker value={paginationBgDraft} onChange={setPaginationBgDraft} label="Pagination BG" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Pagination Selected</p><ModernColorPicker value={paginationSelectedDraft} onChange={setPaginationSelectedDraft} label="Pagination Selected" /></div>
+              </div>
+
+              <p className="text-[11px] uppercase tracking-widest opacity-60 font-semibold">Browser Chrome</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Tab Color</p><ModernColorPicker value={String(tabColorDraft).slice(0,7)} onChange={(v)=>setTabColorDraft(v)} label="Tab Color" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Tab Outline</p><ModernColorPicker value={tabOutlineDraft} onChange={setTabOutlineDraft} label="Tab Outline" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Bar Color</p><ModernColorPicker value={barColorDraft} onChange={setBarColorDraft} label="Bar Color" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Tab Bar</p><ModernColorPicker value={tabBarDraft} onChange={setTabBarDraft} label="Tab Bar" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Omnibox</p><ModernColorPicker value={String(omninputDraft).slice(0,7)} onChange={(v)=>setOmninputDraft(v)} label="Omnibox" /></div>
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}><p className="text-xs uppercase tracking-wide opacity-70 mb-2">Menu</p><ModernColorPicker value={menuColorDraft} onChange={setMenuColorDraft} label="Menu" /></div>
+              </div>
+
+              <p className="text-[11px] uppercase tracking-widest opacity-60 font-semibold">Typography & Layout</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}>
                   <p className="text-xs uppercase tracking-wide opacity-70 mb-2">Font Family</p>
                   <input
                     type="text"
                     value={fontFamilyDraft}
                     onChange={(e) => setFontFamilyDraft(e.target.value)}
                     placeholder="e.g. 'Roboto', sans-serif"
-                    className="h-10 w-full rounded-md bg-[#00000030] outline-none border border-white/10 px-3 text-sm"
+                    className={clsx("h-10 w-full rounded-md outline-none border px-3 text-sm", isUiLight ? "border-black/15 bg-black/[0.04] text-[#0f172a]" : "border-white/10 bg-[#00000030] text-white")}
                   />
                 </div>
-                <div className="rounded-lg bg-[#ffffff0d] p-3">
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}>
                   <p className="text-xs uppercase tracking-wide opacity-70 mb-2">Main Padding</p>
                   <input
                     type="text"
                     value={paddingDraft}
                     onChange={(e) => setPaddingDraft(e.target.value)}
                     placeholder="e.g. 1rem or 16px"
-                    className="h-10 w-full rounded-md bg-[#00000030] outline-none border border-white/10 px-3 text-sm"
+                    className={clsx("h-10 w-full rounded-md outline-none border px-3 text-sm", isUiLight ? "border-black/15 bg-black/[0.04] text-[#0f172a]" : "border-white/10 bg-[#00000030] text-white")}
                   />
                 </div>
-                <div className="rounded-lg bg-[#ffffff0d] p-3">
+                <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}>
                   <p className="text-xs uppercase tracking-wide opacity-70 mb-2">Border Radius</p>
                   <input
                     type="text"
                     value={radiusDraft}
                     onChange={(e) => setRadiusDraft(e.target.value)}
                     placeholder="e.g. 8px or 50%"
-                    className="h-10 w-full rounded-md bg-[#00000030] outline-none border border-white/10 px-3 text-sm"
+                    className={clsx("h-10 w-full rounded-md outline-none border px-3 text-sm", isUiLight ? "border-black/15 bg-black/[0.04] text-[#0f172a]" : "border-white/10 bg-[#00000030] text-white")}
                   />
                 </div>
               </div>
 
-              <div className="rounded-lg bg-[#ffffff0d] p-3 space-y-3">
+              <div className={clsx("rounded-lg p-3 space-y-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}>
                 <div className="flex flex-col md:flex-row gap-2">
                   <select
                     value={selectedPresetId}
@@ -1221,7 +1290,7 @@ const Setting = ({ setting }) => {
                       setLogoColorDraft(preset.logoColor || '#ffffff');
                       updateOption({ activeCssPresetId: id });
                     }}
-                    className="h-10 flex-1 rounded-md bg-[#00000030] border border-white/10 px-3 text-sm"
+                    className={clsx("h-10 flex-1 rounded-md border px-3 text-sm", isUiLight ? "border-black/15 bg-black/[0.04] text-[#0f172a]" : "border-white/10 bg-[#00000030] text-white")}
                   >
                     <option value="">No preset selected</option>
                     {cssPresets.map((preset) => (
@@ -1232,25 +1301,25 @@ const Setting = ({ setting }) => {
                     value={newPresetName}
                     onChange={(e) => setNewPresetName(e.target.value)}
                     placeholder="New preset name"
-                    className="h-10 flex-1 rounded-md bg-[#00000030] border border-white/10 px-3 text-sm"
+                    className={clsx("h-10 flex-1 rounded-md border px-3 text-sm", isUiLight ? "border-black/15 bg-black/[0.04] text-[#0f172a]" : "border-white/10 bg-[#00000030] text-white")}
                   />
                 </div>
                 <div className="flex flex-wrap gap-2">
-                  <button onClick={createPreset} className="h-9 px-3 rounded-md bg-[#ffffff14] hover:bg-[#ffffff22] text-sm">Create Preset</button>
-                  <button onClick={savePreset} className="h-9 px-3 rounded-md bg-[#ffffff14] hover:bg-[#ffffff22] text-sm">Save Preset</button>
-                  <button onClick={deletePreset} disabled={!activePreset} className="h-9 px-3 rounded-md bg-[#ffffff14] hover:bg-[#ffffff22] disabled:opacity-50 text-sm">Delete Preset</button>
-                  <button onClick={resetCssToPreset} className="h-9 px-3 rounded-md bg-[#ffffff14] hover:bg-[#ffffff22] text-sm">Reset CSS</button>
+                  <button onClick={createPreset} className={clsx("h-9 px-3 rounded-md text-sm", isUiLight ? "bg-black/[0.06] hover:bg-black/[0.10]" : "bg-[#ffffff14] hover:bg-[#ffffff22]")}>Create Preset</button>
+                  <button onClick={savePreset} className={clsx("h-9 px-3 rounded-md text-sm", isUiLight ? "bg-black/[0.06] hover:bg-black/[0.10]" : "bg-[#ffffff14] hover:bg-[#ffffff22]")}>Save Preset</button>
+                  <button onClick={deletePreset} disabled={!activePreset} className={clsx("h-9 px-3 rounded-md disabled:opacity-50 text-sm", isUiLight ? "bg-black/[0.06] hover:bg-black/[0.10]" : "bg-[#ffffff14] hover:bg-[#ffffff22]")}>Delete Preset</button>
+                  <button onClick={resetCssToPreset} className={clsx("h-9 px-3 rounded-md text-sm", isUiLight ? "bg-black/[0.06] hover:bg-black/[0.10]" : "bg-[#ffffff14] hover:bg-[#ffffff22]")}>Reset CSS</button>
                   <button onClick={applyCssDraft} className="h-9 px-3 rounded-md bg-[#2f7fff44] hover:bg-[#2f7fff66] text-sm">Apply CSS</button>
                 </div>
               </div>
 
-              <div className="rounded-lg bg-[#ffffff0d] p-3">
+              <div className={clsx("rounded-lg p-3", isUiLight ? "bg-black/[0.05]" : "bg-[#ffffff0d]")}>
                 <p className="text-xs uppercase tracking-wide opacity-70 mb-2">Global CSS</p>
                 <textarea
                   value={cssDraft}
                   onChange={(e) => setCssDraft(e.target.value)}
                   placeholder={'/* Example:\n#search-div { border-radius: 20px; }\n*/'}
-                  className="w-full min-h-[260px] rounded-md bg-[#00000030] border border-white/10 p-3 text-sm outline-none"
+                  className={clsx("w-full min-h-[260px] rounded-md border p-3 text-sm outline-none", isUiLight ? "border-black/15 bg-black/[0.04] text-[#0f172a]" : "border-white/10 bg-[#00000030] text-white")}
                 />
               </div>
             </div>
@@ -1263,7 +1332,7 @@ const Setting = ({ setting }) => {
           <div
             className={clsx(
               theme[`theme-${options.theme || 'default'}`],
-              `relative w-full max-w-4xl max-h-[80dvh] rounded-xl border overflow-hidden transition-all duration-200 ${historyAnim ? 'scale-100 translate-y-0' : 'scale-[0.965] translate-y-[6px]'}`
+              `ghost-glass relative w-full max-w-4xl max-h-[80dvh] rounded-xl border overflow-hidden transition-all duration-200 ${historyAnim ? 'scale-100 translate-y-0' : 'scale-[0.965] translate-y-[6px]'}`
             )}
             style={{
               backgroundColor: popupSurface,
@@ -1322,7 +1391,7 @@ const Setting = ({ setting }) => {
           <div
             className={clsx(
               theme[`theme-${options.theme || 'default'}`],
-              'relative w-full max-w-5xl max-h-[85dvh] rounded-xl border overflow-hidden',
+              'ghost-glass relative w-full max-w-5xl max-h-[85dvh] rounded-xl border overflow-hidden',
             )}
             style={{
               backgroundColor: popupSurface,
@@ -1370,7 +1439,7 @@ const Setting = ({ setting }) => {
       {setting === 'Data' && <Type type={() => dataSettings} title="Data" />}
       {setting === 'Advanced' && (
         <Type
-          type={() => settings.advancedConfig({ options, updateOption })}
+          type={() => settings.advancedConfig({ options, updateOption, openCssEditor: { openCssEditor: () => setCssEditorOpen(true) } })}
           title="Advanced"
         />
       )}
@@ -1390,7 +1459,7 @@ const Setting = ({ setting }) => {
           <div
             className={clsx(
               theme[`theme-${options.theme || 'default'}`],
-              `relative w-full max-w-[410px] rounded-[28px] border overflow-hidden transition-all duration-200 ${customThemeAnim ? 'scale-100 translate-y-0' : 'scale-[0.965] translate-y-[6px]'}`,
+              `ghost-glass relative w-full max-w-[410px] rounded-[28px] border overflow-hidden transition-all duration-200 ${customThemeAnim ? 'scale-100 translate-y-0' : 'scale-[0.965] translate-y-[6px]'}`,
             )}
             style={{ backgroundColor: popupSurface, borderColor: popupBorderColor, color: popupTextColor }}
           >
@@ -1401,7 +1470,9 @@ const Setting = ({ setting }) => {
                   <h2 className="text-lg font-semibold">Custom Theme</h2>
                 </div>
                 <p className="text-sm mt-0.5" style={{ color: popupMutedColor }}>Create a theme from a single color.</p>
-                <p className="text-xs mt-1" style={{ color: popupMutedColor }}>Light mode isn&apos;t avaliable.</p>
+                <p className="text-xs mt-1 flex items-center gap-1.5" style={{ color: popupMutedColor }}>
+                  <span className={clsx('px-1.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide', resolvedAutoMode === 'light' ? 'bg-amber-400 text-black' : (isUiLight ? 'bg-black/15 text-[#0f172a]' : 'bg-white/15 text-white'))}>{resolvedAutoMode}</span>
+                </p>
               </div>
               <button
                 type="button"
@@ -1475,17 +1546,8 @@ const Setting = ({ setting }) => {
               <button
                 type="button"
                 onClick={() => {
-                  const resolvedMode = 'dark';
-                  if (resolvedMode !== pickerMode) {
-                    setPickerMode(resolvedMode);
-                  }
-
-                  if (resolvedMode === 'light' && !LIGHT_MODE_AVAILABLE) {
-                    showAlert('Light mode is in development.', 'Custom Theme');
-                    setPickerMode('dark');
-                    return;
-                  }
-
+                  const resolvedMode = autoResolveMode(pickerHue, pickerSat, pickerVal);
+                  if (resolvedMode !== pickerMode) setPickerMode(resolvedMode);
                   const preservedPresetThemeName =
                     options.theme === 'custom'
                       ? options.lastThemePresetName || previousThemePreset?.value?.themeName || 'darkTheme'
@@ -1502,8 +1564,9 @@ const Setting = ({ setting }) => {
                     ? 'bg-[#111827] border-[#111827] text-white hover:bg-[#0b1220]'
                     : 'bg-white/15 border-white/20 text-white hover:bg-white/20',
                 )}
+                style={{ color: '#ffffff' }}
               >
-                ↑ Apply Theme!
+                <ArrowUp size={15} /> Apply Theme!
               </button>
             </div>
           </div>

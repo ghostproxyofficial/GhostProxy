@@ -11,7 +11,6 @@
     "image": "/misc/1v1-lol/splash.webp",
     "usesProxy": false
   },
-
   {
     "name": "1 on 1 Soccer",
     "url": "/misc/play/1o1soccer.html",
@@ -246,7 +245,6 @@
     "image": "/misc/csgo-clicker/new.webp",
     "usesProxy": false
   },
-
   {
     "name": "Dadish",
     "url": "/misc/play/Dadish.html",
@@ -263,48 +261,6 @@
     "name": "Dadish 3",
     "url": "/misc/play/Dadish-3.html",
     "image": "/misc/dadish3/img.avif",
-    "usesProxy": false
-  },
-  {
-    "name": "Dadish 3D",
-    "image": "/misc/dadish3d/img.webp",
-    "author": "Thomas K. Young",
-    "usesProxy": false
-  },
-  {
-    "name": "Getting Over It",
-    "image": "/misc/gettingoverit/img.webp",
-    "author": "Bennett Foddy",
-    "usesProxy": false
-  },
-  {
-    "name": "Boom Slingers Reboom",
-    "image": "/misc/boomslingersreboom/img.webp",
-    "author": "Boom Corp",
-    "usesProxy": false
-  },
-  {
-    "name": "Plants vs. Zombies",
-    "image": "/misc/pvz/img.webp",
-    "author": "PopCap Games",
-    "usesProxy": false
-  },
-  {
-    "name": "Skibidi Shooter",
-    "image": "/misc/skibidi-shooter/img.webp",
-    "author": "Luqman Kalil",
-    "usesProxy": false
-  },
-  {
-    "name": "Hotline Miami",
-    "image": "/misc/hotlinemiami/img.webp",
-    "author": "Dennaton Games",
-    "usesProxy": false
-  },
-  {
-    "name": "Jelly Drift",
-    "image": "/misc/jellydrift/img.webp",
-    "author": "Dani",
     "usesProxy": false
   },
   {
@@ -353,12 +309,6 @@
     "name": "Draw The Hill",
     "url": "/misc/play/draw_the_hill.html",
     "image": "/misc/draw_the_hill/icons/icon-512.png",
-    "usesProxy": false
-  },
-  {
-    "name": "Dread Head Parkour",
-    "author": "Gametornado",
-    "image": "/misc/dhp/img.webp",
     "usesProxy": false
   },
   {
@@ -479,12 +429,6 @@
     "name": "Flippy Fish",
     "url": "/misc/play/Flippy-Fish.html",
     "image": "/misc/flippyfish/icon.png",
-    "usesProxy": false
-  },
-  {
-    "name": "FNAF",
-    "image": "/misc/fnaf/img.webp",
-    "author": "Telltale Games",
     "usesProxy": false
   },
   {
@@ -614,24 +558,6 @@
     "usesProxy": true
   },
   {
-    "name": "HexGL",
-    "author": "BKcore",
-    "image": "/misc/hexgl/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Hollow Night",
-    "author": "Bog",
-    "image": "/misc/hollow-night/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Hollow Night Silksong",
-    "author": "Team Cherry",
-    "image": "/misc/hollow-night-silksong/img.webp",
-    "usesProxy": false
-  },
-  {
     "name": "Swingo",
     "url": "/misc/play/swingo.html",
     "image": "/misc/swingo/img.webp",
@@ -707,18 +633,6 @@
     "name": "Idle Dice",
     "url": "/misc/play/idle_dice.html",
     "image": "/misc/idle_dice/img.jpeg",
-    "usesProxy": false
-  },
-  {
-    "name": "Golf Orbit",
-    "author": "Hoem",
-    "image": "/misc/golforbit/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Speed Stars",
-    "author": "Luke Doukakis",
-    "image": "/misc/speed-stars/img.webp",
     "usesProxy": false
   },
   {
@@ -860,12 +774,6 @@
     "usesProxy": false
   },
   {
-    "name": "Minecraft",
-    "url": "/misc/misc/eloader/",
-    "image": "/misc/eaglercraftx/img.png",
-    "usesProxy": false
-  },
-  {
     "name": "MK48.io",
     "url": "https://mk48.io/",
     "image": "/misc/mk48/img.png",
@@ -887,24 +795,6 @@
     "name": "MotoX3M",
     "url": "/misc/play/motox3m.html",
     "image": "/misc/motox3m/splash.jpg",
-    "usesProxy": false
-  },
-  {
-    "name": "MotoX3M 2",
-    "author": "Madpuffers",
-    "image": "/misc/motox3m2/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Balatro",
-    "author": "LocalThunk",
-    "image": "/misc/balatro/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Slime Rancher",
-    "author": "Monomi Park",
-    "image": "/misc/slimerancher/img.webp",
     "usesProxy": false
   },
   {
@@ -953,12 +843,6 @@
     "name": "N Gon",
     "url": "/misc/play/n-gon1.html",
     "image": "/misc/n-gon/img.png",
-    "usesProxy": false
-  },
-  {
-    "name": "Nut Simulator",
-    "author": "tekno",
-    "image": "/misc/ns/img.webp",
     "usesProxy": false
   },
   {
@@ -1130,18 +1014,6 @@
     "usesProxy": false
   },
   {
-    "name": "Ultrakill",
-    "author": "Bread",
-    "image": "/misc/ultrakill/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Nazi Zombies: Portable",
-    "author": "erysdren",
-    "image": "/misc/nzp/img.webp",
-    "usesProxy": false
-  },
-  {
     "name": "Fury Wars",
     "url": "/misc/play/furywars.html",
     "image": "/misc/furywars/img.webp",
@@ -1238,18 +1110,6 @@
     "usesProxy": true
   },
   {
-    "name": "Retro Bowl",
-    "author": "New Star Games",
-    "image": "/misc/rb/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Bendy",
-    "author": "98Corbins",
-    "image": "/misc/bendy/img.webp",
-    "usesProxy": false
-  },
-  {
     "name": "Polytrack",
     "url": "/misc/polytrack/index.html",
     "image": "/img/games/polytrack.webp",
@@ -1335,45 +1195,9 @@
     "usesProxy": false
   },
   {
-    "name": "Resent Client 1.8",
-    "url": "/misc/misc/eloader/",
-    "image": "/img/games/res.webp",
-    "usesProxy": false
-  },
-  {
     "name": "Roblox",
     "url": "/misc/roblos/",
     "image": "/misc/roblos/rbx.jpeg",
-    "usesProxy": false
-  },
-  {
-    "name": "Roper",
-    "author": "Fancade",
-    "image": "/misc/roper/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Flick Goal",
-    "author": "Luqman",
-    "image": "/misc/flickgoal/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Super Liquid Soccer",
-    "author": "Punyrobot",
-    "image": "/misc/superliquidsoccor/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Ragdoll Archers",
-    "author": "Joshua Tito",
-    "image": "/misc/ragdoll-archers/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Ragdoll Hit",
-    "image": "/misc/ragdoll-hit/img.webp",
-    "author": "Ericetto",
     "usesProxy": false
   },
   {
@@ -1551,12 +1375,6 @@
     "usesProxy": false
   },
   {
-    "name": "Solar Smash",
-    "image": "/misc/solar-smash/img.webp",
-    "author": "Paradyme",
-    "usesProxy": false
-  },
-  {
     "name": "Takuni Sunset",
     "url": "/misc/play/takuni-sunset.html",
     "image": "/misc/Tanuki-Sunset/img.png",
@@ -1578,12 +1396,6 @@
     "name": "The Binding Of Issac",
     "url": "/misc/play/thebindingofissac.html",
     "image": "/misc/thebindingofissac/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "There Is No Game",
-    "author": "Pascal Cammisotto",
-    "image": "/misc/thereisnogame/img.webp",
     "usesProxy": false
   },
   {
@@ -1731,82 +1543,10 @@
     "usesProxy": false
   },
   {
-    "name": "Yohoho.io",
-    "author": "Exodragon Games",
-    "image": "/misc/yohoho/img.webp",
-    "usesProxy": false
-  },
-  {
     "name": "digdig.io",
     "url": "https://digdig.io/",
     "image": "/img/games/digdigio.webp",
     "usesProxy": true
-  },
-  {
-    "name": "Buckshot Roulette",
-    "author": "Bread",
-    "image": "/misc/buckshot/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Cuphead",
-    "author": "Bread",
-    "image": "/misc/cuphead/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Thats not my Neighbor",
-    "author": "Bread",
-    "image": "/misc/tnmn/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Baseball Bros",
-    "author": "Blue Wizard Digital",
-    "image": "/misc/baseballbros-io/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Raft",
-    "author": "Ashen Arrow",
-    "image": "/misc/raft/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "People Playground",
-    "author": "98Corbins",
-    "image": "/misc/peopleplayground/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "REPO",
-    "author": "98Corbins",
-    "image": "/misc/repo/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Karlson",
-    "author": "Bog/Aukak",
-    "image": "/misc/karlson/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Webfishing",
-    "author": "Bog/Aukak",
-    "image": "/misc/webfishing/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Kindergarden",
-    "author": "Bread",
-    "image": "/misc/kindergarden/img.webp",
-    "usesProxy": false
-  },
-  {
-    "name": "Kindergarden 2",
-    "author": "Bread",
-    "image": "/misc/kindergarden2/img.webp",
-    "usesProxy": false
   },
   {
     "name": "deadshot.io",
@@ -1845,4 +1585,3 @@
     "usesProxy": false
   }
 ]
-

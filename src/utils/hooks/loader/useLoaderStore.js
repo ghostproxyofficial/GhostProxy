@@ -14,10 +14,9 @@ const tabStorage = {
     if (opts.saveTabs === false) return null;
     const activeProfileId = localStorage.getItem(PROFILE_ACTIVE_KEY) || 'default';
     let val = localStorage.getItem(`${activeProfileId}_${name}`);
-    // migration: only for the 'default' fallback profile (no real profile set yet),
-    // copy old global ghostloadersession into the profile-keyed storage.
-    // real profiles created by createprofile have their storage pre-seeded,
-    // so this should never run for them.
+// migration for the 'default' fallback profile only, copies the old global
+// ghostloadersession into the profile keyed storage. real profiles get seeded
+// by createProfile so this should never touch them
     if (val === null && name === 'ghostLoaderSession' && activeProfileId === 'default') {
       const legacy = localStorage.getItem(name);
       if (legacy) {
@@ -250,7 +249,7 @@ const store = create(
         }),
       reopenClosedTab: () =>
         set((state) => {
-          if (state.closedTabs.length === 0 || state.tabs.length >= 20) return state;
+          if (state.closedTabs.length === 0 || state.tabs.length >= 60) return state;
 
           const [top, ...rest] = state.closedTabs;
           const restored = {
@@ -268,7 +267,7 @@ const store = create(
         set((state) => ({
           tabs: state.tabs.map((tab) => ({ ...tab, active: tab.id === tabId })),
         })),
-      //this makes the tab before the matching tab active (all others false)
+      // make the tab before the match active, all the others false
       setLastActive: (tabId) =>
         set((state) => {
           const index = state.tabs.findIndex((tab) => tab.id === tabId);
@@ -278,7 +277,7 @@ const store = create(
             tabs: state.tabs.map((tab, i) => ({ ...tab, active: i === prevIndex })),
           };
         }),
-      //this updates url property of matching tab and merges
+      // merge the new url into the matching tab
       updateUrl: (tabId, url, addToHistory = true) => {
         const normalizedUrl = normalizeTabUrl(url);
         set((state) => ({
@@ -302,6 +301,7 @@ const store = create(
                 history: newHistory,
                 historyIndex: newHistory.length - 1,
                 isLoading: normalizedUrl !== 'tabs://new',
+                mediaState: undefined,
               };
             }
 
@@ -311,6 +311,7 @@ const store = create(
               url: normalizedUrl,
               displayUrl: clearDisplayUrl ? '' : (tab.displayUrl || ''),
               isLoading: normalizedUrl !== 'tabs://new',
+              mediaState: undefined,
             };
           }),
         }));
@@ -451,7 +452,9 @@ const store = create(
       name: 'ghostLoaderSession',
       storage: createJSONStorage(() => tabStorage),
       partialize: (state) => ({
-        tabs: state.tabs,
+// mediaState is runtime only, saving it would leave stale playing state
+// behind after a reload
+        tabs: (state.tabs || []).map(({ mediaState, ...rest }) => rest),
         showTabs: state.showTabs,
         showUI: state.showUI,
         zoomLevels: state.zoomLevels

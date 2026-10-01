@@ -1,7 +1,8 @@
 export async function fetchW() {
   const cacheKey = 'ghost:lastGoodWisp';
   const bootstrapEndpoints = [
-    'wss://ashburn.edisonlearningcenter.me/connection/',
+    'wss://service.khanacademyy.org/socket/',
+    'wss://wisp.mercurywork.shop/',
   ];
 
   const normalizeEndpoint = (value) => {
@@ -21,7 +22,8 @@ export async function fetchW() {
       const parsed = new URL(normalized);
       const host = String(parsed.hostname || '').trim().toLowerCase();
       if (!host || host === 'undefined' || host === 'null') return null;
-      const pathname = parsed.pathname && parsed.pathname !== '/' ? parsed.pathname : '/wisp/';
+      // keep the path as given, dont force a /wisp/ suffix on it
+      const pathname = parsed.pathname || '/';
       const trailingSlashPath = pathname.endsWith('/') ? pathname : `${pathname}/`;
       const protocol = parsed.protocol === 'wss:' ? 'wss:' : 'ws:';
       return `${protocol}//${parsed.host}${trailingSlashPath}`;
@@ -72,7 +74,7 @@ export async function fetchW() {
       .split(',')
       .map((u) => u.trim())
       .filter(Boolean)
-      .map((u) => `wss://${u}/connection/`) : [];
+      .map((u) => `wss://${u}/wisp/`) : [];
   } catch {
     arr = [];
   }

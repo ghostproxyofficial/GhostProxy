@@ -98,6 +98,8 @@ function PropEditor({ propKey, value, onChange }) {
 
 export default function BackgroundEditor({ open, onClose }) {
   const { options, updateOption } = useOptions();
+  const isLight =
+    options?.type === 'light' || options?.theme === 'light' || options?.themeName === 'lightTheme';
   const [visible, setVisible] = useState(false);
   const [render, setRender] = useState(false);
   const [selectedId, setSelectedId] = useState('');
@@ -169,7 +171,7 @@ export default function BackgroundEditor({ open, onClose }) {
     <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
       <div className={`absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity duration-200 ${visible ? 'opacity-100' : 'opacity-0'}`} onClick={onClose} />
       <div className={clsx(
-        "relative w-full max-w-4xl max-h-[90dvh] rounded-xl border border-white/10 overflow-hidden flex flex-col transition-all duration-200",
+        "ghost-glass relative w-full max-w-4xl max-h-[90dvh] rounded-xl border border-white/10 overflow-hidden flex flex-col transition-all duration-200",
         visible ? 'opacity-100 scale-100 translate-y-0' : 'opacity-0 scale-[0.965] translate-y-2'
       )} style={{ backgroundColor: options.quickModalBgColor || options.menuColor || '#1a252f' }}>
 
@@ -192,15 +194,17 @@ export default function BackgroundEditor({ open, onClose }) {
           <div className="w-[220px] border-r border-white/10 flex flex-col shrink-0">
             <div className="p-3 border-b border-white/5">
               <input type="text" placeholder="Search..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-8 rounded-md border border-white/10 bg-[#00000030] px-3 text-xs outline-none placeholder-white/30" />
+                className={`w-full h-8 rounded-md border px-3 text-xs outline-none ${isLight ? 'border-black/15 bg-black/[0.04] text-[#0f172a] placeholder:text-[#64748b]' : 'border-white/10 bg-[#00000030] placeholder-white/30'}`} />
             </div>
             <div className="overflow-y-auto flex-1 p-2 space-y-0.5">
               {filtered.map((bg) => (
                 <button key={bg.id} onClick={() => setSelectedId(bg.id)}
                   className={clsx(
                     "w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center justify-between",
-                    selectedId === bg.id ? "bg-[#ffffff18] text-white" : "hover:bg-[#ffffff0a] text-white/70 hover:text-white/90",
-                    activeId === bg.id && selectedId !== bg.id && "border border-white/15"
+                    selectedId === bg.id
+                      ? (isLight ? "bg-black/[0.08] text-[#0f172a]" : "bg-[#ffffff18] text-white")
+                      : (isLight ? "hover:bg-black/[0.05] text-[#475569] hover:text-[#0f172a]" : "hover:bg-[#ffffff0a] text-white/70 hover:text-white/90"),
+                    activeId === bg.id && selectedId !== bg.id && (isLight ? "border border-black/15" : "border border-white/15")
                   )}>
                   <span className="truncate">{bg.label}</span>
                   {activeId === bg.id && <Check size={14} className="shrink-0 text-green-400" />}
