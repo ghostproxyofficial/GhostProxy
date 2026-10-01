@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
-import './CRTWarp.css';
+import './CrtWarp.css';
 
 const vertexShader = `
 varying vec2 vUv;
