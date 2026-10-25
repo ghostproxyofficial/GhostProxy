@@ -343,19 +343,28 @@ const loadTransformers = async () => {
   if (transformersPromise) return transformersPromise;
   transformersPromise = (async () => {
     const failures = [];
+    const applyEnv = (mod) => {
+      try {
+        const env = mod.env;
+        if (env?.backends?.onnx?.wasm) {
+          env.backends.onnx.wasm.wasmPaths = '/ort/';
+          env.backends.onnx.wasm.proxy = false;
+        }
+        if (env) env.allowLocalModels = false;
+      } catch { }
+    };
+    try {
+      const local = await import('@huggingface/transformers');
+      if (typeof local?.pipeline === 'function') { applyEnv(local); return local; }
+      failures.push('bundled: no pipeline');
+    } catch (e) {
+      failures.push(`bundled: ${String(e?.message || e).slice(0, 80)}`);
+    }
     for (const cdn of TRANSFORMERS_CDNS) {
       try {
-        const mod = await import( cdn);
+        const mod = await import(cdn);
         if (typeof mod?.pipeline !== 'function') { failures.push(`${cdn}: no pipeline`); continue; }
-        try {
-          const env = mod.env;
-          if (env?.backends?.onnx?.wasm) {
-
-            env.backends.onnx.wasm.numThreads = 1;
-            env.backends.onnx.wasm.proxy = false;
-          }
-          if (env) env.allowLocalModels = false;
-        } catch { }
+        applyEnv(mod);
         return mod;
       } catch (e) {
         failures.push(`${cdn}: ${String(e?.message || e).slice(0, 80)}`);
@@ -391,7 +400,7 @@ const getPipeline = async (task, repo, opts, onStatus) => {
   const mod = await loadTransformers();
   const isolated = typeof crossOriginIsolated !== 'undefined' && crossOriginIsolated;
   const cores = Number(navigator.hardwareConcurrency) || 4;
-  setOrtThreads(mod, isolated ? Math.max(2, Math.min(16, cores - 1)) : 1);
+  setOrtThreads(mod, 1);
   const cached = modelDownloaded(repo);
   onStatus?.({
     phase: cached ? 'loading' : 'downloading',

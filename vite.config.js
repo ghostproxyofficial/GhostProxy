@@ -1,5 +1,6 @@
 import { defineConfig, normalizePath } from 'vite';
 import { dirname, resolve } from 'node:path';
+import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import react from '@vitejs/plugin-react-swc';
 import vitePluginBundleObfuscator from 'vite-plugin-bundle-obfuscator';
@@ -105,6 +106,25 @@ export default defineConfig(({ command }) => {
         name: 'notetaker-isolation',
         apply: 'serve',
         configureServer(server) {
+          server.middlewares.use((req, res, next) => {
+            const pathOnly = String(req.url || '').split('?')[0];
+            if (pathOnly.startsWith('/ort/')) {
+              const file = resolve(__dirname, 'public', pathOnly.slice(1));
+              try {
+                const buf = readFileSync(file);
+                res.setHeader('Content-Type', pathOnly.endsWith('.wasm') ? 'application/wasm' : 'text/javascript');
+                res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+                res.setHeader('Cache-Control', 'no-cache');
+                res.end(buf);
+                return;
+              } catch {
+                res.statusCode = 404;
+                res.end('not found');
+                return;
+              }
+            }
+            next();
+          });
           server.middlewares.use((req, res, next) => {
             const url = String(req.url || '');
             if (url === '/notetaker' || url.startsWith('/notetaker?') || url.startsWith('/notetaker/')) {

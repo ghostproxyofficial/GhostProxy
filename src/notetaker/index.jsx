@@ -9,6 +9,7 @@ import Summarize from './Summarize';
 import SettingsPanel from './Settings';
 import Onboarding from './Onboarding';
 import ChatBox from './ChatBox';
+import { installProxyFetch, uninstallProxyFetch } from './proxy';
 import { IconPicker, iconNode, DEFAULT_ICON } from './icons';
 import {
   loadMeta, saveMeta, loadContent, saveContent, removeContent,
@@ -218,6 +219,11 @@ const Notetaker = () => {
   const editedRef = useRef(edited);
 
   const settings = { ...DEFAULT_SETTINGS, ...(meta.settings || {}) };
+
+  useEffect(() => {
+    installProxyFetch();
+    return () => uninstallProxyFetch();
+  }, []);
 
   useEffect(() => {
     document.body.classList.add('nt-active');

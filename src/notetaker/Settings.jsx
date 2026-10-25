@@ -4,6 +4,7 @@ import {
   PROVIDERS, WHISPER_MODELS, LOCAL_LLM_MODELS, detectHardware, webgpuInfo, unblockWebgpu, recommendWhisper, recommendLocalLlm,
 } from './ai';
 import { countNotes, exportAll, importAll, wipeEverything } from './store';
+import { proxyEnabled, setProxyEnabled, proxyStatus } from './proxy';
 
 const Settings = ({ meta, settings, onChange, onWiped, onImported }) => {
   const hw = useMemo(() => detectHardware(), []);
@@ -12,6 +13,8 @@ const Settings = ({ meta, settings, onChange, onWiped, onImported }) => {
   const [savedFlash, setSavedFlash] = useState('');
   const [importText, setImportText] = useState('');
   const [confirmWipe, setConfirmWipe] = useState(false);
+  const [proxyOn, setProxyOn] = useState(() => proxyEnabled());
+  const [proxyInfo, setProxyInfo] = useState(null);
 
   useEffect(() => {
     let alive = true;
@@ -131,6 +134,37 @@ const Settings = ({ meta, settings, onChange, onWiped, onImported }) => {
             placeholder="For example: keep the chemistry equations, ignore the admin announcements."
           />
         </div>
+      </section>
+
+      <section className="nt-sect">
+        <h3 className="nt-sect-title">Network</h3>
+        <p className="nt-muted nt-small">Route AI calls and model downloads through the Ghost proxy. Turn this on when the network blocks those hosts.</p>
+        <div className="nt-row">
+          <button
+            type="button"
+            className={'nt-btn' + (proxyOn ? ' is-active' : '')}
+            onClick={() => {
+              const next = !proxyOn;
+              setProxyOn(next);
+              setProxyEnabled(next);
+              setProxyInfo(null);
+            }}
+          >
+            {proxyOn ? 'Proxy: on' : 'Proxy: off'}
+          </button>
+          <button
+            type="button"
+            className="nt-btn nt-btn-sm"
+            onClick={async () => setProxyInfo(await proxyStatus())}
+          >
+            Test proxy
+          </button>
+        </div>
+        {proxyInfo && (
+          <p className="nt-muted nt-small">
+            {proxyInfo.ok ? `Connected to ${proxyInfo.wisp}` : `Failed: ${proxyInfo.error}`}
+          </p>
+        )}
       </section>
 
       <section className="nt-sect">
