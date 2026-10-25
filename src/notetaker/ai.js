@@ -94,7 +94,7 @@ export const PROVIDERS = {
     chat: false,
     base: 'https://api.assemblyai.com/v2',
     keyHint: 'assembly key',
-    audioModels: ['universal-3-5-pro', 'universal-2'],
+    audioModels: ['universal-3-6-pro', 'universal-3-5-pro', 'universal-2'],
   },
   deepgram: {
     label: 'Deepgram',
@@ -843,16 +843,25 @@ export const transcribeWithProvider = async ({ providerId, model, blob, settings
     if (!up.ok) throw new Error(await readError(up));
     const { upload_url: uploadUrl } = await up.json();
 
-    const created = await fetch(`${base}/transcript`, {
+    const submit = async (extra) => fetch(`${base}/transcript`, {
       method: 'POST',
       headers: { authorization: key, 'content-type': 'application/json' },
       body: JSON.stringify({
         audio_url: uploadUrl,
         speech_models: [modelName, 'universal-2'].filter((m, i, a) => m && a.indexOf(m) === i),
         language_code: language || 'en',
+        speaker_labels: true,
+        ...extra,
       }),
     });
-    if (!created.ok) throw new Error(await readError(created));
+
+    const tuning = { voice_focus: 'far-field', voice_focus_threshold: 0.7 };
+    let created = await submit(tuning);
+    if (!created.ok) {
+      const detail = await readError(created);
+      created = await submit({});
+      if (!created.ok) throw new Error(detail);
+    }
     const job = await created.json();
 
     for (let i = 0; i < 150; i += 1) {
