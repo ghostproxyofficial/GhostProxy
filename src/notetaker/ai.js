@@ -94,7 +94,7 @@ export const PROVIDERS = {
     chat: false,
     base: 'https://api.assemblyai.com/v2',
     keyHint: 'assembly key',
-    audioModels: ['universal-3-6-pro', 'universal-3-5-pro', 'universal-2'],
+    audioModels: ['universal-3-5-pro', 'universal-2'],
   },
   deepgram: {
     label: 'Deepgram',
