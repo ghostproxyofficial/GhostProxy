@@ -32,6 +32,8 @@ import ModernColorPicker from './settings/components/ModernColorPicker';
 import { themeConfig as siteThemeConfig } from '/src/utils/config';
 import pkg from '../../package.json';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { onNextPaint } from '/src/utils/popupAnim';
+import HistoryPopup from '/src/components/HistoryPopup';
 
 const BUG_REPORT_FORM_URL = 'https://forms.gle/94VwArsXReWqyWWr9';
 const DISCORD_SERVER_URL = 'https://discord.gg/UZzYt4uE6D';
@@ -624,9 +626,6 @@ const Setting = ({ setting }) => {
   const [panicOpen, setPanicOpen] = useState(false);
   const [shortcutsOpen, setShortcutsOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
-  const [historyRender, setHistoryRender] = useState(false);
-  const [historyAnim, setHistoryAnim] = useState(false);
-  const [historyQuery, setHistoryQuery] = useState('');
   const [dataOpen, setDataOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
@@ -742,48 +741,19 @@ const Setting = ({ setting }) => {
     if (cssEditorOpen) {
       setCssEditorAnim(false);
       setCssEditorRender(true);
-      let inner = 0;
-      const outer = requestAnimationFrame(() => {
-        inner = requestAnimationFrame(() => setCssEditorAnim(true));
-      });
-      return () => {
-        cancelAnimationFrame(outer);
-        cancelAnimationFrame(inner);
-      };
+      return onNextPaint(() => setCssEditorAnim(true));
     }
     setCssEditorAnim(false);
     const t = setTimeout(() => setCssEditorRender(false), 200);
     return () => clearTimeout(t);
   }, [cssEditorOpen]);
 
-  useEffect(() => {
-    if (historyOpen) {
-      setHistoryAnim(false);
-      setHistoryRender(true);
-      let inner = 0;
-      const outer = requestAnimationFrame(() => {
-        inner = requestAnimationFrame(() => setHistoryAnim(true));
-      });
-      return () => {
-        cancelAnimationFrame(outer);
-        cancelAnimationFrame(inner);
-      };
-    }
-    setHistoryAnim(false);
-    const t = setTimeout(() => setHistoryRender(false), 200);
-    return () => clearTimeout(t);
-  }, [historyOpen]);
-
   // theme popup anim
   useEffect(() => {
     if (customThemeOpen) {
       setCustomThemeAnim(false);
       setCustomThemeRender(true);
-      let inner = 0;
-      const outer = requestAnimationFrame(() => {
-        inner = requestAnimationFrame(() => setCustomThemeAnim(true));
-      });
-      return () => { cancelAnimationFrame(outer); cancelAnimationFrame(inner); };
+      return onNextPaint(() => setCustomThemeAnim(true));
     }
     setCustomThemeAnim(false);
     const t = setTimeout(() => setCustomThemeRender(false), 200);
@@ -905,35 +875,6 @@ const Setting = ({ setting }) => {
       confirmCustomThemePresetSwitch,
     },
   });
-
-  const historyItems = useMemo(() => {
-    try {
-      const raw = localStorage.getItem('ghostBrowserHistory');
-      const parsed = JSON.parse(raw || '[]');
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
-  }, [historyOpen]);
-
-  const filteredHistoryItems = useMemo(() => {
-    const q = historyQuery.trim().toLowerCase();
-    if (!q) return historyItems;
-    return historyItems.filter((item) => {
-      const title = String(item?.title || '').toLowerCase();
-      const url = String(item?.url || '').toLowerCase();
-      return title.includes(q) || url.includes(q);
-    });
-  }, [historyItems, historyQuery]);
-
-  const clearHistory = async () => {
-    const ok = await showConfirm('Clear all proxy browsing history?', 'Clear History');
-    if (!ok) return;
-    localStorage.setItem('ghostBrowserHistory', JSON.stringify([]));
-    setHistoryQuery('');
-    setHistoryOpen(false);
-    setTimeout(() => setHistoryOpen(true), 0);
-  };
 
   const openHistoryItem = (item) => {
     const rawUrl = String(item?.url || '').trim();
@@ -1326,65 +1267,11 @@ const Setting = ({ setting }) => {
           </div>
         </div>
       )}
-      {historyRender && (
-        <div className={`fixed inset-0 z-[10000] flex items-center justify-center p-4 transition-opacity duration-200 ${historyAnim ? 'opacity-100' : 'opacity-0'}`}>
-          <div className={`absolute inset-0 bg-black/50 transition-opacity duration-200 ${historyAnim ? 'opacity-100' : 'opacity-0'}`} onClick={() => setHistoryOpen(false)} />
-          <div
-            className={clsx(
-              theme[`theme-${options.theme || 'default'}`],
-              `ghost-glass relative w-full max-w-4xl max-h-[80dvh] rounded-xl border overflow-hidden transition-all duration-200 ${historyAnim ? 'scale-100 translate-y-0' : 'scale-[0.965] translate-y-[6px]'}`
-            )}
-            style={{
-              backgroundColor: popupSurface,
-              borderColor: popupBorderColor,
-              color: popupTextColor,
-            }}
-          >
-            <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: popupBorderColor }}>
-              <h2 className="text-lg font-semibold">View History</h2>
-              <div className="flex items-center gap-2">
-                {historyItems.length > 0 && (
-                  <button onClick={clearHistory} className="h-8 px-2.5 rounded-md hover:bg-[#ffffff12] text-xs translate-y-[1px]">
-                    Clear
-                  </button>
-                )}
-                <button onClick={() => setHistoryOpen(false)} className="p-1 rounded-md hover:bg-[#ffffff12]">
-                  <X size={18} />
-                </button>
-              </div>
-            </div>
-            <div className="px-4 pb-4 pt-0 overflow-y-auto max-h-[calc(80dvh-4rem)] space-y-2">
-              <div className="sticky top-0 z-10 pb-2 pt-0" style={{ backgroundColor: popupSurface }}>
-                <div className="h-2" style={{ backgroundColor: popupSurface }} />
-                <input
-                  value={historyQuery}
-                  onChange={(e) => setHistoryQuery(e.target.value)}
-                  placeholder="Search history"
-                  className="w-full h-9 rounded-md border px-3 text-sm outline-none"
-                  style={{
-                    backgroundColor: popupInputBg,
-                    borderColor: popupInputBorder,
-                    color: popupTextColor,
-                  }}
-                />
-              </div>
-              {filteredHistoryItems.length === 0 && <p className="text-sm opacity-70">No matching history entries.</p>}
-              {filteredHistoryItems.map((item) => (
-                <div
-                  key={item.id || `${item.url}-${item.time}`}
-                  className="rounded-lg p-3 transition-opacity cursor-pointer hover:opacity-90"
-                  style={{ backgroundColor: popupSoftBg }}
-                  onClick={() => openHistoryItem(item)}
-                >
-                  <p className="text-sm font-medium truncate">{item.title || item.url}</p>
-                  <p className="text-xs opacity-70 break-all">{item.url}</p>
-                  <p className="text-xs opacity-60 mt-1">{item.time ? new Date(item.time).toLocaleString() : ''}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      <HistoryPopup
+        open={historyOpen}
+        onClose={() => setHistoryOpen(false)}
+        onOpenItem={openHistoryItem}
+      />
       {dataOpen && (
         <div className="fixed inset-0 z-[10000] flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50" onClick={() => setDataOpen(false)} />

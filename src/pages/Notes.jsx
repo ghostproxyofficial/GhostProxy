@@ -16,7 +16,12 @@ import {
 import { useOptions } from '/src/utils/optionsContext';
 
 const NOTES_STORAGE_KEY = 'ghostNotesDraft';
-const WHISPER_CDN = 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3';
+// work networks often block one of these, so try each in turn
+const WHISPER_CDNS = [
+  'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3',
+  'https://unpkg.com/@huggingface/transformers@3',
+  'https://esm.sh/@huggingface/transformers@3',
+];
 const WHISPER_MODEL = 'Xenova/whisper-tiny.en';
 const SUMMARY_PROMPT_HEADER = [
   'Summarize the following lecture transcript into clean study notes.',
@@ -32,6 +37,60 @@ const SUMMARY_PROMPT_HEADER = [
 const getSpeechRecognition = () => {
   if (typeof window === 'undefined') return null;
   return window.SpeechRecognition || window.webkitSpeechRecognition || null;
+};
+
+// the multi threaded onnx build needs SharedArrayBuffer, which needs the page to
+// be cross origin isolated. it usually is not, so pin it to one thread or the
+// wasm runtime throws instead of falling back.
+const configureWasm = (mod) => {
+  try {
+    const env = mod?.env;
+    if (!env?.backends?.onnx?.wasm) return;
+    env.backends.onnx.wasm.numThreads =
+      typeof crossOriginIsolated !== 'undefined' && crossOriginIsolated ? 0 : 1;
+  } catch {
+    // older builds may not expose env, the defaults still work
+  }
+};
+
+// work laptops and school networks usually block cdn.jsdelivr.net and
+// huggingface.co. try a few and say exactly which one failed so this stops
+// looking like a generic connection problem.
+const loadWhisperLibrary = async () => {
+  const failures = [];
+  for (const cdn of WHISPER_CDNS) {
+    try {
+      const host = (() => { try { return new URL(cdn).host; } catch { return cdn; } })();
+      const mod = await import(/* @vite-ignore */ cdn);
+      if (typeof mod?.pipeline !== 'function') {
+        failures.push(`${host} loaded but had no pipeline export`);
+        continue;
+      }
+      configureWasm(mod);
+      return { mod, host };
+    } catch (e) {
+      const msg = String(e?.message || e || 'load failed');
+      failures.push(`${host}: ${msg}`);
+    }
+  }
+  const err = new Error(failures.join(' | '));
+  err.whisperFailures = failures;
+  throw err;
+};
+
+const describeWhisperFailure = (e) => {
+  const detail = String(e?.message || e || '').trim();
+  const low = detail.toLowerCase();
+  if (/failed to fetch|networkerror|load failed|err_/.test(low)) {
+    return `Cant reach the speech model. Your network is probably blocking a CDN (${detail || 'no response'}). Whisper needs cdn.jsdelivr.net or unpkg.com plus huggingface.co.`;
+  }
+  if (/sharedarraybuffer|not defined|cross.?origin|isolat/.test(low)) {
+    return `The speech model needs a cross origin isolated page. (${detail})`;
+  }
+  if (/wasm|onnx|exec/.test(low)) {
+    return `The speech model wasm runtime failed to start. (${detail})`;
+  }
+  return `Whisper transcription failed. (${detail || 'unknown error'})`;
 };
 
 const getTopWindow = () => {
@@ -169,9 +228,31 @@ const Notes = memo(() => {
     };
 
     recognition.onerror = (event) => {
-      if (event?.error === 'not-allowed' || event?.error === 'service-not-allowed') {
+      const code = String(event?.error || '');
+      if (code === 'not-allowed' || code === 'service-not-allowed') {
         setError('Microphone access was blocked. Allow it and try again.');
         stopEverything();
+        return;
+      }
+      // chrome streams live captions through google servers, so a locked down
+      // network fails here with no visible reason. this used to be swallowed.
+      if (code === 'network') {
+        setError('Live transcription is blocked by your network. Chrome sends the audio to Google for captions, and work/school networks usually block that. Record, then use Transcribe to run Whisper locally in this tab instead.');
+        return;
+      }
+      if (code === 'audio-capture') {
+        setError('No microphone was found.');
+        stopEverything();
+        return;
+      }
+      if (code === 'language-not-supported') {
+        setError('This browser does not support the selected language.');
+        stopEverything();
+        return;
+      }
+      if (code && code !== 'no-speech' && code !== 'aborted') {
+        console.warn('[Notes] speech recognition error:', code, event);
+        setError(`Live transcription stopped: ${code}. You can still record and use Transcribe.`);
       }
     };
 
@@ -302,16 +383,17 @@ const Notes = memo(() => {
     setWhisperProgress('Loading speech model…');
 
     try {
-      const mod = await import(/* @vite-ignore */ WHISPER_CDN);
+      const { mod } = await loadWhisperLibrary();
       const pipeline = mod.pipeline;
-      if (typeof pipeline !== 'function') throw new Error('transformers.js unavailable');
 
       const transcriber = await pipeline('automatic-speech-recognition', WHISPER_MODEL, {
         progress_callback: (p) => {
           if (p?.status === 'progress' && Number.isFinite(p.progress)) {
             setWhisperProgress(`Downloading model ${Math.round(p.progress)}%`);
           } else if (p?.status === 'ready') {
-            setWhisperProgress('Model ready — transcribing…');
+            setWhisperProgress('Model ready, transcribing…');
+          } else if (p?.status === 'initiate' && p?.file) {
+            setWhisperProgress('Downloading model file…');
           }
         },
       });
@@ -327,7 +409,8 @@ const Notes = memo(() => {
         setError('No speech detected in the recording.');
       }
     } catch (e) {
-      setError('Whisper transcription failed. Check your connection and try again.');
+      console.error('[Notes] whisper failed', e);
+      setError(describeWhisperFailure(e));
     } finally {
       setWhisperBusy(false);
       setWhisperProgress('');

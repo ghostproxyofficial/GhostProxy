@@ -47,6 +47,7 @@ import changelogEntries from '/src/data/changelog.json';
 import Discord from '/src/components/Discord';
 import { getLucideIcon } from '/src/components/settings/components/SidebarEditor';
 import { getEffectiveUserAgent } from '/src/data/userAgents';
+import HistoryPopup from '/src/components/HistoryPopup';
 
 const SAVED_TABS_KEY = 'ghostSavedTabs';
 const PROFILE_ACTIVE_KEY = 'ghostBrowserActiveProfileId';
@@ -211,8 +212,6 @@ export default function Loader({ url, ui = true, zoom }) {
   const lastFindText = useRef('');
   const lastOpenStateKeyRef = useRef('');
   const [historyPopupOpen, setHistoryPopupOpen] = useState(false);
-  const [historyPopupItems, setHistoryPopupItems] = useState([]);
-  const [historyQuery, setHistoryQuery] = useState('');
   const [findBarOpen, setFindBarOpen] = useState(false);
   const [findText, setFindText] = useState('');
   const [tabsHydrated, setTabsHydrated] = useState(false);
@@ -259,8 +258,6 @@ export default function Loader({ url, ui = true, zoom }) {
   const [geforceHelpOpen, setGeforceHelpOpen] = useState(false);
   const [geforceHelpDismissed, setGeforceHelpDismissed] = useState({});
   const [showDocsPopup, setShowDocsPopup] = useState(false);
-  const [historyPopupRender, setHistoryPopupRender] = useState(false);
-  const [historyPopupAnim, setHistoryPopupAnim] = useState(false);
   const [policyTick, setPolicyTick] = useState(0);
   const [menuClockNow, setMenuClockNow] = useState(Date.now());
   const [ipMeta, setIpMeta] = useState({ timezone: '', latitude: null, longitude: null, city: '' });
@@ -456,40 +453,8 @@ export default function Loader({ url, ui = true, zoom }) {
 
   const weatherUnitLabel = (options.weatherUnit || 'fahrenheit') === 'celsius' ? 'C' : 'F';
 
-  const loadProxyHistory = () => {
-    try {
-      const raw = localStorage.getItem('ghostBrowserHistory');
-      const parsed = JSON.parse(raw || '[]');
-      const list = Array.isArray(parsed) ? parsed : [];
-      setHistoryPopupItems(list);
-      return list;
-    } catch {
-      setHistoryPopupItems([]);
-      return [];
-    }
-  };
-
   const openProxyHistoryPopup = () => {
-    loadProxyHistory();
     setHistoryPopupOpen(true);
-  };
-
-  const removeHistoryItem = (id, fallbackKey) => {
-    const current = loadProxyHistory();
-    const next = current.filter((item) => {
-      if (id) return item.id !== id;
-      return `${item.url}-${item.time}` !== fallbackKey;
-    });
-    localStorage.setItem('ghostBrowserHistory', JSON.stringify(next));
-    setHistoryPopupItems(next);
-  };
-
-  const clearHistoryItems = async () => {
-    const ok = await showConfirm('Clear all proxy browsing history?', 'Clear History');
-    if (!ok) return;
-    localStorage.setItem('ghostBrowserHistory', JSON.stringify([]));
-    setHistoryPopupItems([]);
-    setHistoryQuery('');
   };
 
   const openHistoryItem = (item) => {
@@ -498,16 +463,6 @@ export default function Loader({ url, ui = true, zoom }) {
     navigateActiveTab(rawUrl);
     setHistoryPopupOpen(false);
   };
-
-  const filteredHistoryItems = useMemo(() => {
-    const q = historyQuery.trim().toLowerCase();
-    if (!q) return historyPopupItems;
-    return historyPopupItems.filter((item) => {
-      const title = String(item?.title || '').toLowerCase();
-      const url = String(item?.url || '').toLowerCase();
-      return title.includes(q) || url.includes(q);
-    });
-  }, [historyPopupItems, historyQuery]);
 
   const activeTab = useMemo(
     () => tabs.find((tab) => tab.active) || tabs[0] || null,
@@ -577,10 +532,6 @@ export default function Loader({ url, ui = true, zoom }) {
   const popupPrimaryBg = isLightTheme ? '#3d4654' : '#3a3f48';
   const popupPrimaryText = '#f6f8fc';
   const popupTextColor = options.siteTextColor || (isLightTheme ? '#0f172a' : '#e2e8f0');
-  const historySearchStickyBg = options.liquidGlassEnabled
-    ? 'transparent'
-    : (options.quickModalBgColor || popupPanelBg);
-  const historySearchInputBg = isLightTheme ? 'rgba(15,23,42,0.06)' : 'rgba(0,0,0,0.18)';
 
   const runFind = (backwards = false) => {
     const store = loaderStore.getState();
@@ -1226,22 +1177,9 @@ export default function Loader({ url, ui = true, zoom }) {
   }, [ipMeta.latitude, ipMeta.longitude, options.hideLocation, options.weatherUnit, options.weatherUseIpLocation, options.weatherCoordsOverride]);
 
   useEffect(() => {
-    if (historyPopupOpen) {
-      setHistoryPopupRender(true);
-      const t = setTimeout(() => setHistoryPopupAnim(true), 10);
-      return () => clearTimeout(t);
-    }
-
-    setHistoryPopupAnim(false);
-    const t = setTimeout(() => setHistoryPopupRender(false), 200);
-    return () => clearTimeout(t);
-  }, [historyPopupOpen]);
-
-  useEffect(() => {
     if (isChangelogOpen) {
       setChangelogRender(true);
-      requestAnimationFrame(() => requestAnimationFrame(() => setChangelogAnim(true)));
-      return;
+      return onNextPaint(() => setChangelogAnim(true));
     }
 
     setChangelogAnim(false);
@@ -2030,70 +1968,13 @@ export default function Loader({ url, ui = true, zoom }) {
         </div>
       )}
 
-      {ui && historyPopupRender && (
-        <div className={"fixed inset-0 z-[10000] flex items-center justify-center p-4 transition-opacity duration-200 " + (historyPopupAnim ? 'opacity-100' : 'opacity-0')}>
-          <div className="absolute inset-0 bg-black/50" onClick={() => setHistoryPopupOpen(false)} />
-          <div
-            className={"ghost-glass relative w-full max-w-4xl max-h-[80dvh] rounded-xl border border-white/10 overflow-hidden flex flex-col transition-all duration-200 " + (historyPopupAnim ? 'opacity-100 scale-100' : 'opacity-0 scale-95')}
-            style={{ backgroundColor: options.quickModalBgColor || '#252f3e' }}
-          >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
-              <h2 className="text-lg font-semibold">History</h2>
-              <div className="flex items-center gap-2">
-                {historyPopupItems.length > 0 && (
-                  <button
-                    onClick={clearHistoryItems}
-                    className="h-8 px-2.5 rounded-md hover:bg-[#ffffff12] text-xs flex items-center gap-1"
-                  >
-                    <Trash2 size={13} /> Clear
-                  </button>
-                )}
-                <button onClick={() => setHistoryPopupOpen(false)} className="p-1 rounded-md hover:bg-[#ffffff12]">
-                  <X size={18} />
-                </button>
-              </div>
-            </div>
-            <div className="px-4 py-3 border-b border-white/10 shrink-0" style={{ backgroundColor: historySearchStickyBg }}>
-              <input
-                value={historyQuery}
-                onChange={(e) => setHistoryQuery(e.target.value)}
-                placeholder="Search history"
-                className="w-full h-9 rounded-md border border-white/10 px-3 text-sm outline-none"
-                style={{ backgroundColor: historySearchInputBg }}
-              />
-            </div>
-            <div className="px-4 py-3 overflow-y-auto min-h-0 flex-1 space-y-2">
-              {filteredHistoryItems.length === 0 && <p className="text-sm opacity-70">No matching history entries.</p>}
-              {filteredHistoryItems.map((item) => (
-                <div
-                  key={item.id || `${item.url}-${item.time}`}
-                  onClick={() => openHistoryItem(item)}
-                  className={clsx("w-full text-left rounded-lg p-3 transition-colors cursor-pointer", isLightTheme ? "bg-black/[0.05] hover:bg-black/[0.09]" : "bg-[#ffffff0d] hover:bg-[#ffffff14]")}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium truncate">{item.title || item.url}</p>
-                      <p className="text-xs opacity-70 break-all">{item.url}</p>
-                      <p className="text-xs opacity-60 mt-1">{item.time ? new Date(item.time).toLocaleString() : ''}</p>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeHistoryItem(item.id, `${item.url}-${item.time}`);
-                      }}
-                      className="p-1.5 rounded-md hover:bg-[#ffffff12]"
-                      title="Delete entry"
-                    >
-                      <Trash2 size={13} />
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      {ui && (
+  <HistoryPopup
+    open={historyPopupOpen}
+    onClose={() => setHistoryPopupOpen(false)}
+    onOpenItem={openHistoryItem}
+  />
+)}
 
       {ui && findBarOpen && (
         <div

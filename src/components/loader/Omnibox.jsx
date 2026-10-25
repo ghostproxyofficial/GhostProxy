@@ -29,6 +29,7 @@ import { prConfig, themeConfig, searchConfig } from '/src/utils/config';
 import SwitchComponent from '../settings/components/Switch';
 import ComboBox from '../settings/components/Combobox';
 import TextInput from '../settings/components/Input';
+import { onNextPaint } from '/src/utils/popupAnim';
 
 const Action = ({ Icon, size = 15, action = () => { }, disabled = false }) => {
   const { options } = useOptions();
@@ -345,10 +346,7 @@ const Omnibox = () => {
     if (quickOpen) {
       setQuickAnim(false);
       setQuickRender(true);
-      let inner = 0;
-      const outer = requestAnimationFrame(() => {
-        inner = requestAnimationFrame(() => setQuickAnim(true));
-      });
+      return onNextPaint(() => setQuickAnim(true));
       return () => {
         cancelAnimationFrame(outer);
         cancelAnimationFrame(inner);
@@ -761,7 +759,7 @@ const Omnibox = () => {
             <div
               className={
                 'ghost-glass absolute right-0 top-9 w-[18rem] rounded-xl border border-white/10 p-3 shadow-[0_16px_36px_rgba(0,0,0,0.45)] z-[160] transition-all duration-200 origin-top-right ' +
-                (quickAnim ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none')
+                (quickAnim ? 'opacity-100 scale-100' : 'opacity-0 scale-95')
               }
               style={{ backgroundColor: options.menuColor || '#171d29' }}
             >

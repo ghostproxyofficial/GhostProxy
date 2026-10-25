@@ -8,6 +8,7 @@ import { createId } from '/src/utils/id';
 import styles from '../styles/apps.module.css';
 import theme from '../styles/theming.module.css';
 import clsx from 'clsx';
+import { onNextPaint } from '/src/utils/popupAnim';
 
 const Pagination = lazy(() => import('@mui/material/Pagination'));
 const CUSTOM_APPS_KEY = 'ghostCustomApps';
@@ -21,10 +22,7 @@ const usePopupTransition = (open) => {
   useEffect(() => {
     if (open) {
       setRendered(true);
-      let inner = 0;
-      const outer = requestAnimationFrame(() => {
-        inner = requestAnimationFrame(() => setVisible(true));
-      });
+      return onNextPaint(() => setVisible(true));
       return () => {
         cancelAnimationFrame(outer);
         cancelAnimationFrame(inner);
@@ -716,7 +714,7 @@ const Apps = memo(() => {
         <div
           className={clsx(
             'fixed inset-0 z-[9999] flex items-center justify-center p-4 transition-opacity duration-[220ms] ease-out',
-            customModal.visible ? 'opacity-100' : 'pointer-events-none opacity-0',
+            customModal.visible ? 'opacity-100' : 'opacity-0',
           )}
         >
           <div

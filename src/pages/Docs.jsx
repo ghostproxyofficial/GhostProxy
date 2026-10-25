@@ -4,6 +4,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import docsCatalog from '/src/data/docs/catalog.json';
 import dictionaryEntries from '/src/data/docs/dictionary.json';
 import { useOptions } from '/src/utils/optionsContext';
+import { onNextPaint } from '/src/utils/popupAnim';
 
 const escapeHtml = (input) =>
   String(input || '')
@@ -181,14 +182,7 @@ const Docs = memo(() => {
     if (dictionaryOpen) {
       setDictionaryAnim(false);
       setDictionaryRender(true);
-      let inner = 0;
-      const outer = requestAnimationFrame(() => {
-        inner = requestAnimationFrame(() => setDictionaryAnim(true));
-      });
-      return () => {
-        cancelAnimationFrame(outer);
-        cancelAnimationFrame(inner);
-      };
+      return onNextPaint(() => setDictionaryAnim(true));
     }
     setDictionaryAnim(false);
     const t = setTimeout(() => setDictionaryRender(false), 200);
@@ -382,7 +376,7 @@ const Docs = memo(() => {
           <div
             className={
               'fixed inset-0 z-[120] flex items-center justify-center p-4 ghost-doc-popup-backdrop transition-opacity duration-200 ' +
-              (dictionaryAnim ? 'opacity-100' : 'opacity-0 pointer-events-none')
+              (dictionaryAnim ? 'opacity-100' : 'opacity-0')
             }
           >
             <button

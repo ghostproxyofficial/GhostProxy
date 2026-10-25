@@ -15,6 +15,7 @@ import mirrorsCatalog from '/src/data/games/catalog/mirrors.json';
 import seraphCatalog from '/src/data/games/catalog/seraph.json';
 import truffledCatalog from '/src/data/games/catalog/truffled.json';
 import ugsCatalog from '/src/data/games/catalog/ugs.json';
+import { onNextPaint } from '/src/utils/popupAnim';
 
 const Pagination = lazy(() => import('@mui/material/Pagination'));
 const RED_PLAY_ICON = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128"><circle cx="64" cy="64" r="62" fill="%23ef4444"/><polygon points="50,38 94,64 50,90" fill="white"/></svg>';
@@ -398,10 +399,7 @@ const usePopupTransition = (open) => {
   useEffect(() => {
     if (open) {
       setRendered(true);
-      let inner = 0;
-      const outer = requestAnimationFrame(() => {
-        inner = requestAnimationFrame(() => setVisible(true));
-      });
+      return onNextPaint(() => setVisible(true));
       return () => {
         cancelAnimationFrame(outer);
         cancelAnimationFrame(inner);
@@ -1143,7 +1141,7 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
               <div
                 className={clsx(
                   clsx('absolute right-0 top-12 w-[440px] rounded-2xl border z-[80] overflow-hidden shadow-[0_14px_30px_rgba(0,0,0,0.4)] p-1.5 origin-top-right transform-gpu transition-all duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)]', isLight ? 'border-black/10 bg-white text-[#0f172a]' : 'border-white/10 bg-[#111117]'),
-                  sourcePopup.visible ? 'opacity-100 translate-y-0 scale-100' : 'pointer-events-none opacity-0 -translate-y-3 scale-95',
+                  sourcePopup.visible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-3 scale-95',
                 )}
               >
                 <div className="grid grid-cols-2 gap-x-1">
@@ -1233,7 +1231,7 @@ const Games = memo(({ initialSourceKey = 'gnmath', inGhostBrowserMode = false })
                 <div
                   className={clsx(
                     clsx('absolute right-0 top-12 w-52 rounded-md border z-[80] overflow-hidden origin-top-right transform-gpu transition-all duration-[220ms] ease-[cubic-bezier(0.22,1,0.36,1)]', isLight ? 'border-black/10 bg-white text-[#0f172a]' : 'border-white/10 bg-[#111117]'),
-                    sortPopup.visible ? 'opacity-100 translate-y-0 scale-100' : 'pointer-events-none opacity-0 -translate-y-3 scale-95',
+                    sortPopup.visible ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 -translate-y-3 scale-95',
                   )}
                 >
                   <button

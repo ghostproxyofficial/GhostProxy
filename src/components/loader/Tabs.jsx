@@ -7,6 +7,7 @@ import { useOptions } from '/src/utils/optionsContext'
 import clsx from 'clsx';
 import { createId } from '/src/utils/id';
 import { process } from '/src/utils/hooks/loader/utils';
+import { onNextPaint } from '/src/utils/popupAnim';
 
 const PROFILE_STORE_KEY = 'ghostBrowserProfiles';
 const PROFILE_ACTIVE_KEY = 'ghostBrowserActiveProfileId';
@@ -153,6 +154,8 @@ const TabBar = () => {
   const { options } = useOptions();
   const [profilesOpen, setProfilesOpen] = useState(false);
   const [profilesRender, setProfilesRender] = useState(false);
+  // the panel is portaled to body now, so it needs the trigger's screen coords
+  const [profilePanelPos, setProfilePanelPos] = useState({ top: 0, left: 0 });
   const [profilesAnim, setProfilesAnim] = useState(false);
   const [profiles, setProfiles] = useState([]);
   const [activeProfileId, setActiveProfileId] = useState('');
@@ -463,13 +466,22 @@ const TabBar = () => {
     if (profilesOpen) {
       setProfilesAnim(false);
       setProfilesRender(true);
-      let inner = 0;
-      const outer = requestAnimationFrame(() => {
-        inner = requestAnimationFrame(() => setProfilesAnim(true));
-      });
+      const place = () => {
+        const r = triggerRef.current?.getBoundingClientRect();
+        if (!r) return;
+        const width = 372;
+        const left = Math.max(8, Math.min(r.left, window.innerWidth - width - 8));
+        setProfilePanelPos({ top: r.bottom + 8, left });
+      };
+      place();
+      const onMove = () => place();
+      window.addEventListener('resize', onMove);
+      window.addEventListener('scroll', onMove, true);
+      const stop = onNextPaint(() => setProfilesAnim(true));
       return () => {
-        cancelAnimationFrame(outer);
-        cancelAnimationFrame(inner);
+        stop();
+        window.removeEventListener('resize', onMove);
+        window.removeEventListener('scroll', onMove, true);
       };
     }
 
@@ -572,27 +584,27 @@ const TabBar = () => {
           <UsersRound size={15} />
         </button>
 
-        {profilesRender && (
+        {profilesRender && typeof document !== 'undefined' && createPortal(
           <>
-            {typeof document !== 'undefined' && createPortal(
-              <button
-                type="button"
-                aria-label="Close profile manager"
-                className={
-                  'fixed inset-0 z-[115] bg-transparent transition-opacity duration-200 ' +
-                  (profilesAnim ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none')
-                }
-                onClick={() => setProfilesOpen(false)}
-              />,
-              document.body,
-            )}
+            <button
+              type="button"
+              aria-label="Close profile manager"
+              className="fixed inset-0 z-[115] bg-transparent"
+              onClick={() => setProfilesOpen(false)}
+            />
             <div
               ref={panelRef}
               className={
-                'ghost-glass ghost-profile-manager absolute left-0 top-10 w-[372px] rounded-xl border z-[120] shadow-[0_14px_34px_rgba(0,0,0,0.4)] overflow-hidden transition-all duration-200 origin-top-left ' +
-                (profilesAnim ? 'opacity-100 scale-100' : 'opacity-0 scale-95 pointer-events-none')
+                'ghost-glass ghost-profile-manager fixed w-[372px] max-w-[calc(100vw-1.5rem)] rounded-xl border z-[130] shadow-[0_14px_34px_rgba(0,0,0,0.4)] overflow-hidden transition-all duration-200 origin-top-left ' +
+                (profilesAnim ? 'opacity-100 scale-100' : 'opacity-0 scale-95')
               }
-              style={{ backgroundColor: profilePanelBg, color: profilePanelTextColor, borderColor: profileBorderColor }}
+              style={{
+                top: profilePanelPos.top,
+                left: profilePanelPos.left,
+                backgroundColor: profilePanelBg,
+                color: profilePanelTextColor,
+                borderColor: profileBorderColor,
+              }}
             >
               <div className="px-4 py-3 border-b flex items-center justify-between" style={{ borderColor: profileBorderColor }}>
                 <p className="text-sm font-semibold">Profile Manager</p>
@@ -709,7 +721,8 @@ const TabBar = () => {
                 />
               </div>
             </div>
-          </>
+          </>,
+          document.body,
         )}
       </div>
 

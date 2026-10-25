@@ -79,6 +79,14 @@ const app = Fastify({
 });
 
 await app.register(fastifyCookie);
+// cross-origin isolation for the notetaker so onnx can use wasm threads
+app.addHook('onRequest', async (request, reply) => {
+  const url = String(request.url || '');
+  if (url === '/notetaker' || url.startsWith('/notetaker?') || url.startsWith('/notetaker/')) {
+    reply.header('Cross-Origin-Opener-Policy', 'same-origin');
+    reply.header('Cross-Origin-Embedder-Policy', 'credentialless');
+  }
+});
 await app.register(compress, { global: true, encodings: ['gzip','deflate','br'] });
 
 app.register(fastifyStatic, {

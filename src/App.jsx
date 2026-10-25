@@ -36,6 +36,7 @@ const RemoteAccess = lazyLoad(importRemote);
 const Notes = lazyLoad(importNotes);
 const Player = lazyLoad(() => import('./pages/Player'));
 const New = lazyLoad(() => import('./pages/New'));
+const Notetaker = lazyLoad(() => import('./notetaker'));
 
 initPreload('/apps', importApps);
 initPreload('/discover', importGms);
@@ -192,8 +193,9 @@ const ThemedApp = memo(() => {
       { path: '/code', element: <CodeRunner /> },
       { path: '/ai', element: <AI /> },
       { path: '/remote', element: <RemoteAccess /> },
-      { path: '/notes', element: <Notes /> },
-      { path: '/new', element: <New /> },
+    { path: '/notes', element: <Notes /> },
+    { path: '/notetaker', element: <Notetaker /> },
+    { path: '/new', element: <New /> },
       { path: '*', element: <NotFound /> },
     ],
     [],
@@ -425,10 +427,21 @@ const ThemedApp = memo(() => {
 
 ThemedApp.displayName = 'ThemedApp';
 
-const App = () => (
-  <OptionsProvider>
-    <ThemedApp />
-  </OptionsProvider>
-);
+// the notetaker is a separate tool, not a ghost page. render it before the
+// options provider and all the ghost chrome (animated background, quick ai,
+// shortcuts) so nothing of ghost shows up on that route.
+const App = () => {
+  const location = useLocation();
+  const isNotetaker =
+    location.pathname === '/notetaker' || location.pathname.startsWith('/notetaker/');
+
+  if (isNotetaker) return <Notetaker />;
+
+  return (
+    <OptionsProvider>
+      <ThemedApp />
+    </OptionsProvider>
+  );
+};
 
 export default App;

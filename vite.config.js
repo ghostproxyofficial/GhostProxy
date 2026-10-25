@@ -102,6 +102,20 @@ export default defineConfig(({ command }) => {
         },
       }] : []),
       {
+        name: 'notetaker-isolation',
+        apply: 'serve',
+        configureServer(server) {
+          server.middlewares.use((req, res, next) => {
+            const url = String(req.url || '');
+            if (url === '/notetaker' || url.startsWith('/notetaker?') || url.startsWith('/notetaker/')) {
+              res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+              res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
+            }
+            next();
+          });
+        },
+      },
+      {
         name: 'server',
         apply: 'serve',
         configureServer(server) {
