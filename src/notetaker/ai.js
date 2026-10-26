@@ -350,7 +350,12 @@ const loadTransformers = async () => {
           env.backends.onnx.wasm.wasmPaths = '/ort/';
           env.backends.onnx.wasm.proxy = false;
         }
-        if (env) env.allowLocalModels = false;
+        if (env) {
+          env.allowLocalModels = false;
+          let proxied = true;
+          try { proxied = localStorage.getItem('nt:routeProxy') !== '0'; } catch { }
+          if (proxied) env.useBrowserCache = false;
+        }
       } catch { }
     };
     try {

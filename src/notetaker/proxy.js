@@ -89,8 +89,13 @@ export const installProxyFetch = () => {
     if (url && proxyEnabled() && shouldProxy(url)) {
       try {
         return await proxiedFetch(url, init);
-      } catch (error) {
-        console.warn('[notetaker] proxy fetch failed, trying direct', url, error);
+      } catch (first) {
+        try {
+          return await proxiedFetch(url, init);
+        } catch (second) {
+          console.warn('[notetaker] proxy fetch failed', url, second);
+          throw new Error(`Proxy request failed for ${new URL(url).host}: ${String(second?.message || second)}`);
+        }
       }
     }
     return original(input, init);
@@ -104,10 +109,26 @@ export const uninstallProxyFetch = () => {
 };
 
 export const proxyStatus = async () => {
+  const targets = [
+    ['AssemblyAI', 'https://api.assemblyai.com/v2/transcript'],
+    ['Hugging Face', 'https://huggingface.co/Xenova/Qwen1.5-0.5B-Chat/resolve/main/config.json'],
+    ['jsDelivr', 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3/package.json'],
+  ];
   try {
-    const client = await getClient();
-    return { ok: true, wisp: readWisp(), client: !!client };
+    await getClient();
   } catch (error) {
-    return { ok: false, wisp: readWisp(), error: String(error?.message || error) };
+    return { ok: false, wisp: readWisp(), error: String(error?.message || error), results: [] };
   }
+  const results = [];
+  for (const [name, url] of targets) {
+    const started = Date.now();
+    try {
+      const res = await proxiedFetch(url);
+      const body = await res.arrayBuffer();
+      results.push({ name, status: res.status, ms: Date.now() - started, bytes: body.byteLength });
+    } catch (error) {
+      results.push({ name, error: String(error?.message || error), ms: Date.now() - started });
+    }
+  }
+  return { ok: results.every((r) => !!r.status), wisp: readWisp(), results };
 };
