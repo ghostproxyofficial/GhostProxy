@@ -413,19 +413,67 @@ const getPipeline = async (task, repo, opts, onStatus) => {
     detail: repo,
   });
 
+  const files = new Map();
+  let lastAt = 0;
+  let lastLoaded = 0;
+  let rate = 0;
+  const size = (bytes) => {
+    if (!Number.isFinite(bytes) || bytes <= 0) return '0 MB';
+    if (bytes >= 1073741824) return `${(bytes / 1073741824).toFixed(2)} GB`;
+    return `${(bytes / 1048576).toFixed(1)} MB`;
+  };
+
   const pipe = await mod.pipeline(task, repo, {
     ...opts,
     progress_callback: (p) => {
-      if (p?.status === 'progress' && Number.isFinite(p.progress) && Number.isFinite(p.total)) {
-        onStatus?.({
-          phase: 'downloading',
-          text: `Downloading model ${Math.round(p.progress)}%`,
-          detail: p.file || repo,
-          percent: p.progress,
-        });
-      } else if (p?.status === 'done' && p?.file) {
-        onStatus?.({ phase: 'downloading', text: 'Finishing model', detail: p.file });
+      if (!p) return;
+      const name = String(p.file || repo);
+      if (p.status === 'download' || p.status === 'initiate') {
+        if (!files.has(name)) files.set(name, { loaded: 0, total: Number(p.total) || 0 });
+        return;
       }
+      if (p.status === 'done') {
+        const rec = files.get(name);
+        if (rec && rec.total) rec.loaded = rec.total;
+        return;
+      }
+      if (p.status !== 'progress') return;
+
+      const rec = files.get(name) || { loaded: 0, total: 0 };
+      rec.loaded = Number(p.loaded) || rec.loaded;
+      if (Number.isFinite(p.total) && p.total > 0) rec.total = p.total;
+      files.set(name, rec);
+
+      let loaded = 0;
+      let total = 0;
+      files.forEach((f) => { loaded += f.loaded; total += f.total; });
+
+      const now = Date.now();
+      if (!lastAt) {
+        lastAt = now;
+        lastLoaded = loaded;
+      } else if (now - lastAt >= 500) {
+        const inst = (loaded - lastLoaded) / ((now - lastAt) / 1000);
+        rate = rate ? rate * 0.65 + inst * 0.35 : inst;
+        lastAt = now;
+        lastLoaded = loaded;
+      }
+
+      const percent = Number.isFinite(p.progress) ? Math.max(0, Math.min(100, Math.round(p.progress))) : null;
+      const short = name.split('/').filter(Boolean).slice(-1)[0];
+      const parts = [short];
+      if (rec.total > 0) parts.push(`${size(rec.loaded)} / ${size(rec.total)}`);
+      else if (rec.loaded > 0) parts.push(size(rec.loaded));
+      if (rate > 0) parts.push(`${size(rate)}/s`);
+      if (rate > 0 && rec.total > rec.loaded) parts.push(`about ${Math.max(1, Math.ceil((rec.total - rec.loaded) / rate))}s left`);
+      if (files.size > 1) parts.push(`${files.size} files`);
+
+      onStatus?.({
+        phase: 'downloading',
+        text: percent === null ? 'Downloading model' : `Downloading model ${percent}%`,
+        detail: parts.join('  ·  '),
+        percent: percent === null ? undefined : percent,
+      });
     },
   });
   markDownloaded(repo);
