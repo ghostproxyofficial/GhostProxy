@@ -1,5 +1,5 @@
 import { transcribeLocally, transcribeWithProvider, resolveWhisper, detectHardware } from './ai';
-import { proxyEnabled, createProxiedWebSocket } from './proxy';
+import { proxyEnabled } from './proxy';
 
 const getSpeechRecognition = () => {
   if (typeof window === 'undefined') return null;
@@ -283,7 +283,6 @@ export const createLiveTranscriber = ({
     const models = ['universal-3-6-pro', 'universal-3-5-pro', 'universal-streaming-english'];
     let attempt = 0;
     let lastServerError = '';
-    const useProxy = proxyEnabled();
 
     const streamUrl = () => {
       const params = new URLSearchParams({
@@ -298,13 +297,7 @@ export const createLiveTranscriber = ({
 
     const connect = async () => {
       const base = streamUrl();
-      try {
-        return await withTimeout(new WebSocket(`${base}&token=${encodeURIComponent(key)}`), 8000, 'AssemblyAI socket');
-      } catch (error) {
-        if (!useProxy) throw error;
-      }
-      onStatus?.({ phase: 'live', text: 'Direct connection failed, trying the proxy' });
-      return withTimeout(createProxiedWebSocket(base, { authorization: key }), 8000, 'Proxy socket');
+      return withTimeout(new WebSocket(`${base}&token=${encodeURIComponent(key)}`), 6000, 'AssemblyAI socket');
     };
 
     const open = async () => {
@@ -367,11 +360,24 @@ export const createLiveTranscriber = ({
     try {
       await open();
     } catch (error) {
+      const message = lastServerError || String(error?.message || error);
       try { socket?.close?.(); } catch { }
       socket = null;
       socketOpen = false;
-      onError?.(lastServerError || String(error?.message || error), { fatal: true });
-      return false;
+      try { stream?.getTracks?.().forEach((track) => track.stop()); } catch { }
+      try { ctx?.close?.(); } catch { }
+      stream = null;
+      ctx = null;
+      source = null;
+      proc = null;
+      if (/unauthor|invalid api key|401/i.test(message)) {
+        onError?.(message, { fatal: true });
+        return false;
+      }
+      onError?.(`Live streaming did not connect (${message}). Switched to chunked transcription.`, { fatal: false });
+      onStatus?.({ phase: 'work', text: 'Live streaming blocked, sending audio in chunks' });
+      await startChunks();
+      return !stopped && !!stream;
     }
 
     if (stopped) return false;
