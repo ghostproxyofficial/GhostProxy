@@ -117,7 +117,7 @@ const cleanWhisperChunk = (value) => {
 
 export const createLiveTranscriber = ({
   engine, settings, whisperId, providerId, model, language = 'en',
-  onPartial, onFinal, onStatus, onError,
+  onPartial, onFinal, onStatus, onError, onEmpty,
 }) => {
   let stopped = false;
   let ctx = null;
@@ -261,8 +261,8 @@ export const createLiveTranscriber = ({
     let carry = new Float32Array(0);
     let committed = '';
 
-    const hopSeconds = engine === 'local' ? 2 : 4;
-    const overlapSeconds = engine === 'local' ? 4 : 1;
+    const hopSeconds = engine === 'local' ? 2 : 10;
+    const overlapSeconds = engine === 'local' ? 4 : 2;
     const targetLen = Math.floor(sampleRate * hopSeconds);
     const carryLen = Math.floor(sampleRate * overlapSeconds);
 
@@ -291,8 +291,15 @@ export const createLiveTranscriber = ({
             if (!stopped) onFinal?.(fresh);
           }
         } else {
+          onStatus?.({ phase: 'work', text: `Sending ${hopSeconds}s of audio to ${providerId}` });
           const text = await transcribeWithProvider({ providerId, model, blob, settings, language });
-          if (text && !stopped) onFinal?.(text);
+          if (stopped) return;
+          if (text) {
+            onFinal?.(text);
+          } else {
+            onStatus?.({ phase: 'work', text: 'No words in the last chunk' });
+            onEmpty?.();
+          }
         }
         if (!stopped) onStatus?.({ phase: 'live', text: 'Listening' });
       } catch (e) {

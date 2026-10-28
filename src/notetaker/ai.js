@@ -917,8 +917,8 @@ export const transcribeWithProvider = async ({ providerId, model, blob, settings
     }
     const job = await created.json();
 
-    for (let i = 0; i < 150; i += 1) {
-      await new Promise((r) => setTimeout(r, 2000));
+    for (let i = 0; i < 240; i += 1) {
+      await new Promise((r) => setTimeout(r, 1500));
       const poll = await fetch(`${base}/transcript/${job.id}`, { headers: { authorization: key } });
       if (!poll.ok) throw new Error(await readError(poll));
       const data = await poll.json();

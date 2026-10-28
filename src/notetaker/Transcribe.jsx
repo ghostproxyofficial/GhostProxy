@@ -28,6 +28,7 @@ const Transcribe = ({ settings, beginTranscript, setLiveTranscript, onSwitchToSu
   const [ask, setAsk] = useState(false);
   const [noDataHint, setNoDataHint] = useState(false);
   const [liveUnavailable, setLiveUnavailable] = useState(false);
+  const [emptyChunks, setEmptyChunks] = useState(0);
 
   const liveRef = useRef(null);
   const timerRef = useRef(null);
@@ -116,6 +117,7 @@ const Transcribe = ({ settings, beginTranscript, setLiveTranscript, onSwitchToSu
         }
         if (opts.fatal) stop();
       },
+      onEmpty: () => setEmptyChunks((n) => n + 1),
       onPartial: (partial) => {
         if (partial) setError('');
         setInterim(partial);
@@ -126,6 +128,7 @@ const Transcribe = ({ settings, beginTranscript, setLiveTranscript, onSwitchToSu
         setInterim('');
         const clean = String(chunk || '').trim();
         if (!clean) return;
+        setEmptyChunks(0);
         setError('');
         committedRef.current = committedRef.current
           ? `${committedRef.current}${/\s$/.test(committedRef.current) ? '' : ' '}${clean}`
@@ -136,6 +139,9 @@ const Transcribe = ({ settings, beginTranscript, setLiveTranscript, onSwitchToSu
         if (engine === 'local') setDownloaded(true);
       },
     });
+
+    if (engine === 'cloud') {
+    }
 
     liveRef.current = t;
     setStarting(true);
@@ -276,6 +282,12 @@ const Transcribe = ({ settings, beginTranscript, setLiveTranscript, onSwitchToSu
       </div>
 
       {interim && <div className="nt-transcript">{interim}</div>}
+
+      {emptyChunks >= 2 && (
+        <p className="nt-note-warn">
+          <AlertTriangle size={13} /> The provider has returned no text twice. Check that the key is valid and that the selected model exists for that provider.
+        </p>
+      )}
 
       {noDataHint && (
         <p className="nt-note-warn">
