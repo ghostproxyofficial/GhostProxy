@@ -132,3 +132,8 @@ export const proxyStatus = async () => {
   }
   return { ok: results.every((r) => !!r.status), wisp: readWisp(), results };
 };
+
+export const createProxiedWebSocket = async (url, headers = {}) => {
+  const client = await getClient();
+  return client.createWebSocket(url, undefined, undefined, headers);
+};

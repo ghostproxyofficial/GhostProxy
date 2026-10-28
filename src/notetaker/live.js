@@ -1,4 +1,5 @@
 import { transcribeLocally, transcribeWithProvider, resolveWhisper, detectHardware } from './ai';
+import { proxyEnabled, createProxiedWebSocket } from './proxy';
 
 const getSpeechRecognition = () => {
   if (typeof window === 'undefined') return null;
@@ -125,6 +126,8 @@ export const createLiveTranscriber = ({
   let proc = null;
   let stream = null;
   let recorder = null;
+  let socket = null;
+  let socketOpen = false;
   let recognition = null;
   let want = false;
   let queue = [];
@@ -135,6 +138,12 @@ export const createLiveTranscriber = ({
     want = false;
     try { recognition?.stop?.(); } catch { }
     recognition = null;
+    try {
+      if (socket) socket.send(JSON.stringify({ type: 'Terminate' }));
+    } catch { }
+    socketOpen = false;
+    try { socket?.close?.(); } catch { }
+    socket = null;
     try {
       if (recorder && recorder.state !== 'inactive') recorder.stop();
     } catch { }
@@ -225,6 +234,128 @@ export const createLiveTranscriber = ({
       onError?.(`Could not start live captions: ${String(e?.message || e)}`, { fatal: true });
       return false;
     }
+    return true;
+  };
+
+
+  const floatToPcm16 = (buffer) => {
+    const out = new Int16Array(buffer.length);
+    for (let i = 0; i < buffer.length; i += 1) {
+      const s = Math.max(-1, Math.min(1, buffer[i]));
+      out[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+    }
+    return out;
+  };
+
+  const startAssemblyStream = async () => {
+    const key = String(settings?.providers?.assemblyai?.key || '').trim();
+    if (!key) {
+      onError?.('Add an AssemblyAI key in Settings first.', { fatal: true });
+      return false;
+    }
+
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: { channelCount: 1, echoCancellation: false, noiseSuppression: false, autoGainControl: true },
+      });
+    } catch {
+      onError?.('Could not open the microphone. Check the permission and try again.', { fatal: true });
+      return false;
+    }
+
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    try { ctx = new Ctx({ sampleRate: 16000 }); } catch { ctx = new Ctx(); }
+    source = ctx.createMediaStreamSource(stream);
+    proc = ctx.createScriptProcessor(4096, 1, 1);
+
+    const models = ['universal-3-6-pro', 'universal-3-5-pro', 'universal-streaming-english'];
+    let attempt = 0;
+
+    const open = async () => {
+      const params = new URLSearchParams({
+        token: key,
+        sample_rate: String(ctx.sampleRate || 16000),
+        encoding: 'pcm_s16le',
+        speech_model: models[Math.min(attempt, models.length - 1)],
+        speaker_labels: 'true',
+        voice_focus: 'far-field',
+      });
+      const streamUrl = `wss://streaming.assemblyai.com/v3/ws?${params.toString()}`;
+      const useProxy = proxyEnabled();
+      const ws = useProxy
+        ? await createProxiedWebSocket(streamUrl, { authorization: key })
+        : new WebSocket(streamUrl);
+      if (!useProxy) ws.binaryType = 'arraybuffer';
+      socket = ws;
+      let opened = false;
+
+      await new Promise((resolve, reject) => {
+        ws.onopen = () => {
+          opened = true;
+          socketOpen = true;
+          onStatus?.({ phase: 'live', text: 'Listening with AssemblyAI streaming' });
+          resolve(true);
+        };
+        ws.onmessage = (event) => {
+          let data = null;
+          try { data = JSON.parse(event.data); } catch { return; }
+          if (!data || stopped) return;
+          if (data.type === 'Turn') {
+            const text = String(data.transcript || '').trim();
+            if (!text) return;
+            if (data.end_of_turn) {
+              onFinal?.(text);
+              onPartial?.('');
+            } else {
+              onPartial?.(text);
+            }
+          } else if (data.type === 'Error') {
+            onError?.(String(data.error || 'AssemblyAI streaming error.'), { fatal: false });
+          }
+        };
+        ws.onerror = () => {
+          if (!opened) reject(new Error('AssemblyAI streaming connection failed'));
+        };
+        ws.onclose = (event) => {
+          socket = null;
+          socketOpen = false;
+          if (stopped) {
+            resolve(false);
+            return;
+          }
+          if (!opened) {
+            reject(new Error(`AssemblyAI streaming closed before it started (${event.code})`));
+            return;
+          }
+          if (attempt < models.length - 1) {
+            attempt += 1;
+            open().then(resolve).catch(reject);
+            return;
+          }
+          onError?.(`AssemblyAI streaming closed (${event.code} ${event.reason || ''})`.trim(), { fatal: true });
+          resolve(false);
+        };
+      });
+      return true;
+    };
+    try {
+      await open();
+    } catch (error) {
+      onError?.(String(error?.message || error), { fatal: true });
+      return false;
+    }
+
+    if (stopped) return false;
+
+    const mute = ctx.createGain();
+    mute.gain.value = 0;
+    proc.onaudioprocess = (event) => {
+      if (stopped || !socket || !socketOpen) return;
+      try { socket.send(floatToPcm16(event.inputBuffer.getChannelData(0)).buffer); } catch { }
+    };
+    source.connect(proc);
+    proc.connect(mute);
+    mute.connect(ctx.destination);
     return true;
   };
 
@@ -338,6 +469,7 @@ export const createLiveTranscriber = ({
     async start() {
       stopped = false;
       if (engine === 'webspeech') return startSpeech();
+      if (engine === 'cloud' && providerId === 'assemblyai') return startAssemblyStream();
       await startChunks();
       return !stopped && !!stream;
     },
