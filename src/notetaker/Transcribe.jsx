@@ -61,6 +61,16 @@ const Transcribe = ({ settings, beginTranscript, setLiveTranscript, onSwitchToSu
   useEffect(() => () => stop(), [stop]);
 
   useEffect(() => {
+    if (!starting) return undefined;
+    const timer = setTimeout(() => {
+      setStarting(false);
+      setError('Could not start recording. Check the provider key and your network, then try again.');
+      stop();
+    }, 30000);
+    return () => clearTimeout(timer);
+  }, [starting, stop]);
+
+  useEffect(() => {
     if (!recording || engine !== 'webspeech' || words > 0 || interim) {
       setNoDataHint(false);
       return undefined;

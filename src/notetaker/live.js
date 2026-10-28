@@ -254,12 +254,24 @@ export const createLiveTranscriber = ({
       return false;
     }
 
+    const withTimeout = (promise, ms, label) => new Promise((resolve, reject) => {
+      const timer = setTimeout(() => reject(new Error(`${label} timed out`)), ms);
+      Promise.resolve(promise).then(
+        (value) => { clearTimeout(timer); resolve(value); },
+        (error) => { clearTimeout(timer); reject(error); },
+      );
+    });
+
     try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        audio: { channelCount: 1, echoCancellation: false, noiseSuppression: false, autoGainControl: true },
-      });
-    } catch {
-      onError?.('Could not open the microphone. Check the permission and try again.', { fatal: true });
+      stream = await withTimeout(
+        navigator.mediaDevices.getUserMedia({
+          audio: { channelCount: 1, echoCancellation: false, noiseSuppression: false, autoGainControl: true },
+        }),
+        15000,
+        'Microphone access',
+      );
+    } catch (error) {
+      onError?.(String(error?.message || error), { fatal: true });
       return false;
     }
 
@@ -271,25 +283,32 @@ export const createLiveTranscriber = ({
     const models = ['universal-3-6-pro', 'universal-3-5-pro', 'universal-streaming-english'];
     let attempt = 0;
 
-    const open = async () => {
+    const buildSocket = async () => {
       const params = new URLSearchParams({
-        token: key,
         sample_rate: String(ctx.sampleRate || 16000),
         encoding: 'pcm_s16le',
         speech_model: models[Math.min(attempt, models.length - 1)],
         speaker_labels: 'true',
         voice_focus: 'far-field',
       });
-      const streamUrl = `wss://streaming.assemblyai.com/v3/ws?${params.toString()}`;
-      const useProxy = proxyEnabled();
-      const ws = useProxy
-        ? await createProxiedWebSocket(streamUrl, { authorization: key })
-        : new WebSocket(streamUrl);
-      if (!useProxy) ws.binaryType = 'arraybuffer';
-      socket = ws;
-      let opened = false;
+      const url = `wss://streaming.assemblyai.com/v3/ws?${params.toString()}`;
+      if (proxyEnabled()) {
+        try {
+          onStatus?.({ phase: 'live', text: 'Connecting to AssemblyAI through the proxy' });
+          return await withTimeout(createProxiedWebSocket(url, { authorization: key }), 12000, 'Proxy socket');
+        } catch (error) {
+          onStatus?.({ phase: 'live', text: 'Proxy socket failed, connecting directly' });
+        }
+      }
+      return new WebSocket(`${url}&token=${encodeURIComponent(key)}`);
+    };
 
-      await new Promise((resolve, reject) => {
+    const open = async () => {
+      const ws = await buildSocket();
+      socket = ws;
+      try { ws.binaryType = 'arraybuffer'; } catch { }
+      await withTimeout(new Promise((resolve, reject) => {
+        let opened = false;
         ws.onopen = () => {
           opened = true;
           socketOpen = true;
@@ -314,17 +333,14 @@ export const createLiveTranscriber = ({
           }
         };
         ws.onerror = () => {
-          if (!opened) reject(new Error('AssemblyAI streaming connection failed'));
+          if (!opened) reject(new Error('AssemblyAI socket failed to connect'));
         };
         ws.onclose = (event) => {
           socket = null;
           socketOpen = false;
-          if (stopped) {
-            resolve(false);
-            return;
-          }
+          if (stopped) { resolve(false); return; }
           if (!opened) {
-            reject(new Error(`AssemblyAI streaming closed before it started (${event.code})`));
+            reject(new Error(`AssemblyAI socket closed before opening (${event.code})`));
             return;
           }
           if (attempt < models.length - 1) {
@@ -335,12 +351,16 @@ export const createLiveTranscriber = ({
           onError?.(`AssemblyAI streaming closed (${event.code} ${event.reason || ''})`.trim(), { fatal: true });
           resolve(false);
         };
-      });
+      }), 15000, 'AssemblyAI connection');
       return true;
     };
+
     try {
       await open();
     } catch (error) {
+      try { socket?.close?.(); } catch { }
+      socket = null;
+      socketOpen = false;
       onError?.(String(error?.message || error), { fatal: true });
       return false;
     }
@@ -358,6 +378,7 @@ export const createLiveTranscriber = ({
     mute.connect(ctx.destination);
     return true;
   };
+
 
   const startChunks = async () => {
     try {
