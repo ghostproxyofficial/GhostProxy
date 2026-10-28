@@ -282,8 +282,10 @@ export const createLiveTranscriber = ({
 
     const models = ['universal-3-6-pro', 'universal-3-5-pro', 'universal-streaming-english'];
     let attempt = 0;
+    let lastServerError = '';
+    const useProxy = proxyEnabled();
 
-    const buildSocket = async () => {
+    const streamUrl = () => {
       const params = new URLSearchParams({
         sample_rate: String(ctx.sampleRate || 16000),
         encoding: 'pcm_s16le',
@@ -291,22 +293,26 @@ export const createLiveTranscriber = ({
         speaker_labels: 'true',
         voice_focus: 'far-field',
       });
-      const url = `wss://streaming.assemblyai.com/v3/ws?${params.toString()}`;
-      if (proxyEnabled()) {
-        try {
-          onStatus?.({ phase: 'live', text: 'Connecting to AssemblyAI through the proxy' });
-          return await withTimeout(createProxiedWebSocket(url, { authorization: key }), 12000, 'Proxy socket');
-        } catch (error) {
-          onStatus?.({ phase: 'live', text: 'Proxy socket failed, connecting directly' });
-        }
+      return `wss://streaming.assemblyai.com/v3/ws?${params.toString()}`;
+    };
+
+    const connect = async () => {
+      const base = streamUrl();
+      try {
+        return await withTimeout(new WebSocket(`${base}&token=${encodeURIComponent(key)}`), 8000, 'AssemblyAI socket');
+      } catch (error) {
+        if (!useProxy) throw error;
       }
-      return new WebSocket(`${url}&token=${encodeURIComponent(key)}`);
+      onStatus?.({ phase: 'live', text: 'Direct connection failed, trying the proxy' });
+      return withTimeout(createProxiedWebSocket(base, { authorization: key }), 8000, 'Proxy socket');
     };
 
     const open = async () => {
-      const ws = await buildSocket();
+      const ws = await connect();
       socket = ws;
       try { ws.binaryType = 'arraybuffer'; } catch { }
+      socketOpen = false;
+
       await withTimeout(new Promise((resolve, reject) => {
         let opened = false;
         ws.onopen = () => {
@@ -329,7 +335,8 @@ export const createLiveTranscriber = ({
               onPartial?.(text);
             }
           } else if (data.type === 'Error') {
-            onError?.(String(data.error || 'AssemblyAI streaming error.'), { fatal: false });
+            lastServerError = String(data.error || 'AssemblyAI streaming error.');
+            onError?.(lastServerError, { fatal: false });
           }
         };
         ws.onerror = () => {
@@ -343,15 +350,17 @@ export const createLiveTranscriber = ({
             reject(new Error(`AssemblyAI socket closed before opening (${event.code})`));
             return;
           }
-          if (attempt < models.length - 1) {
+          const authFailure = event.code === 1008 || event.code === 4001 || /unauthor/i.test(String(event.reason || ''));
+          if (!authFailure && attempt < models.length - 1) {
             attempt += 1;
             open().then(resolve).catch(reject);
             return;
           }
-          onError?.(`AssemblyAI streaming closed (${event.code} ${event.reason || ''})`.trim(), { fatal: true });
+          const detail = lastServerError || `${event.code} ${event.reason || ''}`.trim();
+          onError?.(detail, { fatal: true });
           resolve(false);
         };
-      }), 15000, 'AssemblyAI connection');
+      }), 8000, 'AssemblyAI connection');
       return true;
     };
 
@@ -361,7 +370,7 @@ export const createLiveTranscriber = ({
       try { socket?.close?.(); } catch { }
       socket = null;
       socketOpen = false;
-      onError?.(String(error?.message || error), { fatal: true });
+      onError?.(lastServerError || String(error?.message || error), { fatal: true });
       return false;
     }
 

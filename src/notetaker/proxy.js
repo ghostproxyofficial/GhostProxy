@@ -137,3 +137,7 @@ export const createProxiedWebSocket = async (url, headers = {}) => {
   const client = await getClient();
   return client.createWebSocket(url, undefined, undefined, headers);
 };
+
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  window.__ntProxy = { createProxiedWebSocket, proxiedFetch, getClient };
+}
